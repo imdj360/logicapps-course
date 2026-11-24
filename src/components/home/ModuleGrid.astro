@@ -1,0 +1,25 @@
+---
+import type { CatalogModule } from '../../lib/catalog';
+
+interface Props { modules: CatalogModule[] }
+const { modules } = Astro.props;
+---
+<ul class="module-grid" id="modules">
+  {modules.map((m) => {
+    const live = m.lessons.filter((l) => l.status === 'published').length;
+    return (
+      <li id={`module-${m.id}`}>
+        <div class="panel module-card">
+          <div class="module-card__num">
+            <span>{m.number}</span>
+            <span>{live > 0 ? `${live} of ${m.lessons.length} lessons live` : 'Coming soon'}</span>
+          </div>
+          <h3>{m.title}</h3>
+          <ul>
+            {m.lessons.map((l) => <li>{l.href ? <a href={l.href}>{l.title}</a> : l.title}</li>)}
+          </ul>
+        </div>
+      </li>
+    );
+  })}
+</ul>
