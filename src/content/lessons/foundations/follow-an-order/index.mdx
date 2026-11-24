@@ -25,8 +25,10 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
   - title: "Receive and Respond to Inbound HTTPS Calls"
     url: https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres
-reviewStatus: approved
-lastVerified: '2026-11-24'
+relatedArticles:
+  - title: "Inside Logic Apps Standard: How Azure Tables Store Your Workflows"
+    url: https://dev.to/imdj/inside-logic-apps-standard-how-azure-tables-store-your-workflows-5125
+reviewStatus: draft
 ---
 
 <Step id="problem" name="Where's my order?" tag="PROBLEM">
@@ -62,7 +64,12 @@ The default is: run only if the previous action **Succeeded**. *Parse order* fin
 </Step>
 
 <Step id="history" name="Every step is recorded">
-While the run moves, Logic Apps writes **run history**: the status of every step, its inputs, its outputs and any error.
+While the run moves, Logic Apps writes **run history** at two levels:
+
+1. **The run**: one record for the whole run, with its status, when it started and ended, and what triggered it.
+2. **Each action**: its own record, with its status and timing, plus its **inputs**, its **outputs** and any error.
+
+So for our order you get one run record, and separate records for *Parse order*, *Check stock* and *Send to queue*. In Standard, the action records sit in Azure Storage tables, and each one links to blobs that hold that action's inputs and outputs (Daniel's storage article shows the tables).
 
 Run history is kept for **90 days** by default, in both Consumption and Standard, and you can change that.
 
@@ -94,7 +101,7 @@ Run statuses you'll see: *Running*, *Succeeded*, *Failed*, *Cancelled*, *Timed o
 - A skipped trigger creates **no run**. A fired trigger creates **one run**.
 - Actions run **in order**, each waiting for the previous one to *Succeed* unless you change `runAfter`.
 - A failed action makes the steps after it **Skipped** and the run **Failed**.
-- **Run history** records every step's status, inputs and outputs, for 90 days by default.
+- **Run history** keeps one record for the **run** and one for **each action**, with its inputs and outputs, for 90 days by default.
 </Step>
 
 {/*

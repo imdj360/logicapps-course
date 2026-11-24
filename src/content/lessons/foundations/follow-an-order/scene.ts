@@ -13,7 +13,8 @@ export const scene: Scene = {
     { id: 'parse', kind: 'action', label: 'Parse order', x: 550, y: 100 },
     { id: 'stock', kind: 'connector-managed', label: 'Check stock', x: 770, y: 100 },
     { id: 'queue', kind: 'servicebus', label: 'Send to queue', x: 770, y: 250 },
-    { id: 'history', kind: 'storage', label: 'Run history', sublabel: '90 days default', x: 550, y: 400 },
+    { id: 'history', kind: 'storage', label: 'Run record', sublabel: 'one per run', x: 330, y: 400 },
+    { id: 'actrec', kind: 'storage', label: 'Action records', sublabel: 'in · out each', x: 560, y: 400 },
   ],
   edges: [
     { id: 'shop-trigger', from: 'shop', to: 'trigger' },
@@ -22,8 +23,10 @@ export const scene: Scene = {
     { id: 'trigger-parse', from: 'trigger', to: 'parse' },
     { id: 'parse-stock', from: 'parse', to: 'stock' },
     { id: 'stock-queue', from: 'stock', to: 'queue' },
-    { id: 'parse-history', from: 'parse', to: 'history', style: 'dashed' },
-    { id: 'stock-history', from: 'stock', to: 'history', style: 'dashed' },
+    { id: 'trigger-history', from: 'trigger', to: 'history', style: 'dashed' },
+    { id: 'parse-actrec', from: 'parse', to: 'actrec', style: 'dashed' },
+    { id: 'stock-actrec', from: 'stock', to: 'actrec', style: 'dashed' },
+    { id: 'queue-actrec', from: 'queue', to: 'actrec', style: 'dashed' },
   ],
   steps: {
     problem: {
@@ -60,10 +63,10 @@ export const scene: Scene = {
       chips: [{ label: 'run', value: 'Running' }, { label: 'runAfter', value: 'Succeeded' }],
     },
     history: {
-      visible: [...core, 'history', 'parse-history', 'stock-history'],
-      highlight: ['history'],
-      tokens: [{ id: 'h1', edge: 'parse-history', tone: 'info' }, { id: 'h2', edge: 'stock-history', tone: 'info' }],
-      chips: [{ label: 'recorded', value: 'status · inputs · outputs' }, { label: 'retention', value: '90 days' }],
+      visible: [...core, 'history', 'actrec', 'trigger-history', 'parse-actrec', 'stock-actrec', 'queue-actrec'],
+      highlight: ['history', 'actrec'],
+      tokens: [{ id: 'h0', edge: 'trigger-history', tone: 'info' }, { id: 'h1', edge: 'parse-actrec', tone: 'info' }, { id: 'h2', edge: 'stock-actrec', tone: 'info' }, { id: 'h3', edge: 'queue-actrec', tone: 'info' }],
+      chips: [{ label: 'the run', value: 'status · start · end' }, { label: 'each action', value: 'status · inputs · outputs' }, { label: 'kept', value: '90 days default' }],
     },
     parallel: {
       visible: [...core, 'app', 'app-trigger'],
@@ -82,15 +85,15 @@ export const scene: Scene = {
       ],
     },
     read: {
-      visible: [...core, 'history', 'stock-history'],
+      visible: [...core, 'history', 'actrec', 'trigger-history', 'stock-actrec'],
       failed: ['stock'],
-      highlight: ['history', 'stock-history'],
-      tokens: [{ id: 'r1', edge: 'stock-history', tone: 'fail' }],
+      highlight: ['actrec', 'stock-actrec'],
+      tokens: [{ id: 'r1', edge: 'stock-actrec', tone: 'fail' }],
       chips: [{ label: 'failed step', value: 'Check stock', tone: 'fail' }, { label: 'output', value: 'HTTP 500' }],
     },
     recap: {
-      visible: [...core, 'history', 'parse-history', 'stock-history'],
-      chips: [{ label: 'trigger', value: 'starts a run' }, { label: 'history', value: 'every step' }],
+      visible: [...core, 'history', 'actrec', 'trigger-history', 'parse-actrec', 'stock-actrec', 'queue-actrec'],
+      chips: [{ label: 'trigger', value: 'starts a run' }, { label: 'recorded', value: 'the run + every action' }],
     },
   },
   legend: [
