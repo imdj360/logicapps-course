@@ -1,0 +1,109 @@
+---
+title: Monitoring with App Insights & Log Analytics
+module: operations
+order: 2
+minutes: 11
+level: Intermediate
+summary: Run history shows one run. To see trends, search across runs and find one order among thousands, send Standard's telemetry to Application Insights or Log Analytics.
+youWillLearn:
+  - What run history shows, and where it stops
+  - How to turn on Application Insights enhanced telemetry for Standard
+  - Which tables hold triggers, actions and runs
+  - How to send workflow logs to Log Analytics instead
+  - How tracking IDs and tracked properties help you find one transaction
+reviewStatus: draft
+---
+
+<Step id="problem" name="Was it slow last Tuesday?" tag="PROBLEM">
+The ERP team asks: "Were orders slow last Tuesday afternoon? And what happened to order 4711?"
+
+Run history can answer the second question if you know which run to open. For the first, you need telemetry you can **query across runs**.
+</Step>
+
+<Step id="runhistory" name="Run history first">
+In Standard, open a workflow and, under **Tools**, select **Run history**. Select a run, then select each step to see its **inputs**, **outputs** and any **errors**.
+
+It covers **stateful** workflows (stateless ones only while you enable run history for debugging), and keeps runs for **90 days** by default. It's per run, not a place to see trends.
+</Step>
+
+<Step id="appinsights" name="Application Insights">
+Standard can send its telemetry to **Application Insights**. It needs the Azure Functions **v4** runtime, which is the default, and Application Insights enabled on the logic app.
+
+For the richer **enhanced telemetry**, add this to `host.json`:
+
+```json
+"extensions": {
+  "workflow": {
+    "Settings": {
+      "Runtime.ApplicationInsightTelemetryVersion": "v2"
+    }
+  }
+}
+```
+</Step>
+
+<Step id="tables" name="What lands where">
+- **requests**: trigger and action events, including retry attempts and connector usage. `customDimensions.Category` is `Workflow.Operations.Triggers` or `Workflow.Operations.Actions`.
+- **traces**: workflow run start and end events, and batch events.
+- **exceptions**: trigger and action failures.
+- **dependencies**: one resource calling another, such as a parent workflow calling a child.
+
+A request's `operation_Id` is the **run ID**, so one query brings back a whole run:
+
+```kusto
+requests
+| where operation_Id == "08585287554177334956853859655CU00"
+```
+</Step>
+
+<Step id="verbosity" name="Control the volume">
+Telemetry costs money. By default the level is **Information**. To keep only errors for actions and triggers, set log levels in `host.json`:
+
+```json
+"logging": {
+  "logLevel": {
+    "Workflow.Operations.Actions": "Error",
+    "Workflow.Operations.Triggers": "Error"
+  }
+}
+```
+</Step>
+
+<Step id="loganalytics" name="Or Log Analytics">
+Without Application Insights, add a **diagnostic setting** on the logic app: under **Logs**, select **Workflow Runtime Logs**, and send it to a Log Analytics workspace. Events such as `WorkflowRunStarted`, `WorkflowActionCompleted` and `WorkflowTriggerEnded` land in the **LogicAppWorkflowRuntime** table:
+
+```kusto
+LogicAppWorkflowRuntime
+| where Error != ""
+| sort by StartTime desc
+```
+
+Data can take up to 30 minutes to start flowing, completed events 10 to 15 minutes to appear, and Microsoft notes resource logs aren't 100% lossless.
+</Step>
+
+<Step id="tracking" name="Find one transaction">
+To find **order 4711**, give the run a business ID. Pass an `x-ms-client-tracking-id` header to the trigger, or set its **Custom Tracking Id**. It appears as **ClientTrackingId** in the logs.
+
+For more, add **tracked properties** to an action, such as the order number and customer. They can only reference that action's own inputs and outputs, and aren't allowed on actions with secure inputs or outputs.
+</Step>
+
+<Step id="views" name="Live views" tag="TIP">
+Application Insights also gives you **Live metrics**, the **Application map** and metrics in the `workflow.operations` namespace, such as **Runs Completed**. The logic app's **Log stream** shows events as they happen.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Run history** shows one stateful run in detail, for 90 days.
+- **Application Insights**: enhanced telemetry with `Runtime.ApplicationInsightTelemetryVersion` = `v2` in `host.json`.
+- **requests** hold triggers and actions; `operation_Id` is the run ID.
+- **Log Analytics**: Workflow Runtime Logs into **LogicAppWorkflowRuntime**.
+- Find business transactions with a **client tracking ID** and **tracked properties**.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/enable-enhanced-telemetry-standard-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-logic-apps-overview
+Not claimed: anything from create-monitoring-tracking-queries (Consumption only), a Standard monitoring data reference (none on Learn). The run ID in the query is Learn's sample value. "Telemetry costs money" is our framing.
+*/}

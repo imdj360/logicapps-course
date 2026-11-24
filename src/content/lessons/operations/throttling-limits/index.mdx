@@ -1,0 +1,79 @@
+---
+title: Throttling & limits
+module: operations
+order: 1
+minutes: 10
+level: Intermediate
+summary: 429 Too Many Requests can come from your logic app, a connector or the service you call. Learn where each comes from and how to work with it.
+youWillLearn:
+  - The three levels where a workflow gets throttled
+  - Which throughput limits don't apply to Standard, and which do
+  - How to spread load across connections, workflows and queues
+  - The message size limits, with and without chunking
+reviewStatus: draft
+---
+
+<Step id="problem" name="429 Too Many Requests" tag="PROBLEM">
+After a big import, your workflow's runs start failing with **429 Too Many Requests**. Retries help a little, then the backlog grows.
+
+A 429 means *someone* is throttling you. Microsoft describes three places it can happen, and each needs a different fix.
+</Step>
+
+<Step id="levels" name="Three levels">
+Throttling can happen at:
+
+- **The logic app resource**: your own app hits its limits.
+- **The connector**: a managed connector has its own call limits.
+- **The destination**: the system you call can't keep up.
+</Step>
+
+<Step id="resource" name="Your logic app">
+Standard has far fewer resource-level caps than Consumption. A Standard workflow has **no limit on the number of actions** that can run in any interval, where Consumption allows 100,000 per 5 minutes.
+
+What you control is **trigger concurrency**: unlimited by default. Turn it on to cap concurrent runs at **1 to 100**, with up to **200 waiting runs**. Remember that turning it on can't be undone. To spot resource-level throttling in Standard, Microsoft points to the **Http 4xx** metric.
+</Step>
+
+<Step id="connector" name="The connector">
+Every managed connector has **its own limits**, listed on its reference page. The Service Bus connector, for example, allows up to **6,000 calls per minute**.
+
+When a connector returns 429, the action's **retry policy** kicks in. To go further, Microsoft suggests **multiple connections** so the workflow can partition the work, a separate connection per action, or changing the **For each** parallelism.
+</Step>
+
+<Step id="destination" name="The service you call">
+By default, runs, loops and branches all run **in parallel**. Microsoft's example: 20 parallel inserts against a database that allows 15 calls per second. The extra calls fail, retry, and the retries build a backlog that never catches up.
+
+The fixes slow the caller down:
+- Put items on a **queue**, and have one workflow do the inserts.
+- Split the work into **parent and child** workflows.
+- Use **webhook** triggers and actions instead of polling ones.
+</Step>
+
+<Step id="storage" name="And the storage account" tag="TIP">
+In Standard there's a fourth, quieter limit: the **storage account** behind your app. It throttles beyond 20,000 requests per second. Spread the work across workflows and logic apps; each logic app scales independently. The storage account lesson covers the details.
+</Step>
+
+<Step id="sizes" name="Message size limits">
+- Without chunking, a message can be up to **100 MB**.
+- With **chunking**, an action in Standard can handle up to **1 GB** by default, in chunks of up to **52 MB**.
+- Not every connector or API supports chunking, so check before you rely on it.
+</Step>
+
+<Step id="apim" name="One Standard-only limit" tag="TIP">
+If you call a Standard workflow's Request trigger through the **API Management REST API**, there's a hard limit of **56 calls per 5 minutes**. Call the trigger's **callback URL** instead.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Throttling happens at the **logic app**, the **connector** or the **destination**.
+- Standard has **no action-count limit**; cap runs with **trigger concurrency** (1–100, irreversible).
+- Connectors have **their own limits**: retry, use multiple connections, or lower parallelism.
+- Protect slow destinations with a **queue**, parent/child workflows or webhooks.
+- Messages: **100 MB**, or up to **1 GB** with chunking where supported.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/handle-throttling-problems-429-errors
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Learn note: the throttling page suggests the Http 4xx metric for Standard; that's a general App Service metric, not specific to throttling.
+Not claimed: Standard connector-level throttling behaviour (Learn describes it only for Consumption). The import scenario is ours.
+*/}

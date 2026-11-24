@@ -1,0 +1,82 @@
+---
+title: Alerting
+module: operations
+order: 3
+minutes: 9
+level: Intermediate
+summary: Find out about failures before your customers do. Alert on Standard's workflow metrics, on log queries, and let Health Check replace an unhealthy instance for you.
+youWillLearn:
+  - Which workflow metrics a Standard logic app exposes
+  - How to build a metric alert rule
+  - When a log alert fits better
+  - How Health Check keeps unhealthy instances out of rotation
+reviewStatus: draft
+---
+
+<Step id="problem" name="Nobody noticed" tag="PROBLEM">
+On Monday morning a customer asks where their weekend orders are. The workflow has been failing since Saturday. Every run is in run history, but nobody was looking.
+
+Monitoring tells you what happened. **Alerts** tell you while it's happening.
+</Step>
+
+<Step id="metrics" name="Metrics to alert on">
+A Standard logic app exposes workflow metrics in the **App Service standard metrics** namespace. Search for "workflow" to find them, for example:
+
+- **Workflow Runs Failure Rate**, **Workflow Actions Failure Rate**, **Workflow Triggers Failure Rate**
+- **Workflow Runs Started Count**, **Workflow Runs Completed Count**
+- **Workflow Job Execution Delay**
+
+You can filter them by **Workflow Name** and **Status**. The names differ from Consumption's, so Consumption examples like "Triggers Failed" don't apply.
+</Step>
+
+<Step id="rule" name="Create an alert rule">
+On the logic app, under **Monitoring**, select **Alerts**, then **Create** > **Alert rule**. Choose:
+
+- a **signal**: one of the workflow metrics, filtered to your workflow;
+- a **condition**: for example, greater than a threshold;
+- an **evaluation**: Learn's example checks every **1 minute** over the last **5 minutes**;
+- an **action group**: who gets notified, and how.
+
+Learn's worked example is for Consumption, so check the exact metric name in the portal.
+</Step>
+
+<Step id="delay" name="Alert on delay, not just failure" tag="TIP">
+Failures aren't the only problem. **Workflow Job Execution Delay** rises when jobs wait to run, the same signal the scaler watches. Our advice: alert on it for workflows where latency matters, such as anything a customer waits for.
+</Step>
+
+<Step id="logalerts" name="Log alerts">
+A **log alert** runs a Log Analytics query on a schedule and alerts on the result. That fits conditions a metric can't express, such as "any failed action in the Payments workflow". Learn has no Standard-specific example, so here's ours, using the table from the monitoring lesson:
+
+```kusto
+LogicAppWorkflowRuntime
+| where Error != ""
+```
+</Step>
+
+<Step id="health" name="Health Check">
+**Health Check** is an App Service feature that keeps traffic away from unhealthy instances. You point it at a small workflow: a **Request** trigger and a **Response** that returns a status from **200 to 299**.
+
+The platform pings that path on every instance once a minute. After **10** failed pings (you can lower it to 2), the instance is taken out of the load balancer; if it stays unhealthy for an **hour**, it's replaced. It needs at least **two instances**, and a path under **65 characters**.
+</Step>
+
+<Step id="noise" name="Avoid alert fatigue" tag="TIP">
+Our recommendations: alert on **rates** rather than single failures, scope rules to the **workflows that matter**, and route them to whoever is actually on call. An alert that fires every night gets ignored.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Standard exposes **Workflow Runs/Actions/Triggers Failure Rate**, run counts and **Job Execution Delay**.
+- Build **metric alert rules** under Monitoring > Alerts; check metric names in the portal.
+- Use **log alerts** for conditions only a query can express.
+- **Health Check** removes and replaces unhealthy instances; it needs 2+ instances.
+- Alert on rates, for the workflows that matter.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-metrics
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-logic-apps-overview
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
+Learn notes: the metrics page describes Workflow Runs Failure Rate as "the number of failed workflow runs", so whether it's a count or a percentage is ambiguous; we avoid saying which. The alert example on Learn (Triggers Failed) is Consumption only.
+Not claimed: a Standard alert-rule walkthrough (none on Learn). The delay alert, the log-alert query use and the alert-fatigue advice are ours.
+*/}
