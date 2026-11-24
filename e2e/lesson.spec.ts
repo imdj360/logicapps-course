@@ -61,6 +61,6 @@ test('draft lessons are not published in a production build', async ({ page }) =
 
 test('discloses AI assistance and review on every lesson', async ({ page }) => {
   await page.goto('/lessons/sample/');
-  await expect(page.getByTestId('provenance')).toContainText('Written with AI assistance, fact-checked against Microsoft Learn documentation and reviewed by Daniel Jonathan');
+  await expect(page.getByTestId('provenance')).toContainText('Written with AI assistance and fact-checked against Microsoft Learn documentation');
   await expect(page.locator('footer')).toContainText('written with AI assistance');
 });

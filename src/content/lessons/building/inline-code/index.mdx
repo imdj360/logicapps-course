@@ -1,0 +1,104 @@
+---
+title: Inline code and .NET functions
+module: building
+order: 3
+minutes: 12
+level: Intermediate
+summary: When expressions get unreadable, write code. Compare inline JavaScript, C# script and PowerShell with local .NET functions and Azure Functions.
+youWillLearn:
+  - How the three inline code actions read workflow data and return results
+  - Their limits, and where each one is available
+  - How local .NET functions live and deploy with your project
+  - When to reach for an Azure Function instead
+reviewStatus: draft
+---
+
+<Step id="problem" name="Beyond expressions" tag="PROBLEM">
+A partner sends orders as fixed-width text lines. Parsing them with `substring()` and `split()` expressions works, but it ends up as one unreadable line in the designer.
+
+At that point it's clearer to **write code**. Standard gives you five places to put it.
+</Step>
+
+<Step id="options" name="Five ways to run code">
+- **Execute JavaScript Code**: inline JavaScript.
+- **Execute CSharp Script Code**: inline C# script.
+- **Execute PowerShell Code**: inline PowerShell.
+- **Local .NET functions**: custom .NET code in your Standard project.
+- **Azure Functions**: code in a separate function app.
+
+The first three are **Inline Code** actions: the code lives inside your workflow.
+</Step>
+
+<Step id="js" name="Inline JavaScript">
+**Execute JavaScript Code** works in Consumption and Standard; in Standard it needs **no integration account** and runs on **Node.js 16.x.x**. Your code reads a read-only `workflowContext` object, for example `workflowContext.trigger` and `workflowContext.actions`. Use `return` to pass results on.
+
+It's meant for small jobs: Learn's JavaScript page says it should finish in **5 seconds or fewer** and handle data up to **50 MB**, and it doesn't support `require()`.
+</Step>
+
+<Step id="csharp" name="C# script">
+**Execute CSharp Script Code** is **Standard only**. Your script is saved as a `.csx` file next to the workflow's `workflow.json`, with a predefined `Run` method:
+
+```csharp
+public static async Task<Results> Run(WorkflowContext context, ILogger log)
+{
+    var trigger = (await context.GetTriggerResults().ConfigureAwait(false)).Outputs;
+    // ...
+}
+```
+
+Whatever `Run` returns becomes the action's output body. A script can run for up to **10 minutes**, and use NuGet packages through a `functions.proj` file.
+</Step>
+
+<Step id="powershell" name="PowerShell">
+**Execute PowerShell Code** is also **Standard only**, saved as a `.ps1` file next to `workflow.json`. Read data with `Get-TriggerOutput` and `Get-ActionOutput`.
+
+The catch: to return anything, you **must** use `Push-WorkflowOutput`. `return`, `Write-Output` and `Write-Host` don't return values to the workflow. You can use up to **10 public modules**, declared in `requirements.psd1`, and sign in with the app's managed identity using `Connect-AzAccount -Identity`.
+</Step>
+
+<Step id="local" name="Local .NET functions">
+For real .NET code, a **local function** is custom code that you write, debug and deploy **in the same Standard project** as your workflows. VS Code creates a workspace with two projects: one for your code, one for your workflows.
+
+You can target **.NET Framework or .NET 8**, and call it with the built-in action **Call a local function in this logic app**. The build places it under `lib/custom`, and it deploys with the logic app. You author local functions only in **VS Code on Windows**.
+</Step>
+
+<Step id="azfn" name="Azure Functions">
+**Call an Azure function** calls code in a separate function app. The function must use the **HTTP trigger** template, be written in C# or JavaScript, and be in the same subscription.
+
+Microsoft says Azure Functions works best when the code must expose an **independent endpoint**, be **shared across apps**, follow its **own deployment lifecycle**, or **scale independently**.
+</Step>
+
+<Step id="choose" name="Which one?" tag="TIP">
+Our summary of Microsoft's guidance:
+
+- **Expressions and data operations** first, while they stay readable.
+- **Inline code** for payload parsing and manipulation beyond what expressions do well.
+- A **local function** when the code belongs to this logic app and should share its lifecycle, without a separate app, endpoint or network hop.
+- An **Azure Function** when the code needs its own endpoint, lifecycle or scaling.
+</Step>
+
+<Step id="limits" name="Limits to know" tag="TIP">
+- Inline code in Standard can be up to **100,000 characters**.
+- C# and PowerShell scripts run for up to **10 minutes** with up to **100 MB** of output.
+- Local functions aren't suitable for processes that might run longer than **10 minutes**.
+- JavaScript can't use `require()` or the Variables actions.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **JavaScript**, **C# script** and **PowerShell** run inline; C# and PowerShell are Standard only.
+- JavaScript reads `workflowContext`; C# gets a `WorkflowContext`; PowerShell must `Push-WorkflowOutput`.
+- **Local .NET functions** (.NET Framework or .NET 8) live and deploy with your project.
+- **Azure Functions** for code with its own endpoint, lifecycle or scaling.
+- Use the simplest option that stays readable.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/add-run-javascript
+- https://learn.microsoft.com/en-us/azure/logic-apps/add-run-csharp-scripts
+- https://learn.microsoft.com/en-us/azure/logic-apps/add-run-powershell-scripts
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-run-custom-code-functions
+- https://learn.microsoft.com/en-us/azure/logic-apps/call-azure-functions-from-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Learn conflicts: the JavaScript page says 5 seconds or fewer, while the limits page lists 15 sec for Standard inline code; we quote the JavaScript page and attribute it. The JavaScript page lists two different Consumption Node.js versions; we only state Standard's.
+Not claimed: preview/GA status of C# and PowerShell actions (Learn doesn't say), the default PowerShell version, JScript (not mentioned on Learn). The "Which one?" ordering is our summary.
+*/}
