@@ -1,0 +1,106 @@
+---
+title: Unit testing workflows
+module: develop
+order: 3
+minutes: 9
+level: Intermediate
+summary: Test a Standard workflow without calling anything outside it. Generate a unit test project from a workflow definition or a local run, then see what VS Code creates for you.
+youWillLearn:
+  - Why workflow unit tests need no external connections
+  - How to create a unit test from a definition and from a run
+  - What the generated Tests folder and test class contain
+  - Which limits apply to the current release
+reviewStatus: draft
+---
+
+<Step id="problem" name="Testing means calling things" tag="PROBLEM">
+The order-intake workflow reads a queue message, calls a pricing API and completes the message. To check a change you run it and hope the queue, the API and the credentials all cooperate.
+
+Standard has a built-in answer in VS Code: unit tests that run the workflow with its external calls replaced.
+</Step>
+
+<Step id="offline" name="No external services">
+In Visual Studio Code with the **Azure Logic Apps (Standard)** extension, you can create unit tests from a workflow definition. Microsoft says this works **without needing connections to any external services, systems, or APIs**.
+
+The test definition **mocks the external calls** from each workflow operation **without changing the workflow logic**.
+</Step>
+
+<Step id="two-ways" name="Two ways to start">
+There are two starting points, each with its own Learn article:
+
+- **From a workflow definition**: open the designer and create a test.
+- **From a workflow run**: reuse a run you already executed locally, so the mock data reflects a real execution.
+
+Both give you C# tests; the run-based one also gives you generated mock data.
+</Step>
+
+<Step id="from-def" name="From a definition">
+In your Standard logic app project:
+
+1. Expand the workflow folder, open the shortcut menu for `workflow.json` and select **Open Designer**.
+2. On the designer toolbar, select **Create unit test**.
+3. Give a name, used for the unit test, the test class and the C# file.
+
+The prerequisite is a Standard logic app project with at least one workflow definition.
+</Step>
+
+<Step id="from-run" name="From a run">
+For a run-based test, the project needs at least one **previously and locally executed** workflow.
+
+1. Run **Start Debugging** (F5), then open the `workflow.json` shortcut menu and select **Overview**.
+2. Under **Run history**, select the run to use.
+3. On the run history toolbar, select **Create unit test from run**.
+
+Microsoft's benefit: the mock data comes from the real run, so the test stays aligned with an actual execution scenario.
+</Step>
+
+<Step id="generated" name="What gets generated">
+A new **Tests** folder appears in the project. Under `Tests/<logic-app-name>/<workflow-name>` you get:
+
+- **MockOutputs**: a C# file with strongly typed classes for each connector operation, named like `<operation-name>[Trigger|Action]Output.cs`;
+- a folder per unit test, holding `<unit-test-name>.cs`, a sample class and methods you edit to match your scenario;
+- for run-based tests only, `<unit-test-name>-mock.json`, the generated mocks.
+</Step>
+
+<Step id="test-class" name="The test class">
+The sample class is marked `[TestClass]`. A `[TestInitialize]` method named `Setup()` runs before each test and creates a new `TestExecutor` from the path to your test settings file:
+
+```csharp
+this.TestExecutor = new TestExecutor("<workflow-name>/testSettings.config");
+```
+
+Each sample test prepares mocks, runs the workflow with `RunWorkflowAsync`, and asserts the result. The next lesson goes through the mocks.
+</Step>
+
+<Step id="run-it" name="Running the tests">
+Learn's two articles show how to create and edit the tests. They **don't describe how to run them**, in Test Explorer, with `dotnet test` or in a pipeline, and they don't call the feature preview or give a test framework name.
+
+Our inference: the generated class uses `[TestClass]`, `[TestMethod]` and `[TestInitialize]`, which look like MSTest attributes, so ordinary .NET test tooling should apply. Check that in your own project before relying on it in CI.
+</Step>
+
+<Step id="limits" name="Current limits" tag="TIP">
+Learn lists limits for **this release**:
+
+- only **C#** is supported;
+- **non-mocked actions** aren't supported, so every action on the execution path must be mocked;
+- integration account actions and EDI encode and decode actions aren't supported;
+- for run-based tests, Data Mapper, custom code, XML and Liquid actions aren't supported either.
+
+If your workflow uses XML maps or Liquid, plan for that gap.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Unit tests run a Standard workflow with **mocked** external calls, no connections needed.
+- Create them from a **definition** (designer) or from a **local run** (run history).
+- VS Code generates a **Tests** folder with `MockOutputs` classes and a sample C# test class.
+- Run-based tests add a `*-mock.json` file.
+- Learn is silent on running tests and CI; the release only supports **C#** and fully mocked paths.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text; both pages "Last updated 2025-06-09"):
+- https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-definitions-visual-studio-code
+- https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-runs-visual-studio-code
+Fact-checked verbatim 2026-11-24. Key quotes: "without needing connections to any external services, systems, or APIs"; "This definition mocks the external calls from each workflow operation without changing the workflow logic"; "select Create unit test"; "select Create unit test from run"; "This release currently supports only C# for creating unit tests."; "This release doesn't support non-mocked actions. Make sure that all actions in the workflow execution path are mocked."
+Not claimed: Learn does not mention preview status, MSTest, Test Explorer, dotnet test, CI or any package name (searched both pages). The MSTest remark and tooling advice on the "Running the tests" step is ours. The order-intake scenario is ours (Learn's sample uses a Service Bus queue trigger and Call_External_API).
+*/}

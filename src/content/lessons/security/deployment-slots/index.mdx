@@ -1,0 +1,93 @@
+---
+title: Deployment slots
+module: security
+order: 6
+minutes: 10
+level: Intermediate
+summary: Deploy a new version of a Standard logic app next to production and swap it in without downtime. Learn the limits Microsoft documents, including that workflows only run in production.
+youWillLearn:
+  - What a deployment slot is and what swapping does
+  - How to create a slot, deploy to it and swap it
+  - Why workflows in a nonproduction slot don't run
+  - Which scenarios Learn says slots don't support
+reviewStatus: draft
+---
+
+<Step id="problem" name="Deploying during the lunch rush" tag="PROBLEM">
+Orders arrive all day. Deploying a new version straight to production risks a disruption while the update lands, and a bad release is hard to undo.
+
+Microsoft's answer for mission-critical Standard logic apps is **deployment slots**.
+</Step>
+
+<Step id="slot" name="What a slot is">
+Slots are **isolated environments that host different versions of your app in preproduction**. Microsoft defines zero downtime as: when you deploy new versions, end users **don't experience disruption or downtime**, even during updates or maintenance.
+
+Standard workflows are based on Azure Functions extensibility, so Learn points to the Azure Functions deployment slots article for more.
+</Step>
+
+<Step id="benefits" name="What you get">
+Learn lists these benefits:
+
+- **Swap** a slot with production without interruption;
+- **validate** changes in a slot before applying them to production;
+- **roll back** to a previous version if something goes wrong;
+- reduce the risk of negative performance when you must exceed the recommended number of workflows per logic app.
+
+Hold on to the word "validate"; the limits below narrow it.
+</Step>
+
+<Step id="create" name="Create a slot">
+In the portal, open the logic app, go to **Deployment > Deployment slots** and select **Add**. In VS Code, run **Azure Logic Apps: Create slot**. With the CLI, use `az functionapp deployment slot create`.
+
+The slot name must use **only lowercase alphanumeric characters or hyphens**. Afterwards the slot is named logic-app-name followed by the slot name.
+</Step>
+
+<Step id="deploy" name="Deploy to the slot">
+In the portal, deploying to a slot is **unavailable** for now; use VS Code or the CLI. In VS Code, run **Azure Logic Apps: Deploy to slot**; this **overwrites any existing content** in the slot. With the CLI, use `az logicapp deployment source config-zip` with `--slot`.
+
+The slot's workflows then appear in a **read-only** view in the portal.
+</Step>
+
+<Step id="behavior" name="Workflows do not run in the slot" tag="TIP">
+Learn's known issues: nonproduction slots are created in **read-only** mode, and their **dispatcher is turned off**, which means **workflows can only run when they're in the production slot**. Traffic distribution is disabled.
+
+So a Request trigger in the staging slot won't process test orders. (Our reading: that follows from the dispatcher being off; Learn doesn't walk through trigger types.)
+</Step>
+
+<Step id="limits" name="What slots don't support">
+Learn says deployment slots for Standard logic apps don't support:
+
+- **blue-green deployment**;
+- **product verification testing before slot swapping**;
+- **A/B testing**.
+
+Our note: this sits oddly beside "validate any changes in a deployment slot". Learn doesn't reconcile the two, so don't plan on running workflows in staging to test them.
+</Step>
+
+<Step id="swap" name="Swap with production">
+In the portal, choose **Deployment slots > Swap**, pick the **Source** slot to make active and the **Target** production slot, review **Config Changes**, then select **Start Swap**. In VS Code, run **Azure Logic Apps: Swap slot**. With the CLI, use `az functionapp deployment slot swap ... --target-slot production`.
+
+Learn notes that **swap with preview** works only with logic apps that enabled deployment slot settings.
+</Step>
+
+<Step id="settings" name="Settings and storage">
+Settings can be marked **Deployment slot setting**. The Azure Functions article says a sticky setting **doesn't swap** with the app instance.
+
+If the storage account is **private**, create the file share named in `WEBSITE_CONTENTSHARE` yourself, and add `WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS` with value `0` on each slot. For Terraform with a storage account secured by a firewall and private endpoints, Learn says to use a Bicep or ARM template to set up the slots and also set `AzureFunctionsWebHost_hostid` to a unique value.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Slots are preproduction copies; **swap** moves a version into production without interruption.
+- Create and deploy with VS Code or CLI; portal deploy to a slot is **unavailable**.
+- Nonproduction slots are **read-only** and **workflows only run in production**.
+- Not supported: **blue-green**, **verification testing before swap**, **A/B testing**.
+- Learn is silent on plan tiers and on preview status for this page.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots (last updated 2025-12-03)
+- https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-slots (sticky settings only)
+Fact-checked verbatim 2026-11-24.
+Not claimed: any hosting plan or pricing tier requirement (the Logic Apps page lists none; only an Azure account, VS Code prerequisites, a Standard project, the Azure Logic Apps Standard Contributor role and a Standard logic app resource). The page carries no preview label. What exactly is swapped for Logic Apps is not stated there. "Lunch rush" and the Request-trigger reading are ours. Learn conflict: validating in a slot is listed as a benefit while workflows cannot run there and verification testing before swap is unsupported.
+*/}

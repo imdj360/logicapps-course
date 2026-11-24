@@ -29,7 +29,13 @@ export const MODULES: ModuleDef[] = [
     l('control-flow', 'Control flow'),
     l('parallel-branches', 'Parallel branches'),
   ] },
-  { id: 'integration', number: '04', title: 'Integration patterns', lessons: [
+  { id: 'develop', number: '04', title: 'Develop & test', lessons: [
+    l('local-development', 'Local development in VS Code'),
+    l('parameters-app-settings', 'Parameters and app settings'),
+    l('unit-testing', 'Unit testing workflows'),
+    l('mocking-actions', 'Mocking triggers and actions'),
+  ] },
+  { id: 'integration', number: '05', title: 'Integration patterns', lessons: [
     l('xslt-maps', 'XML maps: XSLT and Data Mapper'),
     l('liquid-templates', 'JSON with Liquid templates'),
     l('service-bus-queues', 'Service Bus & queues'),
@@ -37,34 +43,35 @@ export const MODULES: ModuleDef[] = [
     l('debatching', 'Splitting arrays into separate runs'),
     l('async-polling', 'Request/response vs async polling'),
   ] },
-  { id: 'reliability', number: '05', title: 'Reliability', lessons: [
+  { id: 'reliability', number: '06', title: 'Reliability', lessons: [
     l('retry-policies', 'Retry policies'),
     l('timeouts', 'Timeouts'),
     l('run-after-error-scopes', 'Run-after & error scopes'),
     l('idempotency', 'Idempotency'),
     l('resubmitting-runs', 'Resubmitting runs & failure handling'),
   ] },
-  { id: 'operations', number: '06', title: 'Operating at scale', lessons: [
+  { id: 'operations', number: '07', title: 'Operating at scale', lessons: [
     l('throttling-limits', 'Throttling & limits'),
     l('monitoring', 'Monitoring with App Insights & Log Analytics'),
     l('alerting', 'Alerting'),
     l('failed-at-3am', 'A run failed at 3am — now what?'),
   ] },
-  { id: 'security', number: '07', title: 'Security & delivery', lessons: [
+  { id: 'security', number: '08', title: 'Security & delivery', lessons: [
     l('managed-identity', 'Managed identity'),
     l('key-vault', 'Key Vault'),
     l('easy-auth', 'Easy Auth (App Service authentication)'),
     l('private-networking', 'Private endpoints & VNet'),
     l('cicd', 'CI/CD with Bicep & ARM'),
+    l('deployment-slots', 'Deployment slots'),
   ] },
-  { id: 'agentic', number: '08', title: 'Agentic Logic Apps', lessons: [
+  { id: 'agentic', number: '09', title: 'Agentic Logic Apps', lessons: [
     l('agent-workflows', 'Agent workflows vs fixed workflows'),
     l('logic-apps-as-tools', 'Logic Apps as tools & MCP servers'),
     l('multi-agent-patterns', 'Single and multiple agents'),
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),
   ] },
-  { id: 'advanced', number: '09', title: 'Advanced integration patterns', lessons: [
+  { id: 'advanced', number: '10', title: 'Advanced integration patterns', lessons: [
     l('claim-check', 'Claim check'),
     l('request-reply-service-bus', 'Request-reply over Service Bus'),
     l('sequential-convoy', 'Sequential convoy'),
@@ -74,7 +81,7 @@ export const MODULES: ModuleDef[] = [
     l('circuit-breaker', 'Circuit breaker'),
     l('long-waits-correlation', 'Correlation & long waits'),
   ] },
-  { id: 'systems', number: '10', title: 'Whole systems', lessons: [
+  { id: 'systems', number: '11', title: 'Whole systems', lessons: [
     l('order-processing', 'Order-processing pipeline'),
     l('edi-b2b', 'EDI / B2B flow'),
     l('integration-hub', 'Event-driven integration hub'),

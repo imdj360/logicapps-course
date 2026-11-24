@@ -1,0 +1,108 @@
+---
+title: Mocking triggers and actions
+module: develop
+order: 4
+minutes: 10
+level: Intermediate
+summary: See how the generated tests replace a trigger and its actions with mock objects, return static or dynamic outputs, simulate a failure, and assert on the run status.
+youWillLearn:
+  - What a mocked trigger and a mocked action are
+  - How mock data is set up statically, dynamically or from a JSON file
+  - How to simulate a failed action with TestErrorInfo
+  - What Learn shows you asserting and what it doesn't cover
+reviewStatus: draft
+---
+
+<Step id="problem" name="Real calls, unreal tests" tag="PROBLEM">
+An invoice workflow starts from a Service Bus queue message, calls an external API and completes the message. You want to know what happens when that API call fails, but you can't make the real API fail on demand.
+
+A unit test lets you decide what the trigger and each external action return.
+</Step>
+
+<Step id="concepts" name="Mock objects">
+Microsoft defines a **logic app unit test** as a controlled workflow execution that injects **mock objects**. These objects represent either the workflow **trigger** or **actions that depend on external services or systems**.
+
+An action that depends on an external service is a **mockable action**. You can convert such actions to mocked actions for test creation and execution.
+</Step>
+
+<Step id="classes" name="Typed output classes">
+The generated **MockOutputs** folder holds strongly typed classes for each connector operation. In Learn's sample, a Service Bus trigger and an action named `Call_External_API` give these types:
+
+- `WhenMessagesAreAvailableInAQueuePeeklockTriggerOutput` and `WhenMessagesAreAvailableInAQueuePeeklockTriggerMock`
+- `CallExternalAPIActionOutput` and `CallExternalAPIActionMock`
+
+Learn says you can use these classes to extend your tests and **create new mocks from scratch**.
+</Step>
+
+<Step id="static" name="Static mock data">
+In the definition-based sample, you build the trigger mock and the action mock, then wrap them in a `TestMockDefinition`:
+
+```csharp
+var testMock = new TestMockDefinition(
+  triggerMock: triggerMock,
+  actionMocks: new Dictionary<string, ActionMock>()
+  {
+    {actionMock.Name, actionMock}
+  });
+```
+
+The action mock is keyed by its action name, for example `Call_External_API`.
+</Step>
+
+<Step id="dynamic" name="Dynamic mock data">
+For responses that depend on the test context, pass `onGetActionMock` a callback that takes a `TestExecutionContext`. Learn gives two options: a **separate callback method**, or an **inline lambda function**.
+
+The callback returns the action mock, with a `status` of `TestWorkflowStatus.Succeeded` and the outputs you choose.
+</Step>
+
+<Step id="from-run" name="Mocks from a run">
+In a run-based test, the mocks come from a `*-mock.json` file. Its `triggerMocks` section holds the trigger result and is **required to start workflow execution**. Its `actionMocks` section holds one mocked action per mockable action in the run, with `name`, `status` and `outputs`.
+
+Learn's sample then loads the file with `GetTestMockDefinition()` and edits entries like `mockData.ActionMocks["Call_External_API"]`.
+</Step>
+
+<Step id="failure" name="Simulate a failure">
+In the run-based samples, Learn shows an error scenario test: configure a mocked action to fail with a specific code and message.
+
+```csharp
+var mockError = new TestErrorInfo(code: ErrorResponseCode.BadRequest, message: "Input is invalid.");
+mockData.ActionMocks["Call_External_API"] = new CallExternalAPIActionMock(
+  status: TestWorkflowStatus.Failed,
+  error: mockError);
+```
+
+Its stated goal is to confirm that the workflow handles these error conditions correctly. Learn doesn't mention error scopes; testing one this way is our application of the sample.
+</Step>
+
+<Step id="assert" name="What you assert">
+Every sample runs the workflow with `RunWorkflowAsync(testMock: ...)` and asserts on the returned run:
+
+```csharp
+Assert.IsNotNull(value: testRun);
+Assert.AreEqual(expected: TestWorkflowStatus.Succeeded, actual: testRun.Status);
+```
+
+The failure sample asserts `TestWorkflowStatus.Failed` instead. Learn's samples assert on the **run status** only. They don't show assertions on action outputs, though the generated file is where you add your own.
+</Step>
+
+<Step id="gaps" name="What isn't mocked" tag="TIP">
+Learn says the release **doesn't support non-mocked actions**: all actions in the execution path must be mocked. Unsupported action types include integration account actions and EDI encode and decode actions, plus Data Mapper, custom code, XML and Liquid actions for run-based tests.
+
+Learn doesn't list which built-in operations count as mockable. It only says mockable means depending on an external service or system. Check the generated `MockOutputs` for your workflow.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A unit test injects **mock objects** for the trigger and for actions that depend on external systems.
+- `MockOutputs` gives typed `...TriggerMock` and `...ActionMock` classes.
+- Mock data can be **static**, **dynamic** through callbacks, or loaded from `*-mock.json`.
+- Set `TestWorkflowStatus.Failed` with a `TestErrorInfo` to simulate a failing action.
+- Learn's samples assert on `testRun.Status`; every action on the path must be mocked.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text; both pages "Last updated 2025-06-09"):
+- https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-definitions-visual-studio-code
+- https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-runs-visual-studio-code
+Fact-checked verbatim 2026-11-24. Key quotes: "A controlled workflow execution that injects mock objects. These objects represent either the workflow trigger or actions that depend on external services or systems."; "You can use these classes to extend your unit tests and create new mocks from scratch."; "This section is required to start workflow execution"; "Configure mocked actions to fail with specific error codes and messages."; "This release doesn't support non-mocked actions."
+Not claimed: Learn has no separate API reference page for the test SDK classes (none found), and no list of which built-in operations are mockable. Learn's sample comment in the failure test says "Confirm successful workflow execution" while asserting Failed (page inconsistency). Error-scope testing, the invoice scenario and the remark that assertions on action outputs are not shown are ours.
+*/}

@@ -1,0 +1,86 @@
+---
+title: Local development in VS Code
+module: develop
+order: 1
+minutes: 10
+level: Beginner
+summary: Build, run, debug and deploy a Standard logic app from your own machine. Learn what the project looks like on disk and what each file is for.
+youWillLearn:
+  - What to install before you build Standard workflows locally
+  - What each file and folder in a logic app project does
+  - How to run a workflow and read its run history on your machine
+  - Which local files stay local, and how deployment works
+reviewStatus: draft
+---
+
+<Step id="problem" name="Editing orders in production" tag="PROBLEM">
+Your order-intake workflow keeps changing, and every tweak is made in the portal against the live app. Nobody can test a change first or see what changed.
+
+Standard workflows can be built, debugged, run and tested **locally** in Visual Studio Code. The portal and VS Code can both build, run and deploy; only VS Code lets you do it locally.
+</Step>
+
+<Step id="tools" name="What to install">
+Install Visual Studio Code and the **Azure Logic Apps (Standard)** extension. Microsoft says the extension downloads and installs the required dependencies: **Azure Functions Core Tools**, the **.NET SDK** and **Node.js**.
+
+You need an Azure account and internet access only to deploy, to use managed connectors, or to reach existing Azure resources. A project that uses only built-in operations doesn't need them.
+
+A local storage emulator: Learn's VS Code guide doesn't name one. Its Windows sample sets `AzureWebJobsStorage` to `UseDevelopmentStorage=true`, and its macOS and Linux sample uses a real storage account connection string.
+</Step>
+
+<Step id="project" name="Create a workspace and project">
+A logic app project always lives in a **workspace**. Run **Create new logic app workspace**, name the workspace, pick the **Logic app** project template, then choose **Stateful Workflow** or **Stateless Workflow** for the first workflow.
+
+The underlying project is similar to an Azure Functions project. When prompted, select **Use connectors from Azure** if you want managed connectors in the designer; otherwise Learn says you cannot continue when you add a managed connector operation.
+</Step>
+
+<Step id="layout" name="The project layout">
+At the project root:
+
+- a **workflow folder** per workflow, each holding `workflow.json`, the workflow definition;
+- `connections.json`, with metadata, endpoints and keys for managed connections and Azure functions;
+- `host.json`, runtime settings that apply locally and in Azure;
+- `local.settings.json`, local app settings;
+- `parameters.json`, where you define parameters and their values (Learn's parameters article describes it);
+- `workflow-designtime`, `.vscode`, `lib` and `Artifacts` folders for design-time settings, editor files, assemblies, and maps and schemas.
+</Step>
+
+<Step id="local-settings" name="Settings that stay local">
+`local.settings.json` holds app settings and connection strings for **local runs**. During deployment to Azure, the file and its settings are **ignored and not included**.
+
+It can contain secrets, so Learn says to exclude it from source control. `host.json` is different: its settings apply to all workflows in the app, whether locally or in Azure.
+</Step>
+
+<Step id="run" name="Run and debug">
+Open `workflow.json`, choose **Open Designer** to build, then start a session with **Run > Start Debugging (F5)**. To find the trigger URL, open the `workflow.json` shortcut menu and select **Overview**.
+
+For a Request trigger, the callback URL starts with `http://localhost:7071/api/`. Call it with any HTTP tool. You can set **breakpoints** in the workflow, and the Variables pane shows values when one hits. If you change `workflow.json` after the run starts, restart the logic app to update the breakpoints.
+</Step>
+
+<Step id="history" name="See the run history locally">
+On the workflow **Overview** page, under **Run history**, check the status of each run and open one to see every step's inputs and outputs.
+
+No run history appears if the logic app is stopped. **Stateless** workflows don't store history by default; for debugging, set `Workflows.<workflow-name>.OperationOptions` to `WithStatelessRunHistory` in `local.settings.json` and in the one under `workflow-designtime`, then set it to `None` or remove it when done.
+</Step>
+
+<Step id="deploy" name="Deploy to Azure">
+In the Explorer pane, open the shortcut menu on a blank area and select **Deploy to logic app**. You can create a new Standard logic app, in a **Workflow Standard** or **Hybrid** hosting plan, or select an existing one.
+
+Publishing to an existing app **overwrites the deployed version**. You can optionally enable Application Insights during deployment or later. For a pipeline-based release, see the CI/CD lesson.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Install VS Code and the **Standard extension**; it installs Functions Core Tools, .NET SDK and Node.js.
+- A project is a workspace with one folder per workflow plus `connections.json`, `host.json`, `local.settings.json` and `parameters.json`.
+- `local.settings.json` is **local only**, may hold secrets, and stays out of source control.
+- Run with **F5**, call the localhost URL, and read **Run history** on the Overview page.
+- **Deploy to logic app** creates or overwrites the Azure resource.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-visual-studio-code
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows (parameters.json at project root)
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+Fact-checked verbatim 2026-11-24.
+Not claimed: Azurite (Learn's VS Code and app-settings pages never name it; only UseDevelopmentStorage=true and a real connection string appear). The VS Code project-structure table does not list parameters.json; it is described on the parameters page as a project root-level file. "Editing in production" scenario is ours.
+*/}
