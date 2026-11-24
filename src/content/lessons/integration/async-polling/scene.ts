@@ -42,7 +42,7 @@ export const scene: Scene = {
       visible: [...flow, ...partner],
       highlight: ['resp', 'resp-site'],
       tokens: [{ id: 'a1', edge: 'site-req', tone: 'info' }, { id: 'a2', edge: 'resp-site', tone: 'ok' }],
-      chips: [{ label: 'Response setting', value: 'Asynchronous response: on' }, { label: 'website gets', value: '202 at once', tone: 'ok' }],
+      chips: [{ label: 'switch 1 · Response action', value: 'Asynchronous response' }, { label: 'website gets', value: '202 at once', tone: 'ok' }],
     },
     outbound: {
       visible: [...flow, ...partner],
@@ -52,7 +52,7 @@ export const scene: Scene = {
         { id: 'o2', edge: 'http-api', tone: 'info' },
         { id: 'o3', edge: 'http-api', tone: 'ok' },
       ],
-      chips: [{ label: 'partner answers', value: '202 + location' }, { label: 'HTTP action', value: 'polls until done' }, { label: 'slow down', value: 'Retry-After' }],
+      chips: [{ label: 'switch 2 · HTTP action', value: 'Asynchronous pattern' }, { label: 'partner answers', value: '202 + location' }, { label: 'HTTP action', value: 'polls until done' }],
     },
     build: {
       visible: [...flow, ...partner],

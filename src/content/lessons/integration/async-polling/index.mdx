@@ -36,16 +36,18 @@ A **Request** trigger with a **Response** action is the **request-response** pat
 The workflow keeps the inbound request open only for a limited time: **225 seconds** in Standard (120 in Consumption). If no Response is sent by then, the caller gets **504 Gateway Timeout**. If every Response action is skipped, the caller gets **502 Bad Gateway**, even if the run succeeds.
 </Step>
 
-<Step id="asyncin" name="Answer now, work later">
-Turn on the **Asynchronous response** setting on the **Response** action, or leave out the Response action, and the website immediately gets **202 Accepted**. The workflow carries on with the partner call, and can take as long as it needs, within a stateful workflow's run duration.
+<Step id="asyncin" name="Switch 1: on the Response">
+This switch faces the **website**. Turn on **Asynchronous response** on the **Response** action, or leave out the Response action, and the website immediately gets **202 Accepted**. The workflow carries on with the partner call, and can take as long as it needs, within a stateful workflow's run duration.
 
 The caller then needs another way to learn the outcome, for example a callback or a status it can check. Learn doesn't prescribe one.
 </Step>
 
-<Step id="outbound" name="Calling a slow API">
-Now the other side. In a **stateful** workflow, HTTP actions follow the **asynchronous pattern** by default. If the API answers **202 Accepted** with a **location** header, the engine **polls** that URL until it gets a response other than 202.
+<Step id="outbound" name="Switch 2: on the HTTP action">
+A different switch, facing the **partner**: **Asynchronous pattern** on the **HTTP** action. In a **stateful** workflow it's on by default. If the API answers **202 Accepted** with a **location** header, the engine **polls** that URL until it gets a response other than 202.
 
-The HTTP action's **Asynchronous pattern** setting, under **Networking**, is on by default. The API can slow the polling down with a **Retry-After** header.
+You find it in the HTTP action's settings under **Networking**. The API can slow the polling down with a **Retry-After** header.
+
+Don't mix them up: **Asynchronous response** (Response action) is about answering the website; **Asynchronous pattern** (HTTP action) is about waiting for the partner.
 </Step>
 
 <Step id="build" name="Building a pollable API" tag="TIP">
@@ -78,8 +80,8 @@ It needs a service that supports subscribe and unsubscribe, but nothing polls in
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **Request + Response** is synchronous: up to **225 s** in Standard, then **504**.
-- **Asynchronous response** (or no Response) returns **202** at once.
-- Stateful **HTTP** actions poll a **202 + location** API until it's done; respect **Retry-After**.
+- **Asynchronous response**, on the **Response** action: the website gets **202** at once.
+- **Asynchronous pattern**, on the **HTTP** action: the workflow polls a **202 + location** partner until it's done.
 - **Stateless** workflows don't poll.
 - **HTTP Webhook** waits for a callback instead of polling.
 </Step>
