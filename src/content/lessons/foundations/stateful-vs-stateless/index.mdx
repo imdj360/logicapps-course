@@ -27,24 +27,26 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="Fast answer, safe processing" tag="PROBLEM">
-When a customer clicks **Buy**, two things must happen:
+When a customer clicks **Buy**, two things must happen: the website must hear **"Order received"** within a second, and the order must **never be lost**.
 
-- The website must hear **"Order received"** within a second.
-- The order must be processed and **never lost**, even if something fails on the way.
+So the shop uses two workflows in one logic app:
 
-So the shop uses two workflows. **Take order** answers the website fast, then hands the order to **Process order**, which does the real work. In a Standard logic app each workflow is either **stateful** or **stateless**, and these two need different ones.
+- **Take order**: *Request* → *Check stock* → *Invoke workflow* (hands the order on) → *Response* "Order received".
+- **Process order**: *Request* → *Reserve stock* → *Create invoice*.
+
+Each Standard workflow is either **stateful** or **stateless**. These two need different ones.
 </Step>
 
-<Step id="stateful" name="Stateful: everything written down">
-A **stateful** workflow saves every operation's **inputs, outputs and state to external storage**. That gives you run history, and if a run is interrupted it can be reconstructed from the saved state and run to completion.
+<Step id="stateful" name="Stateful: every step saved">
+*Process order* is **stateful**. Each of its steps saves its **inputs, outputs and state to external storage**. That gives you run history, and if a run is interrupted it can be reconstructed from the saved state and run to completion.
 
-Stateful workflows can also run much longer: the default maximum run duration is **90 days**. Use stateful when you need to keep, review or reference data from earlier events. *Process order* is stateful.
+Stateful runs can also last much longer: the default maximum run duration is **90 days**. Use stateful when you need to keep, review or reference what happened.
 </Step>
 
 <Step id="stateless" name="Stateless: everything in memory">
-A **stateless** workflow keeps its inputs, outputs and state **in memory only**. Nothing is written to external storage.
+*Take order* is **stateless**. Its steps keep inputs, outputs and state **in memory only**. Nothing is written to external storage.
 
-Microsoft describes the result as faster performance with quicker response times, higher throughput and reduced running costs, because the run details aren't saved. Stateless workflows run **only synchronously**. *Take order* is stateless.
+Microsoft describes the result as faster performance with quicker response times, higher throughput and reduced running costs, because the run details aren't saved. Stateless workflows run **only synchronously**.
 </Step>
 
 <Step id="choose" name="Choose at creation">
@@ -66,7 +68,7 @@ The **Recurrence** trigger is currently **unavailable** for stateless workflows.
 </Step>
 
 <Step id="async" name="No async, no chunking">
-Stateless runs are synchronous, so they skip the asynchronous pattern. Say *Take order* calls a **stock service** that answers **202 Accepted** with a `location` header, meaning "still working, check back here". A stateless workflow **won't poll** that URL. It moves straight on to the next step.
+Stateless runs are synchronous, so they skip the asynchronous pattern. Say *Check stock* calls a **stock service** that answers **202 Accepted** with a `location` header, meaning "still working, check back here". A stateless workflow **won't poll** that URL. It moves straight on to the next step.
 
 Stateless workflows also don't support **chunking** of large messages. For long-running calls or large content, use stateful.
 </Step>
@@ -78,16 +80,13 @@ To debug, switch on **Debug state** in the workflow's settings in the Azure port
 </Step>
 
 <Step id="mix" name="Can stateless call stateful?" tag="TIP">
-Yes. Here's what happens when the customer clicks **Buy**:
+Yes. That's the arrow between the two frames. *Take order* uses the built-in action **Workflow Operations - Invoke a workflow in this workflow app** to call *Process order*:
 
-1. *Take order* (stateless) checks the order and **calls** *Process order* (stateful).
-2. *Process order* answers straight away with **202 Accepted**, which means "got it".
-3. *Take order* **doesn't wait** for the order to be processed. It tells the website "Order received" right away.
-4. *Process order* does the real work on its own. Its run is **saved**, so you can check it or resubmit it later.
+1. *Process order* answers straight away with **202 Accepted**, meaning "got it".
+2. *Take order* **doesn't wait** for the order to be processed. It goes on to *Response* and tells the website "Order received".
+3. *Process order* reserves the stock and creates the invoice on its own, and every step is **saved**.
 
-Microsoft calls this the **synchronous ("fire and forget")** pattern.
-
-The opposite case: when a workflow calls a **stateless** one, it **waits** for the answer.
+Microsoft calls this the **synchronous ("fire and forget")** pattern. The other way round, a workflow that calls a **stateless** one **waits** for its answer.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -100,7 +99,7 @@ The opposite case: when a workflow calls a **stateless** one, it **waits** for t
 
 {/*
 Sources (checked 2026-11-24):
-- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare (also: Workflow Operations - Invoke a workflow in this workflow app)
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal (Debug state)
