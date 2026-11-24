@@ -32,7 +32,7 @@ A Standard deployment needs:
 - **API connections**, if you use managed connectors;
 - optionally **Application Insights**.
 
-Deploy these with ARM templates or Bicep. Learn's Bicep and ARM quickstarts cover Consumption, so for Standard, start from Microsoft's GitHub and Azure DevOps samples.
+Deploy these with ARM templates (our note: Bicep compiles to ARM, so it works too). Learn's Bicep quickstart is for Consumption, so for Standard, start from Microsoft's GitHub and Azure DevOps samples.
 </Step>
 
 <Step id="zip" name="The deployment zip">
@@ -44,7 +44,7 @@ A bundle-based project needs no build step; a NuGet-based one builds like a .NET
 <Step id="connections" name="Prepare connections" tag="PROBLEM">
 Managed connections made in VS Code use **raw keys** for local work, which expire after seven days. Before release, change their authentication in `connections.json` to `ManagedServiceIdentity`.
 
-Each managed API connection also needs an **access policy** for the logic app's identity. Microsoft calls an ARM template the easiest way to create the connections, and its samples include the access policies.
+Each managed API connection also needs an **access policy** for the logic app's identity. When you deploy to a different region or subscription than your local setup, you must create the connections first; Microsoft calls an ARM template the easiest way, and its samples include the access policies.
 </Step>
 
 <Step id="config" name="Per-environment values">
@@ -88,6 +88,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
 - https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity (Microsoft.Web/sites kind)
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app (roles)
+Fact-checked verbatim 2026-11-24.
 Learn inconsistencies: the setup page's example zip lists local.settings.json while the DevOps page says it's ignored in Azure; the Azure DevOps prose mentions a publish profile while its YAML uses a service connection.
 Not claimed: a Standard Bicep template on Learn (none found). "Works on my laptop" is our framing.
 */}

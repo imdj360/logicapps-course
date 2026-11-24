@@ -23,7 +23,7 @@ Standard handles this with two separate features, one for each direction.
 - **Inbound**: a **private endpoint** gives the logic app an address inside your virtual network.
 - **Outbound**: **VNet integration** routes the app's calls into your virtual network.
 
-They're independent: a private endpoint doesn't change outbound traffic, and VNet integration only affects outbound traffic. You need a subnet **without delegations**.
+They're independent: a private endpoint doesn't change outbound traffic, and VNet integration only affects outbound traffic. For the private endpoint you need a subnet **without delegations**.
 </Step>
 
 <Step id="inbound" name="Inbound: private endpoint">
@@ -78,5 +78,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
+Fact-checked verbatim 2026-11-24.
 Not claimed: private DNS zone names, WEBSITE_CONTENTOVERVNET or vnetContentShareEnabled for Logic Apps (Learn's Logic Apps pages don't mention them).
 */}

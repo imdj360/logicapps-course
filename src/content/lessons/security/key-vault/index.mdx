@@ -38,7 +38,7 @@ Microsoft warns: reference **only secrets** this way. The designer can't derefer
 </Step>
 
 <Step id="params" name="Through parameters">
-In Standard, the `securestring` and `secureobject` parameter types aren't supported. Microsoft's pattern instead: define a **parameter**, and set its value from an app setting in `parameters.json` with `@appsetting('...')`, where the app setting is a Key Vault reference. Workflows then use `@parameters('...')`.
+In Standard, the `securestring` and `secureobject` parameter types aren't supported; Microsoft says to secure connection strings with Key Vault through app settings. A parameter in `parameters.json` can read an app setting with `@appsetting('...')`, so our pattern is: the app setting holds the Key Vault reference, the parameter reads the app setting, and workflows use `@parameters('...')`.
 </Step>
 
 <Step id="connector" name="Read it at run time">
@@ -48,11 +48,11 @@ Sometimes a workflow needs a secret during a run, for example to pass it to an A
 <Step id="secure" name="Keep it out of run history" tag="FIX">
 A secret you read at run time shows up in run history unless you hide it. In the action's **Settings**, under **Security**, turn on **Secure Outputs** (and **Secure Inputs** on the actions that use it).
 
-Secured data isn't sent to Log Analytics, and you can't add tracked properties to that action. Turn it on for **every downstream action** that handles the secret too.
+Secured data isn't sent to Log Analytics, and you can't add tracked properties to that action. Also turn on Secure Inputs or Outputs in downstream actions where you want the data hidden. Some built-in actions, such as Compose and the variable actions, don't support these settings.
 </Step>
 
 <Step id="slots" name="Per environment" tag="TIP">
-Microsoft recommends **separate vaults** per environment, and marking app settings that use Key Vault references as **slot settings**, so a swap doesn't move production secrets into staging.
+Microsoft recommends **separate vaults** per environment, and marking app settings that use Key Vault references as **slot settings**.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -70,5 +70,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/keyvault/
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
+Fact-checked verbatim 2026-11-24.
 Not claimed: which RBAC role the built-in Key Vault connector's Get secret needs (Learn doesn't say). The partner API key scenario and secret name are ours.
 */}

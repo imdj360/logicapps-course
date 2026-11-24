@@ -9,7 +9,7 @@ youWillLearn:
   - The system-assigned and user-assigned identities of a Standard logic app
   - How to grant an identity access to a target resource
   - Which connectors and actions can use a managed identity
-  - Why disabling the system-assigned identity breaks connections for good
+  - Why disabling the system-assigned identity breaks connections until you recreate them
 reviewStatus: draft
 ---
 
@@ -57,7 +57,7 @@ The audience must match **exactly**, trailing slash included or not, or you get 
 <Step id="disable" name="Don't disable it" tag="PROBLEM">
 If you disable the system-assigned identity, **every connection that uses it stops working**, even if you enable it again a moment later. Disabling deletes the identity's object ID, and re-enabling creates a new one.
 
-To take away its access, **remove its role assignments** instead.
+To take away its access, **remove its role assignments** from the target resource. If it was disabled by mistake, the fix is to **recreate the connections** so they use the new object ID.
 </Step>
 
 <Step id="cautions" name="Two cautions" tag="TIP">
@@ -78,5 +78,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
 - https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+Fact-checked verbatim 2026-11-24.
 Not claimed: identity count limits (Learn only links to a limits page). "Secrets everywhere" is our framing.
 */}

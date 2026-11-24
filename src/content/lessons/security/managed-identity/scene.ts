@@ -56,7 +56,7 @@ export const scene: Scene = {
     disable: {
       visible: [...core, ...targets],
       failed: ['mi'],
-      chips: [{ label: 'disable', value: 'all connections break', tone: 'fail' }, { label: 'instead', value: 'remove role assignments', tone: 'ok' }],
+      chips: [{ label: 'disable', value: 'all connections break', tone: 'fail' }, { label: 'to revoke', value: 'remove role assignments', tone: 'ok' }],
     },
     cautions: {
       visible: [...core, ...targets],

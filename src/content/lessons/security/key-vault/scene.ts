@@ -27,7 +27,7 @@ export const scene: Scene = {
       visible: [...core],
       highlight: ['setting', 'setting-kv'],
       tokens: [{ id: 'r1', edge: 'setting-kv', tone: 'info' }],
-      chips: [{ label: 'syntax', value: '@Microsoft.KeyVault(...)' }, { label: 'role', value: 'Key Vault Secrets User' }],
+      chips: [{ label: 'syntax', value: '@Microsoft.KeyVault(...)' }, { label: 'access', value: 'Secrets User role or Get policy' }],
     },
     rotation: {
       visible: [...core],
