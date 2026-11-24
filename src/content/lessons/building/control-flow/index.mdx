@@ -1,0 +1,91 @@
+---
+title: Control flow
+module: building
+order: 3
+minutes: 11
+level: Beginner
+summary: Not every order takes the same path. Route it with conditions and switches, loop over its lines, and know the limits before they bite.
+youWillLearn:
+  - When to use a Condition and when to use a Switch
+  - How For each runs, and why variables need a sequential loop
+  - How Until loops decide when to stop
+  - How scopes group actions and report one status
+  - The workflow limits on actions and nesting
+reviewStatus: draft
+---
+
+<Step id="problem" name="Not every order is the same" tag="PROBLEM">
+Some orders are express. Orders ship with different carriers depending on the region. And every order has a list of lines, and each line needs its stock reserved.
+
+A straight line of actions can't do that. You need **control flow**: actions that choose a path, repeat, or group other actions.
+</Step>
+
+<Step id="condition" name="Condition: two paths">
+A **Condition** checks an expression and runs one of two paths: **True** or **False**. You can add more rows, group rows into subconditions, and nest conditions inside each other.
+
+The path that doesn't run isn't ignored: its actions get the status **Skipped**. Here, *Express?* sends express orders to *Priority ship*.
+</Step>
+
+<Step id="switch" name="Switch: one of many">
+When there are more than two paths, use a **Switch**. It compares one value against a list of **cases**, and runs the matching one. If no case matches, the **default** case runs.
+
+Some rules: a Switch supports **only equality**, so for "greater than" use a Condition. Case values must be **unique and static**, not dynamic tokens or expressions. A Switch needs at least one case plus the default, and allows up to **25 cases**.
+</Step>
+
+<Step id="foreach" name="For each: one per item">
+**For each** runs its actions once for every item in an array, such as every line of the order. By default, iterations run **in parallel**: up to **20** at a time. With concurrency control on, you can set it anywhere from **1 to 50**.
+
+In a stateful workflow, a For each takes up to **100,000 items** by default; in a stateless one, **100**.
+</Step>
+
+<Step id="variables" name="Variables in a loop" tag="PROBLEM">
+You want an *Order total* variable that each line adds to. Two rules apply:
+
+- You can declare variables **only at the top level** of a workflow, not inside scopes, conditions or loops.
+- **Increment**, **Decrement** and **Append to variable** might return **unpredictable results** in a parallel loop.
+
+So if you need predictable results from a loop that changes a variable, set its **degree of parallelism to 1** to run it sequentially.
+</Step>
+
+<Step id="nested" name="Nested loops" tag="TIP">
+A For each inside another For each **always runs sequentially**. If the inner work needs to run in parallel, move it into a **child workflow** and call that from the loop.
+</Step>
+
+<Step id="until" name="Until: repeat until done">
+**Until** repeats its actions until a condition is true, for example until the carrier's label is ready. It runs the actions **first**, then checks the condition, so the body always runs at least once.
+
+To stop it running forever, it has limits: **60 iterations** and **1 hour** by default in a stateful workflow, up to 5,000 iterations. In a stateless workflow the maximum is **100 iterations** and the timeout is **5 minutes**.
+</Step>
+
+<Step id="scope" name="Scope: group and check">
+A **Scope** is a container for a group of actions. When every action inside succeeds, the scope is **Succeeded**; when any action fails, it's **Failed**.
+
+That gives you one status to check for the whole group, for example with `actions('Fulfil')?['status']`. It's also the basis of try/catch, which the Reliability module covers.
+</Step>
+
+<Step id="limits" name="Limits to know" tag="TIP">
+A workflow can have up to **500 actions**, with an actions nesting depth of **8**. If you need more, split the work into nested workflows.
+
+One more: the **Terminate** action, which stops a run, can't be used inside a For each or Until loop.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Condition**: two paths; the path that doesn't run is **Skipped**.
+- **Switch**: equality only, unique static cases, a default, up to 25 cases.
+- **For each**: parallel by default (20, up to 50); run it **sequentially** if it changes a variable.
+- **Until**: body first, then the check; 60 iterations and 1 hour by default (stateless: 5-minute timeout, 100 iterations at most).
+- **Scope**: one status for a group of actions. A workflow allows 500 actions and a nesting depth of 8.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-conditional-statement
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-switch-statement
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-create-variables-store-values
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
+Not claimed: Or groups in conditions (the Condition page shows only And), Switch value types, a maximum Until timeout. Learn's two descriptions of scope status differ (any action fails vs final action fails); we use the scopes page's "any action".
+*/}

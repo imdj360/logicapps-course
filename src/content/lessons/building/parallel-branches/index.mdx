@@ -1,0 +1,87 @@
+---
+title: Parallel branches
+module: building
+order: 4
+minutes: 8
+level: Intermediate
+summary: Three independent steps don't need to wait for each other. Split the workflow into parallel branches, join them again, and handle a branch that fails.
+youWillLearn:
+  - How to add parallel branches and what they look like in code
+  - How a join action waits for every branch
+  - What happens to the run when one branch fails
+  - When to use branches and when to use For each
+reviewStatus: draft
+---
+
+<Step id="problem" name="Three things at once" tag="PROBLEM">
+Once an order is accepted, three things need to happen: email the customer, reserve the stock, and notify the warehouse. None of them depends on the others.
+
+Run them one after another and the slowest call holds up the rest. **Parallel branches** let them run side by side.
+</Step>
+
+<Step id="add" name="Add a parallel branch">
+In the designer, hover over the arrow after an action, select the plus sign (**+**), and select **Add a parallel branch**.
+
+Each branch starts with an action whose **run after** points at the same parent action. A branch runs only when its run after setting matches the parent action's completed status; by default, that's **Succeeded**.
+</Step>
+
+<Step id="code" name="What it looks like in code">
+In code view, branching is just two actions that run after the same parent:
+
+```json
+"Send_email": {
+  "runAfter": { "Order_accepted": ["Succeeded"] }
+},
+"Reserve_stock": {
+  "runAfter": { "Order_accepted": ["Succeeded"] }
+}
+```
+
+There's no special branch object. The shared `runAfter` is what makes them parallel.
+</Step>
+
+<Step id="join" name="Join the branches">
+To continue after all three, add an action below the branches: here, *Mark ready*. In its **Run after** settings, select the **last action in each branch** that must finish first.
+
+The workflow waits for all parallel branches at the same level to complete before it runs the join action.
+</Step>
+
+<Step id="fail" name="One branch fails" tag="PROBLEM">
+Now *Reserve stock* fails. The engine still follows the other branches to determine how they end. But if **any branch ends in failure**, the whole run is marked **Failed**.
+
+A successor of a failed action is marked **Skipped**, and the join's default run after expects every branch to have **Succeeded**, so *Mark ready* doesn't run.
+</Step>
+
+<Step id="handle" name="Handle it in the join" tag="FIX">
+To act on the failure, open the join's **run after** settings for the branch that can fail. Keep **Is successful** selected and add **Has failed** (and **Has timed out** or **Is skipped** if you need them).
+
+The join now runs whether *Reserve stock* succeeds or fails. Inside it, check the branch's status, for example with a condition on `actions('Reserve_stock')?['status']`, the same expression Learn uses to check a scope's status.
+</Step>
+
+<Step id="vs" name="Branches or For each?" tag="TIP">
+Use **parallel branches** for **different** work that can happen at the same time, like email, stock and warehouse.
+
+Use **For each** for the **same** work on every item in a list. It already runs in parallel by default: 20 iterations at a time, which you can raise to 50.
+</Step>
+
+<Step id="limits" name="Limits" tag="TIP">
+Learn lists no separate limit on the number of parallel branches. Actions in branches count toward the workflow limits like any other action: **500 actions** per workflow, and an actions nesting depth of **8**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A **parallel branch** is an action whose `runAfter` points at the same parent as another.
+- A **join** action runs after the last action of each branch, once all branches complete.
+- If any branch fails, the **run is Failed**, and a join with the default run after is **Skipped**.
+- Keep **Is successful** and add **Has failed** to the join's run after to handle it, then check the branch's status.
+- Branches for **different** work; **For each** for the same work per item.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-branches
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
+Inference flagged: Learn says a successor of a failed action is marked Skipped; it doesn't spell this out for a join with several predecessors. Not claimed: a branch-count limit (none on Learn), that other branches are cancelled (Learn says the engine follows them).
+*/}

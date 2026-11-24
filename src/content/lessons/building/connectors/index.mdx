@@ -1,0 +1,93 @@
+---
+title: "Connectors: built-in vs managed"
+module: building
+order: 1
+minutes: 10
+level: Beginner
+summary: Service Bus shows up twice in the Standard designer. See where built-in and managed connectors run, what they cost, and how they connect.
+youWillLearn:
+  - Where built-in and managed connectors run, and who manages them
+  - Which services have both versions, and which one to pick
+  - How each is billed in Standard
+  - Where connections live and how they authenticate
+  - How each reaches private and on-premises systems
+reviewStatus: draft
+---
+
+<Step id="problem" name="Two Service Bus connectors?" tag="PROBLEM">
+You add a Service Bus action to a Standard workflow and the designer offers it twice: once under **Built-in** and once under **Shared**.
+
+They're two different connectors, running in two different places. Picking the right one affects speed, cost, networking and how you deploy.
+</Step>
+
+<Step id="builtin" name="Built-in: inside the runtime">
+**Built-in** connectors run natively on the Logic Apps runtime, **in the same process**. In a Standard workflow, they appear under the **Built-in** filter.
+
+Some are part of the runtime itself, like *Schedule*, *HTTP* and *Request*. Others are informally called **service providers**: built on the Azure Functions extensibility model, they give access to services such as Blob Storage, Service Bus, Event Hubs and SQL Server.
+</Step>
+
+<Step id="managed" name="Managed: hosted by Microsoft">
+**Managed** connectors are deployed, hosted and managed **in Azure by Microsoft**, on shared resources. Most are a proxy or wrapper around a service's API. They appear under the **Shared** filter.
+
+They usually need you to create a **connection** first and authenticate. There are far more of them: over 1,400, covering services from Office 365 and SharePoint to Salesforce and SAP.
+</Step>
+
+<Step id="both" name="Some come in both">
+For a smaller set of services, Standard offers **both** versions, for example Azure Blob Storage, Azure Cosmos DB, Azure Event Hubs, Azure Service Bus, FTP, IBM DB2, IBM MQ, SFTP and SQL Server.
+
+Microsoft's guidance: **in most cases** the built-in version provides better performance, capabilities and pricing. Not in every case, though. Check that the operation you need exists in the version you pick.
+</Step>
+
+<Step id="cost" name="What each costs">
+In Standard, **built-in operations are free**, with no limit; you already pay for the plan.
+
+**Managed** connector operations are billed **per call**, at **Standard** or **Enterprise** connector rates. That applies even when a built-in version of the same connector exists, so choosing built-in is often the cheaper option too.
+</Step>
+
+<Step id="connections" name="Where connections live">
+A **built-in** connection is part of your logic app's configuration: it lives in `connections.json`, and its secrets are referenced from app settings, for example `@appsetting('serviceBus_connectionString')`.
+
+A **managed** connection is a separate Azure resource, an **API connection**, that you deploy alongside the logic app, for example with an ARM template. `connections.json` references it.
+</Step>
+
+<Step id="auth" name="How they authenticate">
+Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the built-in SFTP connector doesn't, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server is an exception.
+
+Microsoft recommends authenticating with a **managed identity** when possible.
+</Step>
+
+<Step id="network" name="Reaching private systems">
+**Built-in** service provider connectors can reach resources in your **virtual network** and on-premises data sources directly, without the on-premises data gateway.
+
+**Managed** connectors run in multitenant Azure. To reach an on-premises system they need the **on-premises data gateway**. And if your logic app accepts inbound traffic only through a private endpoint, managed webhook triggers and actions won't work: they run in the public cloud and can't call into your private network.
+</Step>
+
+<Step id="throttle" name="Throttling" tag="TIP">
+Managed connectors have their **own throttling limits**, which vary per connector. For example, the managed Service Bus connector allows up to **6,000 calls per minute**. The service on the other end can throttle you too.
+
+Built-in connectors, hosted on your runtime, are where Microsoft points you for **higher throughput and lower costs at scale**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Built-in** runs in the runtime's process; **managed** is hosted by Microsoft in shared Azure.
+- Services such as Service Bus, Blob and SQL Server have both versions; the built-in one is **usually** faster, more capable and cheaper.
+- Built-in operations are **free** in Standard; managed calls are billed **per call**.
+- Built-in connections live in `connections.json`; managed ones are separate **API connection** resources.
+- Built-in reaches your **VNet** and on-premises sources directly; managed needs the **data gateway**.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/connectors/introduction
+- https://learn.microsoft.com/en-us/azure/connectors/built-in
+- https://learn.microsoft.com/en-us/azure/connectors/managed
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
+- https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-gateway-connection
+- https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+- https://learn.microsoft.com/en-us/azure/logic-apps/handle-throttling-problems-429-errors
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+Fact-checked verbatim 2026-11-24. "1,400+ managed connectors" is from single-tenant-overview-compare.
+Not claimed: a generic per-connection throttling figure, that managed connectors use "the public internet" (Learn says "public cloud"), that every managed connection needs an access policy.
+*/}

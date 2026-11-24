@@ -1,0 +1,101 @@
+---
+title: Expressions
+module: building
+order: 2
+minutes: 10
+level: Beginner
+summary: An order arrives as JSON. Use expressions to pull out what you need, survive missing fields, and format dates and text.
+youWillLearn:
+  - How @ and @{...} differ, and what type each returns
+  - How to read the trigger, earlier actions and loop items
+  - How to handle missing properties without failing the run
+  - Where parameters and app settings fit in Standard
+reviewStatus: draft
+---
+
+<Step id="problem" name="From JSON to decisions" tag="PROBLEM">
+An order arrives as JSON. You need the customer's email, a ship date three days from now, and a one-line summary for the warehouse. Sometimes the email is missing.
+
+All of that is **expressions**: small formulas that the runtime evaluates while the workflow runs.
+</Step>
+
+<Step id="syntax" name="It starts with @">
+You can use an expression **anywhere in a JSON string value** by starting it with `@`. The runtime evaluates it at run time.
+
+To mix expressions into text, wrap each one in `@{...}`. That's **string interpolation**, and the result is always a string:
+
+```json
+"subject": "Order @{triggerBody()?['orderId']} received"
+```
+</Step>
+
+<Step id="types" name="@ and @{} return different types">
+The two forms aren't interchangeable. If the parameter `myAge` is 42:
+
+- `"@parameters('myAge')"` returns the **number** 42.
+- `"@{parameters('myAge')}"` returns the **string** "42".
+
+And when a function expression sits inline with other text, wrap it in `@{...}`: Microsoft says inline expressions require the curly braces.
+</Step>
+
+<Step id="data" name="Reading data">
+Most expressions start by reading something:
+
+- `triggerBody()`: the trigger's body, shorthand for `trigger().outputs.body`.
+- `body('Get_customer')`: an earlier action's body. `outputs('Get_customer')` returns all its outputs.
+- `variables('total')` and `parameters('carrierUrl')`.
+- `items('For_each_line')`: the current item in a For each loop.
+</Step>
+
+<Step id="null" name="When a field is missing" tag="FIX">
+If an order has no `email`, the expression `triggerBody()['email']` can fail with the error **"Unable to process template language expressions"**.
+
+Put a **`?`** before the property: `triggerBody()?['email']`. If it's missing, the expression returns **null** instead of failing. Add a fallback with `coalesce`, which returns the first non-null value:
+
+```json
+"@coalesce(triggerBody()?['email'], 'orders@example.com')"
+```
+
+Note that empty strings, arrays and objects aren't null, so `coalesce` keeps them.
+</Step>
+
+<Step id="functions" name="Everyday functions">
+A handful of functions cover most work:
+
+- **Dates**: `utcNow()`, `addDays(utcNow(), 3)`, `formatDateTime(..., 'yyyy-MM-dd')`.
+- **Text**: `concat()`, `split()`, `join()`, `guid()`.
+- **Logic**: `if()`, `equals()`, `and()`, `or()`, `empty()`.
+- **Collections**: `length()`, `first()`, `last()`.
+- **Types**: `int()`, `string()`, `json()`.
+</Step>
+
+<Step id="gotchas" name="Small things that bite" tag="TIP">
+- Wrap text values in **single quotes**: `length('Hello')`, not `length("Hello")`.
+- A text value that really starts with `@` needs escaping as `@@`.
+- `contains()` and `replace()` are **case-sensitive**; `startsWith()`, `endsWith()` and `indexOf()` aren't.
+- Learn's workflow limits allow up to **8,192 characters** per expression.
+</Step>
+
+<Step id="params" name="Parameters and app settings">
+For values that change per environment, use **parameters**, referenced with `@parameters('carrierUrl')`. Microsoft suggests parameters as the default way to parameterize values.
+
+**App settings** hold global configuration for the logic app. For secure keys or strings, reference app settings from your parameters with `@appsetting('...')`, which is the only expression type allowed in `parameters.json`.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- `@` starts an expression; `@{...}` interpolates into text and always returns a string.
+- Read data with `triggerBody()`, `body()`, `outputs()`, `variables()`, `parameters()` and `items()`.
+- Use `?['field']` to return null instead of failing, and `coalesce()` for a fallback.
+- Single quotes for text, `@@` for a literal @, and watch case sensitivity.
+- Use **parameters** for per-environment values, and reference **app settings** from them for secure keys.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-definition-language
+- https://learn.microsoft.com/en-us/azure/logic-apps/workflow-definition-language-functions-reference
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
+Not claimed: a general rule on case sensitivity of property names, expression nesting limits, which functions return objects vs strings in general. orders@example.com is a placeholder.
+*/}
