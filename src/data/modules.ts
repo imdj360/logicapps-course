@@ -9,13 +9,11 @@ const l = (slug: string, title: string) => ({ slug, title });
 
 export const MODULES: ModuleDef[] = [
   { id: 'foundations', number: '01', title: 'Foundations', lessons: [
-    l('how-a-run-travels', 'How a run travels'),
-    l('consumption-vs-standard', 'Consumption vs Standard'),
+    l('where-logic-apps-run', 'Where Logic Apps run'),
+    l('follow-an-order', 'Follow an order through a run'),
     l('stateful-vs-stateless', 'Stateful vs stateless'),
   ] },
   { id: 'hosting', number: '02', title: 'Hosting & runtime', lessons: [
-    l('hosting-options', 'Hosting options side by side'),
-    l('consumption', 'Consumption'),
     l('workflow-service-plans', 'Standard on Workflow Service Plans'),
     l('app-service-environment', 'Standard on App Service Environment v3'),
     l('hybrid-on-premises', 'Hybrid & on-premises'),

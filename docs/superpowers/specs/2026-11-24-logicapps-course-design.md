@@ -82,10 +82,10 @@ Own identity — not Lens Suite branding, and not the reference's palette or iso
 
 ## Curriculum
 
-Nine modules. Lessons teach the patterns without naming Lens Suite or LogicAppsHub.
+Nine modules. The course is Standard-first: Microsoft's direction is Standard, and a Standard project is built the same way whatever the hosting; Consumption is covered only as a short aside. Lessons teach the patterns without naming Lens Suite or LogicAppsHub.
 
-1. **Foundations** — How a run travels (trigger → actions → run history) · Consumption vs Standard · Stateful vs stateless
-1b. **Hosting & runtime** (added by Daniel) — Hosting options side by side: Consumption (multi-tenant, pay per action) · Standard on Workflow Service Plans (WS1/WS2/WS3) · Standard on App Service Environment v3 (isolated network) · Hybrid / on-premises deployment (Arc-enabled Kubernetes, SQL storage) · The storage account behind Standard (run state, queues, run history; why it limits throughput; scale units with multiple storage accounts) · Standard is built on the Azure Functions runtime (host.json, app settings, local dev with Functions Core Tools, built-in connectors as Functions extensions, custom .NET code). Source material: Daniel's HybridLADeployment and LogicAppScaleUnits repos.
+1. **Foundations** — Where Logic Apps run (Standard-first: build once, host on WS plan / ASE v3 / hybrid; Consumption as a short aside) · Follow an order through a run (trigger → actions → run history) · Stateful vs stateless
+1b. **Hosting & runtime** (added by Daniel; Standard deep dives) — Standard on Workflow Service Plans (WS1/WS2/WS3) · Standard on App Service Environment v3 (isolated network) · Hybrid / on-premises deployment (Arc-enabled Kubernetes, SQL storage) · The storage account behind Standard (run state, queues, run history; why it limits throughput; scale units with multiple storage accounts) · Standard is built on the Azure Functions runtime (host.json, app settings, local dev with Functions Core Tools, built-in connectors as Functions extensions, custom .NET code). Source material: Daniel's HybridLADeployment and LogicAppScaleUnits repos.
 2. **Building flows** — Connectors (managed vs built-in) · Expressions · Control flow (conditions, loops, scopes) · Parallel branches
 3. **Integration patterns** — Service Bus & queues · Batching · Splitting arrays into separate runs (debatching) · Request/response vs async polling
 4. **Reliability** — Retry policies · Timeouts · Run-after & error scopes · Idempotency · Resubmitting runs
@@ -103,8 +103,8 @@ Ship small, measure, then add lessons in weekly increments. No fixed deadline.
 **Release 1 (launch):**
 - Home page: course pitch, module grid.
 - Lesson player and four lessons:
-  1. How a run travels (Foundations)
-  2. Hosting options side by side (Hosting & runtime)
+  1. Follow an order through a run (Foundations)
+  2. Where Logic Apps run (Foundations)
   3. Resubmitting runs & failure handling (Reliability)
   4. Agentic triage: failed run → agent investigates → human approves (Agentic)
 - All other lessons shown in the sidebar as "coming soon".

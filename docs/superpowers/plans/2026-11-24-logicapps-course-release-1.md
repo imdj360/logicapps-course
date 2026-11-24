@@ -219,8 +219,8 @@ Same procedure for each; each ends `reviewStatus: 'draft'` for Daniel's sign-off
 
 | Task | Slug | Module | Source material |
 |---|---|---|---|
-| 10 | `how-a-run-travels` | 01 Foundations | Microsoft Learn: Logic Apps overview, run history; `~/Workspace/LearnDJ/LABlog` |
-| 11 | `hosting-options` | 02 Hosting & runtime | Learn: single-tenant vs multi-tenant, hybrid deployment, ASEv3; `HybridLADeployment`, `LogicAppScaleUnits` |
+| 10 | `follow-an-order` | 01 Foundations | Microsoft Learn: Logic Apps overview, run history; `~/Workspace/LearnDJ/LABlog` |
+| 11 | `where-logic-apps-run` (was `hosting-options`) | 01 Foundations | Learn: single-tenant vs multi-tenant, hybrid deployment, ASEv3; `HybridLADeployment`, `LogicAppScaleUnits` |
 | 12 | `resubmitting-runs` | 05 Reliability | Learn: retry policies, run-after, resubmit; `LABlog` |
 | 13 | `agentic-triage` | 08 Agentic Logic Apps | Learn: agent workflows in Standard, Logic Apps as MCP server; `LAMCP` (teach the pattern; do not name any product) |
 

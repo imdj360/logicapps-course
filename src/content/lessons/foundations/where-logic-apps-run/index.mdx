@@ -1,0 +1,103 @@
+---
+title: Where Logic Apps run
+module: foundations
+order: 1
+minutes: 10
+level: Beginner
+summary: You build a Standard logic app once. See where it can run, and what changes in cost, isolation, scaling and networking.
+youWillLearn:
+  - Why a Standard logic app is built the same way wherever it runs
+  - What the Workflow Service Plan tiers give you
+  - When an App Service Environment v3 or a hybrid deployment fits
+  - What every Standard logic app depends on behind the scenes
+  - Where Consumption still fits
+reviewStatus: approved
+lastVerified: '2026-11-24'
+---
+
+<Step id="problem" name="Build once, choose where it runs" tag="PROBLEM">
+Your team is about to build its first order workflow, and three people already have opinions about where it should run.
+
+Finance wants to know what it will cost. Security wants no public endpoints. The plant manager wants it to keep running in the factory's own datacenter.
+
+The good news: you don't build it three times. You build a **Standard** logic app project with its workflows in VS Code or the Azure portal, and choose the hosting when you create or deploy it. That choice decides **where the runtime lives**: cost, isolation, scaling and networking.
+</Step>
+
+<Step id="standard" name="One runtime, three homes">
+**Standard** logic apps run on the **single-tenant** Logic Apps runtime. One logic app can hold **many workflows**, both stateful and stateless, and you build them in VS Code or in the Azure portal.
+
+That runtime can live in three places: on a **Workflow Service Plan**, in an **App Service Environment v3**, or on **your own Kubernetes** with the hybrid model. The workflows stay the same. The hosting around them changes.
+</Step>
+
+<Step id="plans" name="Workflow Service Plan">
+The default home is a **Workflow Service Plan**. You choose a tier per instance:
+- **WS1**: 1 vCPU, 3.5 GB memory
+- **WS2**: 2 vCPU, 7 GB memory
+- **WS3**: 4 vCPU, 14 GB memory
+
+You pay for the plan's **reserved capacity**, whether or not your workflows use it. **Built-in operations** are included, with no limit. **Managed connector** calls (the Azure-hosted connectors) are metered **per call** on top, and the storage account is billed separately.
+
+That's Finance's answer: a known base cost, plus whatever managed connectors you call.
+</Step>
+
+<Step id="scaling" name="How it scales">
+On a Workflow Service Plan, Standard scales **dynamically**. The scaler looks at your triggers and how long jobs wait to execute, and adds or removes instances.
+
+Scaling out takes time. Microsoft's guidance is that going from 1 to 100 workers might take 25–50 minutes, which is why you can keep **prewarmed instances** ready for sudden load.
+</Step>
+
+<Step id="network" name="Private networking">
+Standard can live on your network. **Private endpoints** handle **inbound** traffic, so the workflow's endpoints aren't public. **VNet integration** handles **outbound** traffic, so actions can reach databases and APIs that only exist on your private network.
+
+That answers Security, without leaving the Workflow Service Plan.
+</Step>
+
+<Step id="ase" name="App Service Environment v3">
+When you need **full isolation**, Standard can run in an **App Service Environment v3** on an **Isolated v2** App Service plan (Windows only). The environment is dedicated to you and your logic apps inherit its network setup.
+
+<Callout title="Watch out">There's no dynamic scaling here. You define autoscale rules on the App Service plan yourself. ASE v1 and v2 are no longer supported for Standard logic apps.</Callout>
+</Step>
+
+<Step id="hybrid" name="Hybrid: your own datacenter">
+For the plant manager: the **hybrid deployment model** runs the Standard runtime in an **Azure Container Apps extension** on an **Azure Arc-enabled Kubernetes** cluster, on-premises, in a private cloud or another public cloud.
+
+Instead of Azure Storage, run history, inputs and outputs go to a **SQL database** (SQL Server, Azure SQL Database or Azure SQL Managed Instance), and an **SMB file share** holds artifacts such as maps and schemas.
+
+<Callout title="Watch out">This is where "build once" has caveats. You run the Kubernetes cluster, SQL database and file share yourself. Some features aren't available, such as deployment slots, and managed API connections need an Entra app registration instead of a managed identity. Check the current limitations before you choose it.</Callout>
+</Step>
+
+<Step id="behind" name="What sits behind Standard" tag="TIP">
+A Standard logic app on Azure comes with an **Azure Storage account**. For stateful workflows, **queues** schedule triggers, **tables** hold workflow state and **blobs** hold run history. Stateless workflows keep their state in memory instead.
+
+And the runtime itself is an **extension of the Azure Functions runtime**. That's why a Standard project has a `host.json`, uses Functions app settings, and runs locally in VS Code. The Hosting & runtime module goes deeper into both.
+</Step>
+
+<Step id="consumption" name="And Consumption?" tag="TIP">
+There's one more option: **Consumption**. It runs in the **multitenant** Logic Apps service, holds **one workflow per logic app resource**, and bills **per execution**. Microsoft calls it the easiest way to get started.
+
+It's a different model from Standard, not another home for the same project. Standard has capabilities Consumption doesn't, such as many more **built-in connectors** and **inline C# or PowerShell code**, and agent workflows are still in **preview** in Consumption. This course focuses on Standard.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- You build a **Standard** logic app once; hosting decides cost, isolation, scaling and networking.
+- **Workflow Service Plan (WS1–WS3)**: pay for reserved capacity (built-in operations included, managed connector calls extra), dynamic scaling, private endpoints and VNet integration.
+- **ASE v3**: fully isolated and dedicated, Isolated v2 plans, you manage scaling.
+- **Hybrid**: Standard on your own Kubernetes via Azure Arc, with a SQL database for run history, and some features missing.
+- On Azure, Standard uses a **storage account** for stateful workflows, and the runtime is built on **Azure Functions**.
+- **Consumption** is multitenant, one workflow per resource, pay per execution: the easiest start, but with fewer capabilities than Standard.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-standard-workflows-hybrid-deployment-requirements
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-hybrid-deployment
+- https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-devops-deployment-single-tenant-azure-logic-apps
+- https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts (Consumption agent preview)
+Fact-checked against the pages above on 2026-11-24.
+Not claimed (unconfirmed on Learn): "same project deploys unchanged to every host" (Learn shows VS Code deploying to Workflow Standard or Hybrid, but never states it outright), storage needed for stateless-only apps, "new features reach Standard first", Consumption VNet statement, max burst numbers, hybrid GA date, any Consumption deprecation (none on Learn). Azure Arc-enabled Logic Apps (older preview path) not covered.
+*/}

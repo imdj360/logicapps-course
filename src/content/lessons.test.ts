@@ -6,7 +6,7 @@ import type { Scene } from '../lessons/scene-types';
 const sources = import.meta.glob<string>('./lessons/*/*/index.mdx', { query: '?raw', import: 'default', eager: true });
 const scenes = import.meta.glob<{ scene: Scene }>('./lessons/*/*/scene.ts', { eager: true });
 
-const LAUNCH_LESSONS = ['how-a-run-travels', 'hosting-options', 'resubmitting-runs', 'agentic-triage'];
+const LAUNCH_LESSONS = ['follow-an-order', 'where-logic-apps-run', 'resubmitting-runs', 'agentic-triage'];
 
 interface ParsedStep { id: string; name: string; tag?: string; body: string }
 

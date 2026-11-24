@@ -7,10 +7,11 @@ level: Intermediate
 summary: A partner API goes down at night. Follow the run through retries, a catch scope and a resubmit, and learn when resubmitting is safe.
 youWillLearn:
   - What the default retry policy does, and which errors it retries
-  - How to catch failures with scopes and run-after
+  - How to build try/catch with scopes and configure run after
   - What Resubmit and "Submit from this action" actually rerun
   - Why resubmitting can create duplicates
-reviewStatus: draft
+reviewStatus: approved
+lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="The API was down" tag="PROBLEM">
@@ -33,10 +34,30 @@ The partner stays down longer than the retries last. *Call partner API* ends as 
 *Save order* only runs after *Succeeded*, so it's marked **Skipped**. Nothing handled the failure, so the whole run is **Failed**.
 </Step>
 
-<Step id="catch" name="Catch it with a scope" tag="FIX">
-The documented pattern is **try/catch with scopes**. Put the risky actions inside a *Scope*, then add a second scope after it whose **run after** setting is **Failed** (you can also tick *TimedOut* and *Skipped*).
+<Step id="catch" name="Try and Catch scopes" tag="FIX">
+Logic Apps has no try/catch keyword, but **scopes** give you the same pattern. Put *Call partner API* and *Save order* inside a *Scope* named **Try**. Then add a second *Scope* after it, named **Catch**, with your error handling inside: here, an alert to the team.
 
-That catch scope only runs when something in the first scope failed. Inside it you can alert the team. The expression `result('Try')` returns the results of the scope's top-level actions, so you can filter for the failed ones and include their errors in the alert.
+A scope gets its own status once everything inside it finishes. If **any** action inside fails, the scope is marked **Failed**. So the Catch scope doesn't need to know which action broke. It only watches the Try scope.
+</Step>
+
+<Step id="run-after" name="Configure run after">
+What makes Catch a catch is its **run after** setting. Select the Catch scope, open **Settings**, and under **Run after** expand *Try*. Clear **Is successful** and select **Has failed** and **Has timed out**. Add **Is skipped** too if Try can itself be skipped. You must always keep at least one status selected.
+
+In code view, that's the `runAfter` property:
+
+```json
+"Catch": {
+  "type": "Scope",
+  "actions": { ... },
+  "runAfter": {
+    "Try": ["Failed", "TimedOut"]
+  }
+}
+```
+
+Inside Catch, `result('Try')` returns the results of the Try scope's **top-level** actions (not ones nested in conditions or switches). Filter them for `status` equal to `Failed`, and put their errors in the alert.
+
+<Callout title="Tip">A third scope that runs after Try with **all four** statuses selected runs no matter how Try ended. Use it for cleanup, like a *finally* block.</Callout>
 </Step>
 
 <Step id="terminate" name="Keep the run honest">
@@ -71,7 +92,7 @@ In Standard, **stateless** workflows don't keep run history by default, so there
 
 <Step id="recap" name="Recap" tag="RECAP">
 - The **default retry policy** retries 408, 429 and 5xx responses, up to 4 times.
-- Use a **Try scope** plus a **Catch scope** that runs after *Failed* to handle errors, and `result()` to see what failed.
+- Wrap risky actions in a **Try scope**. A **Catch scope** that runs after Try *Has failed* or *Has timed out* handles the error, and `result('Try')` shows what failed.
 - A handled failure makes the run *Succeeded*; add **Terminate (Failed)** to keep it visible.
 - **Resubmit** reruns with the same inputs and workflow version; **Submit from this action** reuses earlier outputs.
 - Resubmitting can **duplicate side effects**: make actions safe to run twice.
@@ -80,8 +101,9 @@ In Standard, **stateless** workflows don't keep run history by default, so there
 {/*
 Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
-Not claimed: retry interval numbers (Learn is inconsistent), bulk resubmit, idempotency guidance beyond the duplicate-data warning (the order-ID check is our advice).
+Not claimed: a recommended catch status set (Learn's examples use Failed, and Failed + Skipped + TimedOut; we suggest Failed + TimedOut). Retry interval numbers (Learn is inconsistent), bulk resubmit, idempotency guidance beyond the duplicate-data warning (the order-ID check is our advice).
 */}

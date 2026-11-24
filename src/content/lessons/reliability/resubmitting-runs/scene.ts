@@ -1,16 +1,16 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 const main = ['trigger', 'call', 'save', 'partner', 'trig-call', 'call-save', 'call-partner'];
-const catching = ['catch', 'alert', 'call-catch', 'catch-alert'];
+const catching = ['catch', 'alert', 'call-catch', 'save-catch', 'catch-alert'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'trigger', kind: 'trigger', label: 'Order received', x: 110, y: 110 },
     { id: 'call', kind: 'connector-managed', label: 'Call partner API', sublabel: 'in Try scope', x: 340, y: 110 },
-    { id: 'save', kind: 'connector-builtin', label: 'Save order', x: 580, y: 110 },
+    { id: 'save', kind: 'connector-builtin', label: 'Save order', sublabel: 'in Try scope', x: 580, y: 110 },
     { id: 'partner', kind: 'user', label: 'Partner API', x: 340, y: 270 },
-    { id: 'catch', kind: 'scope', label: 'Catch scope', sublabel: 'after: Failed', x: 580, y: 270 },
+    { id: 'catch', kind: 'scope', label: 'Catch scope', sublabel: 'after Try fails', x: 580, y: 270 },
     { id: 'alert', kind: 'action', label: 'Alert team', x: 800, y: 270 },
     { id: 'term', kind: 'condition', label: 'Terminate', sublabel: 'status: Failed', x: 800, y: 420 },
     { id: 'you', kind: 'human', label: 'You', sublabel: 'next morning', x: 110, y: 420 },
@@ -21,6 +21,7 @@ export const scene: Scene = {
     { id: 'call-save', from: 'call', to: 'save' },
     { id: 'call-partner', from: 'call', to: 'partner' },
     { id: 'call-catch', from: 'call', to: 'catch', style: 'dashed' },
+    { id: 'save-catch', from: 'save', to: 'catch', style: 'dashed' },
     { id: 'catch-alert', from: 'catch', to: 'alert' },
     { id: 'alert-term', from: 'alert', to: 'term' },
     { id: 'you-history', from: 'you', to: 'history' },
@@ -52,9 +53,20 @@ export const scene: Scene = {
     catch: {
       visible: [...main, ...catching],
       failed: ['call'],
-      highlight: ['catch', 'call-catch'],
+      highlight: ['call', 'save', 'catch'],
       tokens: [{ id: 'c1', edge: 'call-catch', tone: 'fail' }, { id: 'c2', edge: 'catch-alert', tone: 'info' }],
-      chips: [{ label: 'catch runs after', value: 'Failed' }, { label: 'team', value: 'alerted', tone: 'ok' }],
+      chips: [{ label: 'Try scope', value: 'Failed', tone: 'fail' }, { label: 'Catch scope', value: 'runs' }, { label: 'team', value: 'alerted', tone: 'ok' }],
+    },
+    'run-after': {
+      visible: [...main, ...catching],
+      failed: ['call'],
+      highlight: ['catch', 'call-catch', 'save-catch'],
+      chips: [
+        { label: 'Is successful', value: 'off', tone: 'neutral' },
+        { label: 'Has failed', value: 'on', tone: 'ok' },
+        { label: 'Has timed out', value: 'on', tone: 'ok' },
+        { label: 'Is skipped', value: 'optional', tone: 'warn' },
+      ],
     },
     terminate: {
       visible: [...main, ...catching, 'term', 'alert-term'],
