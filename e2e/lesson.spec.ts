@@ -27,6 +27,8 @@ test('opens on the first step for a garbage hash', async ({ page }) => {
 test('arrow key moves to the next step and updates the hash', async ({ page }) => {
   await page.goto('/lessons/sample/');
   await expect(page.locator('.step-panel h2')).toHaveText('The problem');
+  // The heading is server-rendered, so wait for the player to hydrate before sending keys.
+  await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.step-panel h2')).toHaveText('The fix');
   await expect(page).toHaveURL(/#2$/);
