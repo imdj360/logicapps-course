@@ -1,0 +1,86 @@
+---
+title: Standard on App Service Environment v3
+module: hosting
+order: 2
+minutes: 9
+level: Advanced
+summary: Security wants nothing shared and nothing public. See what an App Service Environment v3 gives a Standard logic app, and what you take on in return.
+youWillLearn:
+  - What an App Service Environment v3 is and which plan it uses
+  - The difference between an internal and an external ASE
+  - How scaling and billing differ from a Workflow Service Plan
+  - What changes for run history and storage access
+reviewStatus: draft
+---
+
+<Step id="problem" name="Nothing shared" tag="PROBLEM">
+The security team has a new rule for the invoicing workflows: they must run on **dedicated** compute, with **no public endpoints**, inside the company network.
+
+Private endpoints on a Workflow Service Plan get you part of the way. For full isolation, Standard can run in an **App Service Environment v3**.
+</Step>
+
+<Step id="what" name="A dedicated environment">
+An App Service Environment is a **fully isolated and dedicated** environment for running App Service apps, and Standard logic apps are one of the supported workloads.
+
+For Standard you choose an **App Service plan** in the **Isolated v2** tier, and **Windows plans only**. ASE v1 and v2 are no longer supported for Standard logic apps.
+</Step>
+
+<Step id="network" name="Internal or external">
+An ASE has one of two kinds of inbound address:
+
+- **Internal**: the inbound address is inside the ASE's subnet, so apps are reachable only from your network.
+- **External**: the inbound address is public, and apps are listed in public DNS.
+
+With an internal ASE, your workflows can reach resources in the connected virtual network, and their endpoints are internal only. That's the security team's answer.
+</Step>
+
+<Step id="history" name="Run history from outside" tag="PROBLEM">
+One surprise: if you open run history from **outside** an internal ASE, for example in the Azure portal on a laptop that isn't on the network, the run history **can't show action inputs and outputs**.
+
+Plan for it: your team needs network access to the ASE to troubleshoot runs properly.
+</Step>
+
+<Step id="scaling" name="You own the scaling">
+There's **no dynamic scaling** in an ASE. You set **scaling rules** on the App Service plan yourself, or scale it manually.
+
+Microsoft suggests scaling on the **CPU metric** and keeping virtual CPU between **50% and 70%**. One Isolated v2 plan supports up to **100 instances**, and one ASE up to **200 instances** across all its plans.
+</Step>
+
+<Step id="billing" name="Paying for the plan">
+You pay for the **App Service plan's instances**, no matter how many logic apps you run on it.
+
+The environment itself has a floor: an empty ASE is charged as if it runs **one Windows I1v2 instance**. It's a fixed cost, so ASE makes most sense when you run many apps in it or need its isolation anyway.
+</Step>
+
+<Step id="differences" name="Other differences" tag="TIP">
+A few details that differ from a Workflow Service Plan:
+
+- **Storage key access**: on an ASE you can disable shared key access to the storage account, once you've set up managed identity. On a Workflow Service Plan you can't.
+- **Runtime Scale Monitoring** isn't supported on an ASE.
+- **Zone redundancy** is available, and is set when you create the resource.
+</Step>
+
+<Step id="when" name="When it's worth it" tag="TIP">
+Choose ASE v3 when isolation is a **requirement**, not a preference: dedicated compute, internal-only endpoints, and full control over network traffic.
+
+If private endpoints and VNet integration on a Workflow Service Plan meet your security rules, they're simpler to run, and you keep dynamic scaling.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- ASE v3 is a **fully isolated, dedicated** environment; Standard uses an **Isolated v2** App Service plan, **Windows only**.
+- **Internal** ASE: inbound only from your network. **External**: public address and DNS.
+- From outside an internal ASE, run history **can't show inputs and outputs**.
+- **No dynamic scaling**: set rules on the plan, for example 50–70% CPU. Up to 100 instances per plan, 200 per ASE.
+- You pay for the **plan's instances**; an empty ASE still costs one I1v2 instance.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
+- https://learn.microsoft.com/en-us/azure/app-service/environment/overview
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-zone-redundancy-availability-zones
+Not claimed: where managed connectors run for ASE-hosted apps, outbound IP behaviour. Learn's billing pages word ASE billing slightly differently ("only the ASE App Service plan" vs "instances ... and for running your logic app workflows. No other charges apply."); we say "the plan's instances". The "when it's worth it" step is our advice.
+*/}

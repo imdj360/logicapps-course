@@ -1,0 +1,80 @@
+---
+title: The storage account behind Standard
+module: hosting
+order: 4
+minutes: 9
+level: Intermediate
+summary: Runs pile up while CPU sits idle. Meet the storage account every stateful Standard workflow depends on, and learn when to add more.
+youWillLearn:
+  - What Standard keeps in tables, blobs and queues
+  - The storage limits that throttle a busy logic app
+  - How to spread a logic app across up to 32 storage accounts
+  - How long run history stays in storage
+reviewStatus: draft
+---
+
+<Step id="problem" name="Slow, but not busy" tag="PROBLEM">
+At peak, your order runs slow down. The instances' CPU is fine and the plan isn't maxed out. So what's the bottleneck?
+
+Often it's the one resource nobody looks at: the **storage account** behind the logic app.
+</Step>
+
+<Step id="what" name="What goes into storage">
+Stateful workflows use Azure Storage for everything they keep:
+
+- **Tables** for persistent data while runs execute.
+- **Blobs** for run history.
+- **Queues** for scheduling, such as trigger operations.
+
+Every action in a stateful run reads and writes here. Stateless workflows keep their state in memory instead.
+</Step>
+
+<Step id="setting" name="AzureWebJobsStorage">
+The connection to that account is the app setting `AzureWebJobsStorage`, and it's **required**. When you develop locally on Windows, it can point to the local storage emulator with `UseDevelopmentStorage=true`.
+
+When you deploy from VS Code, the required resources, including a storage account, are created for you.
+</Step>
+
+<Step id="limits" name="Storage has limits" tag="PROBLEM">
+A single storage account handles up to **2,000 requests per partition** and **20,000 requests per second** at the account level. Beyond those, requests are **throttled**.
+
+A busy stateful logic app makes many storage requests for every run, so a burst of orders can hit those limits while CPU stays idle.
+</Step>
+
+<Step id="spread" name="Spread the load" tag="FIX">
+The first step is to **distribute work across multiple workflows**. When one account isn't enough, plan for about **100,000 action executions per minute per storage account**, and add more accounts.
+</Step>
+
+<Step id="scaleunits" name="Up to 32 storage accounts">
+A Standard logic app can use up to **32 storage accounts**. Set `Runtime.ScaleUnitsCount` in `host.json` to the number of accounts, and add one connection string per account as an app setting: `CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU00.ConnectionString`, then `CU01`, `CU02` and so on. `AzureWebJobsStorage` uses the same connection string as `CU00`.
+
+<Callout title="Watch out">Set this up **before** you create the logic app. Microsoft warns that adding it later can cause data loss, or not give you the scale you need.</Callout>
+</Step>
+
+<Step id="retention" name="How long runs stay">
+Run history stays in storage for **90 days** by default. You can change that with the app setting `Workflows.RuntimeConfiguration.RetentionInDays`, from **7 to 365** days, or per workflow.
+
+Cleanup runs every **7 days** by default, so with the defaults you might see runs up to **97 days** old. Retention is counted from each run's **start time**.
+</Step>
+
+<Step id="billing" name="Its own bill" tag="TIP">
+Storage isn't included in your plan. Storage transactions follow **Azure Storage pricing** and appear **separately** on your Azure bill, so a busy stateful logic app has a storage cost that grows with every run.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Stateful workflows use **tables** (run state), **blobs** (run history) and **queues** (scheduling).
+- `AzureWebJobsStorage` is required.
+- One account throttles above **20,000 requests per second**: spread work across workflows and storage accounts.
+- Up to **32 storage accounts** with `Runtime.ScaleUnitsCount`, set up **before** you create the app.
+- Run history is kept **90 days** by default (7–365), and storage is **billed separately**.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-visual-studio-code
+Not claimed: names of the individual tables, blobs and queues; whether a stateless-only app can run without a storage account (Learn lists AzureWebJobsStorage as required); the exact host.json path casing for Runtime.ScaleUnitsCount (Learn is inconsistent). The "slow, but not busy" scenario is illustrative.
+*/}

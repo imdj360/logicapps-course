@@ -1,0 +1,89 @@
+import type { Scene } from '../../../../lessons/scene-types';
+
+const fast = ['shop', 'price', 'mem', 'shop-price', 'price-mem'];
+const safe = ['queue', 'order', 'storage', 'queue-order', 'order-storage'];
+
+export const scene: Scene = {
+  viewBox: [900, 500],
+  nodes: [
+    { id: 'shop', kind: 'user', label: 'Shop website', x: 110, y: 110 },
+    { id: 'price', kind: 'trigger', label: 'Price lookup', sublabel: 'stateless', x: 340, y: 110 },
+    { id: 'mem', kind: 'action', label: 'Memory only', sublabel: 'no history', x: 580, y: 110 },
+    { id: 'api', kind: 'connector-managed', label: 'Partner API', sublabel: '202 Accepted', x: 800, y: 260 },
+    { id: 'queue', kind: 'servicebus', label: 'Orders queue', x: 340, y: 260 },
+    { id: 'order', kind: 'trigger', label: 'Process order', sublabel: 'stateful', x: 340, y: 410 },
+    { id: 'storage', kind: 'storage', label: 'Azure Storage', sublabel: 'state · history', x: 580, y: 410 },
+    { id: 'you', kind: 'human', label: 'You', sublabel: 'resubmit', x: 800, y: 410 },
+  ],
+  edges: [
+    { id: 'shop-price', from: 'shop', to: 'price' },
+    { id: 'price-mem', from: 'price', to: 'mem', style: 'dashed' },
+    { id: 'price-api', from: 'price', to: 'api' },
+    { id: 'price-queue', from: 'price', to: 'queue' },
+    { id: 'queue-order', from: 'queue', to: 'order' },
+    { id: 'order-storage', from: 'order', to: 'storage' },
+    { id: 'you-storage', from: 'you', to: 'storage', style: 'dashed' },
+  ],
+  steps: {
+    problem: {
+      visible: [...fast, ...safe],
+      highlight: ['price', 'order'],
+      tokens: [{ id: 'p1', edge: 'shop-price', tone: 'info' }],
+      chips: [{ label: 'Price lookup', value: 'must be fast' }, { label: 'Process order', value: 'must not be lost' }],
+    },
+    stateful: {
+      visible: [...safe, 'you', 'you-storage'],
+      highlight: ['order', 'storage', 'order-storage'],
+      tokens: [{ id: 's1', edge: 'order-storage', tone: 'info' }],
+      chips: [{ label: 'state', value: 'external storage' }, { label: 'run history', value: 'yes', tone: 'ok' }, { label: 'max run', value: '90 days default' }],
+    },
+    stateless: {
+      visible: [...fast],
+      highlight: ['price', 'mem', 'price-mem'],
+      tokens: [{ id: 'l1', edge: 'shop-price', tone: 'info' }, { id: 'l2', edge: 'price-mem', tone: 'info' }],
+      chips: [{ label: 'state', value: 'in memory' }, { label: 'speed', value: 'faster', tone: 'ok' }, { label: 'runs', value: 'synchronous only' }],
+    },
+    choose: {
+      visible: [...fast, ...safe],
+      highlight: ['price', 'order'],
+      chips: [{ label: 'type', value: 'chosen at creation', tone: 'warn' }, { label: 'one logic app', value: 'both kinds' }],
+    },
+    limits: {
+      visible: [...fast],
+      highlight: ['price'],
+      chips: [{ label: 'run', value: 'under 5 min' }, { label: 'content', value: 'under 64 KB', tone: 'warn' }, { label: 'For each', value: '100 items' }],
+    },
+    triggers: {
+      visible: [...fast, ...safe],
+      highlight: ['price', 'order'],
+      chips: [{ label: 'stateless', value: 'push triggers only' }, { label: 'Recurrence', value: 'stateful only', tone: 'warn' }],
+    },
+    async: {
+      visible: [...fast, 'api', 'price-api'],
+      highlight: ['api', 'price-api'],
+      tokens: [{ id: 'a1', edge: 'price-api', tone: 'info' }],
+      chips: [{ label: 'response', value: '202 Accepted' }, { label: 'polls location', value: 'no', tone: 'warn' }, { label: 'chunking', value: 'no', tone: 'warn' }],
+    },
+    history: {
+      visible: [...fast, ...safe, 'you', 'you-storage'],
+      highlight: ['mem'],
+      failed: ['price'],
+      chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not possible', tone: 'fail' }, { label: 'debug', value: 'WithStatelessRunHistory' }],
+    },
+    mix: {
+      visible: [...fast, ...safe, 'price-queue'],
+      highlight: ['price-queue', 'queue'],
+      tokens: [{ id: 'm1', edge: 'price-queue', tone: 'ok' }, { id: 'm2', edge: 'queue-order', tone: 'ok' }],
+      chips: [{ label: 'customer waits for', value: 'stateless' }, { label: 'must not be lost', value: 'stateful', tone: 'ok' }],
+    },
+    recap: {
+      visible: [...fast, ...safe, 'price-queue', 'you', 'you-storage'],
+      chips: [{ label: 'stateful', value: 'safe' }, { label: 'stateless', value: 'fast' }],
+    },
+  },
+  legend: [
+    { tone: 'info', label: 'data moving' },
+    { tone: 'ok', label: 'hand-off' },
+    { tone: 'failed', label: 'nothing to resubmit' },
+  ],
+};
