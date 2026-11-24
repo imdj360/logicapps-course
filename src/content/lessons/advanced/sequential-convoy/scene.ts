@@ -6,7 +6,7 @@ export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'src', kind: 'user', label: 'Order system', sublabel: 'SessionId=order', x: 120, y: 240 },
-    { id: 'queue', kind: 'servicebus', label: 'Session queue', sublabel: 'FIFO per session', x: 420, y: 240 },
+    { id: 'queue', kind: 'servicebus', label: 'Session queue', sublabel: 'FIFO in session', x: 420, y: 240 },
     { id: 'run1', kind: 'scope', label: 'Run: order 4711', sublabel: 'one session', x: 740, y: 130 },
     { id: 'run2', kind: 'scope', label: 'Run: order 4712', sublabel: 'in parallel', x: 740, y: 350 },
     { id: 'renew', kind: 'condition', label: 'Renew lock', sublabel: 'Until loop', x: 420, y: 80 },
