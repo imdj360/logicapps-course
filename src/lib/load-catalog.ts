@@ -6,7 +6,7 @@ export async function loadCatalog(): Promise<CatalogModule[]> {
   const entries = await getCollection('lessons');
   return buildCatalog(
     entries.map((e) => ({ slug: e.id, reviewStatus: e.data.reviewStatus })),
-    { includeDrafts: import.meta.env.DEV, modules: getModules(includeFixtures(import.meta.env)) },
+    { includeDrafts: import.meta.env.DEV, modules: getModules(includeFixtures(import.meta.env)), base: import.meta.env.BASE_URL },
   );
 }
 

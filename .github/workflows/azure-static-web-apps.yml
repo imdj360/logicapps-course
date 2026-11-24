@@ -40,3 +40,38 @@ jobs:
           action: upload
           app_location: dist
           skip_app_build: true
+
+  # Optional second host. Turn on with repository variable PAGES_ENABLED=true and
+  # Settings > Pages > Source: GitHub Actions. Rebuilt here because the base path differs from Azure.
+  github-pages:
+    needs: build
+    if: github.event_name == 'push' && vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      # Custom domain: set PAGES_BASE_PATH to / and PAGES_SITE_URL to the domain.
+      PUBLIC_BASE_PATH: ${{ vars.PAGES_BASE_PATH || format('/{0}', github.event.repository.name) }}
+      PUBLIC_SITE_URL: ${{ vars.PAGES_SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
+      PUBLIC_DEVTO_URL: ${{ vars.PUBLIC_DEVTO_URL }}
+      PUBLIC_PLAUSIBLE_DOMAIN: ${{ vars.PUBLIC_PLAUSIBLE_DOMAIN }}
+      PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deploy
+        uses: actions/deploy-pages@v4

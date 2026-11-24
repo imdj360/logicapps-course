@@ -9,6 +9,7 @@ import '@fontsource/space-grotesk/latin-500.css';
 import '@fontsource/space-grotesk/latin-600.css';
 import '@fontsource/space-grotesk/latin-700.css';
 import '../styles/global.css';
+import { withBase } from '../lib/paths';
 import TopBar from '../components/TopBar.astro';
 import Footer from '../components/Footer.astro';
 import Analytics from '../components/Analytics.astro';
@@ -26,7 +27,7 @@ interface Props {
 const { title, description, ogImage = '/og-default.png', activeSlug } = Astro.props;
 const catalog = await loadCatalog();
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl).href;
-const ogUrl = new URL(ogImage, siteConfig.siteUrl).href;
+const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
 ---
 <!doctype html>
 <html lang="en">
@@ -42,8 +43,8 @@ const ogUrl = new URL(ogImage, siteConfig.siteUrl).href;
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogUrl} />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
     <script is:inline>
       try {
         const t = localStorage.getItem('lac:theme');

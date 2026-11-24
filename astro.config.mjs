@@ -9,6 +9,8 @@ const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), 'PUBLIC
 
 export default defineConfig({
   site: env.PUBLIC_SITE_URL?.trim() || 'http://localhost:4321',
+  // GitHub Pages project sites live under /<repo>/; Azure Static Web Apps and custom domains use '/'.
+  base: env.PUBLIC_BASE_PATH?.trim() || '/',
   trailingSlash: 'always',
   integrations: [react(), mdx(), sitemap()],
 });

@@ -1,4 +1,5 @@
 import type { ModuleDef } from '../data/modules';
+import { withBase } from './paths';
 
 export interface LessonEntry { slug: string; reviewStatus: 'draft' | 'approved' }
 export interface CatalogLesson { slug: string; title: string; status: 'published' | 'coming-soon'; href: string | null }
@@ -6,7 +7,7 @@ export interface CatalogModule { id: string; number: string; title: string; less
 
 export function buildCatalog(
   lessons: LessonEntry[],
-  opts: { includeDrafts: boolean; modules: ModuleDef[] },
+  opts: { includeDrafts: boolean; modules: ModuleDef[]; base?: string },
 ): CatalogModule[] {
   const known = new Set(opts.modules.flatMap((m) => m.lessons.map((l) => l.slug)));
   const unknown = lessons.find((l) => !known.has(l.slug));
@@ -20,7 +21,7 @@ export function buildCatalog(
     lessons: m.lessons.map(({ slug, title }) => {
       const entry = bySlug.get(slug);
       const published = !!entry && (entry.reviewStatus === 'approved' || opts.includeDrafts);
-      return { slug, title, status: published ? 'published' : 'coming-soon', href: published ? `/lessons/${slug}/` : null };
+      return { slug, title, status: published ? 'published' : 'coming-soon', href: published ? withBase(`/lessons/${slug}/`, opts.base ?? '/') : null };
     }),
   }));
 }
