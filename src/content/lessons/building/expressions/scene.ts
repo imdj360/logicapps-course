@@ -22,18 +22,18 @@ export const scene: Scene = {
   steps: {
     problem: {
       visible: [...reads],
-      chips: [{ label: 'need', value: 'email · date · summary' }, { label: 'email', value: 'sometimes missing', tone: 'warn' }],
+      chips: [{ label: 'order', value: 'SO-1042, 2 lines' }, { label: 'email', value: 'null', tone: 'warn' }],
     },
     syntax: {
       visible: [...reads],
       highlight: ['summary', 'trig-summary'],
       tokens: [{ id: 's1', edge: 'trig-summary', tone: 'info' }],
-      chips: [{ label: 'starts with', value: '@' }, { label: 'in text', value: '@{...}' }],
+      chips: [{ label: "@triggerBody()?['orderId']", value: 'SO-1042' }, { label: 'whole value', value: 'keeps the type' }],
     },
     types: {
       visible: [...reads],
       highlight: ['summary'],
-      chips: [{ label: "@parameters('myAge')", value: '42 (number)' }, { label: "@{parameters('myAge')}", value: '"42" (string)' }],
+      chips: [{ label: 'Order @{...} received', value: 'Order SO-1042 received' }, { label: 'inside text', value: 'always a string', tone: 'warn' }],
     },
     data: {
       visible: [...reads],
@@ -45,13 +45,13 @@ export const scene: Scene = {
       visible: [...reads],
       highlight: ['email', 'trig-email'],
       tokens: [{ id: 'n1', edge: 'trig-email', tone: 'ok' }],
-      chips: [{ label: "['email']", value: 'can error if missing', tone: 'fail' }, { label: "?['email']", value: 'null', tone: 'ok' }, { label: 'fallback', value: 'coalesce()' }],
+      chips: [{ label: "['phone']", value: 'can error if missing', tone: 'fail' }, { label: "?['phone']", value: 'null', tone: 'ok' }, { label: 'fallback', value: 'coalesce()' }],
     },
     functions: {
       visible: [...reads],
       highlight: ['ship'],
       tokens: [{ id: 'f1', edge: 'trig-ship', tone: 'info' }],
-      chips: [{ label: 'ship date', value: 'addDays(utcNow(), 3)' }, { label: 'format', value: 'formatDateTime()' }],
+      chips: [{ label: 'inner first', value: 'utcNow() → addDays() → formatDateTime()' }, { label: 'result', value: '2026-11-27' }, { label: 'tip (ours)', value: 'test in Compose' }],
     },
     gotchas: {
       visible: [...reads],

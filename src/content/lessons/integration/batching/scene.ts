@@ -55,6 +55,12 @@ export const scene: Scene = {
       tokens: [{ id: 'e1', edge: 'each-erp', tone: 'ok' }],
       chips: [{ label: 'collection', value: 'Batched Items' }, { label: 'per item', value: 'partition · message ID' }],
     },
+    example: {
+      visible: [...senders, ...out],
+      highlight: ['recv', 'erp'],
+      tokens: [{ id: 'x1', edge: 's1-recv', tone: 'info' }, { id: 'x2', edge: 's3-recv', tone: 'info' }, { id: 'x3', edge: 'recv-each', tone: 'ok' }],
+      chips: [{ label: 'release', value: 'every 1 hour' }, { label: 'partition', value: 'warehouse code' }, { label: 'result (ours)', value: 'one file per warehouse' }],
+    },
     limits: {
       visible: [...senders, ...out],
       highlight: ['recv'],

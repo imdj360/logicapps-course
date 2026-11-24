@@ -8,7 +8,7 @@ export const scene: Scene = {
     { id: 'wf', kind: 'trigger', label: 'Every hour', sublabel: 'workflow', x: 110, y: 240 },
     { id: 'jdbc', kind: 'connector-builtin', label: 'JDBC', sublabel: 'Execute query', x: 380, y: 240 },
     { id: 'jar', kind: 'storage', label: 'Driver JARs', sublabel: 'SDK (Java)', x: 380, y: 410 },
-    { id: 'db', kind: 'storage', label: 'MySQL / Aurora', sublabel: 'your database', x: 680, y: 240 },
+    { id: 'db', kind: 'storage', label: 'MySQL', sublabel: 'your database', x: 680, y: 240 },
     { id: 'ora', kind: 'connector-builtin', label: 'Oracle DB', sublabel: 'preview', x: 380, y: 80 },
     { id: 'oradb', kind: 'storage', label: 'Oracle 11+', sublabel: 'host:port/svc', x: 680, y: 80 },
   ],
@@ -83,7 +83,7 @@ export const scene: Scene = {
     },
     recap: {
       visible: [...core, 'jar', 'ora', 'oradb', 'jar-jdbc', 'wf-ora', 'ora-oradb', 'jdbc-oradb'],
-      chips: [{ label: 'generic', value: 'JDBC: MySQL · Aurora · Oracle' }, { label: 'dedicated', value: 'SQL Server · Oracle' }],
+      chips: [{ label: 'generic', value: 'JDBC: MySQL · Oracle' }, { label: 'dedicated', value: 'SQL Server · Oracle' }],
     },
   },
   legend: [

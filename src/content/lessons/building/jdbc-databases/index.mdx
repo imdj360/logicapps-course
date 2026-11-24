@@ -15,13 +15,13 @@ lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="A database with no connector" tag="PROBLEM">
-Your stock levels live in a MySQL database, or in AWS Aurora. There's no dedicated Logic Apps connector for it, and you don't want to build an API in front of it just to read a table.
+Your stock levels live in a **MySQL** database, for example Azure Database for MySQL or one on your own servers. There's no dedicated Logic Apps connector for it, and you don't want to build an API in front of it just to read a table.
 
 If the database has a **JDBC driver**, a Standard logic app can talk to it directly.
 </Step>
 
 <Step id="what" name="The JDBC built-in connector">
-**JDBC** is a **built-in** connector, available **only in Standard**. You bring the JDBC driver, a set of JAR libraries, for any JDBC-supported relational database, and the connector uses it. Microsoft names SQL Server, AWS Aurora and MySQL as examples.
+**JDBC** is a **built-in** connector, available **only in Standard**. You bring the JDBC driver, a set of JAR libraries, for any JDBC-supported relational database, and the connector uses it. Microsoft's examples include SQL Server and MySQL.
 
 Like other built-in connectors, it doesn't need the **on-premises data gateway**.
 </Step>
@@ -126,5 +126,5 @@ Sources (checked 2026-11-24, raw page text):
 Fact-checked verbatim 2026-11-24.
 Packaging: lib/builtinOperationSdks/JAR from the project structure on create-single-tenant-workflows-visual-studio-code; zip rules and the az logicapp deployment source config-zip command from set-up-devops-deployment-single-tenant-azure-logic-apps. ojdbc11.jar and the folder names MyLogicApp/StockSync are illustrative.
 Oracle over JDBC: covered by Learn's "any JDBC-supported relational database", not documented as an Oracle example; the author has connected Oracle this way. The ojdbc driver and jdbc:oracle:thin URL format are from Oracle's JDBC documentation, not Learn.
-Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
+Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL scenario, the query-parameters advice and "store the password in app settings" are ours.
 */}

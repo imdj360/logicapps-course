@@ -36,7 +36,7 @@ The receiver releases a batch based on one or more criteria:
 - **Size**: after a total size in bytes.
 - **Schedule**: on a recurrence, at least every **60 seconds**.
 
-Select several to use them all. A batch holds at most **8,000 messages** and **80 MB**.
+Select several to use them all. A batch holds at most **8,000 messages** and **80 MB**. Learn doesn't spell out how several criteria interact, so test your combination before you rely on it (ours).
 </Step>
 
 <Step id="sender" name="The sender's side">
@@ -55,6 +55,16 @@ A partition holds at most **5,000 messages or 80 MB**. When it reaches either, t
 When a batch is released, the receiver's run gets the messages as a collection called **Batched Items**. Process them with a **For each** loop; the designer adds one for you when an action works on single messages.
 
 Inside the loop you can use the **Partition Name** and **Message ID** dynamic content, so you can group or trace them.
+</Step>
+
+<Step id="example" name="The hourly ERP file, end to end" tag="TIP">
+Our design for the ERP request, using only the pieces above:
+
+1. **Receiver** *Collect orders*: **Batch Trigger** with batch name `erp-orders`, released on a **Schedule** of every 1 hour.
+2. **Senders**: the shop, app and EDI workflows each end with **Send to batch**: batch name `erp-orders`, the order as message content, and the receiver's workflow and trigger names. Each sets the **partition name** to its warehouse code, for example `WH-NORTH`.
+3. **Each hour**, the receiver's run gets the **Batched Items** for a partition. A **For each** turns every order into a line, then the run writes **one file**, named with the **Partition Name**, such as `WH-NORTH-2026-11-24-14.csv`.
+
+Result: one file per warehouse per hour, instead of hundreds of single orders. The names, file format and per-warehouse split are ours.
 </Step>
 
 <Step id="limits" name="What to know" tag="TIP">
