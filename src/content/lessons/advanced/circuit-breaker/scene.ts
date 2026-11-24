@@ -46,7 +46,7 @@ export const scene: Scene = {
     },
     notneeded: {
       visible: [...core, 'park', 'breaker-park'],
-      chips: [{ label: 'behind a queue', value: 'often not needed' }],
+      chips: [{ label: 'behind a queue', value: 'might not be suitable' }],
     },
     fallback: {
       visible: [...core],

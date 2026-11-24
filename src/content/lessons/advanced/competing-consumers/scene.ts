@@ -53,7 +53,7 @@ export const scene: Scene = {
     },
     starvation: {
       visible: [...core, 'high', 'high-c1'],
-      chips: [{ label: 'risk', value: 'low priority waits forever', tone: 'warn' }, { label: 'fix', value: 'own pool or age boost' }],
+      chips: [{ label: 'risk', value: 'low priority may never run', tone: 'warn' }, { label: 'consider', value: 'age boost · own pools' }],
     },
     when: {
       visible: [...core],

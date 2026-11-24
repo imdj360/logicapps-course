@@ -33,7 +33,7 @@ Half-open stops a recovering service from being flooded the moment it comes back
 <Step id="retry" name="Breaker vs retry">
 Microsoft separates the two: **retry** expects an operation to succeed eventually; a **circuit breaker** prevents an operation that's likely to fail. They combine well: retry through a breaker, and **stop retrying** when the breaker says the fault isn't transient.
 
-Watch for nested retries: a retry policy inside another retry multiplies the delays.
+Our caution: stacking retries inside retries multiplies the attempts and the waiting.
 </Step>
 
 <Step id="logicapps" name="Around Logic Apps">
@@ -43,13 +43,13 @@ Before calling the partner, a workflow reads the state. If it's **open**, skip t
 </Step>
 
 <Step id="notneeded" name="When you don't need one" tag="TIP">
-Microsoft says a circuit breaker often **isn't needed** in **message-driven** architectures: failed messages go to a dead-letter queue, and built-in isolation and retries are often enough.
+Microsoft lists **message-driven and event-driven** architectures as cases where a circuit breaker **might not be suitable**: they often dead-letter failed messages, and built-in isolation and retries are often sufficient.
 
-So if the partner call already sits behind a queue, with sensible retries and dead-lettering, start there. Add a breaker when calls are synchronous, expensive, or hurting the partner while they're down.
+So if the partner call already sits behind a queue, with sensible retries and dead-lettering, start there. Our rule of thumb: add a breaker when calls are synchronous, expensive, or hurting the partner while they're down.
 </Step>
 
 <Step id="fallback" name="Fail with something useful" tag="TIP">
-In the open state, Microsoft suggests returning a **default value** that's meaningful to the caller, for example "price on request" instead of an error, and giving operators a **manual reset**.
+Microsoft notes the open state can return a **default value** that's meaningful to the caller, for example (ours) "price on request" instead of an error. If recovery time is very variable, it suggests a **manual reset** option for administrators.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -64,5 +64,6 @@ In the open state, Microsoft suggests returning a **default value** that's meani
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/retry
+Fact-checked verbatim 2026-11-24.
 Neither page mentions Logic Apps; the storage-table breaker design is ours. "Retries four times" refers to the default retry policy from the Retry policies lesson. The partner scenario is ours.
 */}

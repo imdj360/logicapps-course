@@ -38,7 +38,7 @@ export const scene: Scene = {
     callback: {
       visible: [...core],
       highlight: ['finance-hook'],
-      chips: [{ label: 'callback URL dies on', value: 'cancel · disable · key rotation' }],
+      chips: [{ label: 'callback URL dies on', value: 'cancel · delete/disable · keys · timeout' }],
     },
     approval: {
       visible: [...core],

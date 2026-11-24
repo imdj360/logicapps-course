@@ -42,7 +42,7 @@ export const scene: Scene = {
     orchestration: {
       visible: [...fwd],
       highlight: ['orch'],
-      chips: [{ label: 'orchestrator', value: 'Logic Apps workflow' }, { label: 'alternative', value: 'choreography' }],
+      chips: [{ label: 'our design', value: 'Logic Apps orchestrates' }, { label: 'alternative', value: 'choreography' }],
     },
     compensate: {
       visible: [...fwd, ...comp],

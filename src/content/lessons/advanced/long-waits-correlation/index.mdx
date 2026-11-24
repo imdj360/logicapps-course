@@ -31,9 +31,9 @@ In Standard, a webhook waits up to **30 days** in a stateful workflow and **5 mi
 </Step>
 
 <Step id="callback" name="The callback URL">
-The callback URL carries a SAS token with no time-based expiry: it stays valid for the run. It stops working if the run is **cancelled** or **times out**, the workflow or logic app is **disabled or deleted**, or its access keys are **rotated**.
+By default, the callback URL's SAS token has no time-based expiry, and the URL stays valid for the workflow run duration. It stops working if the run is **cancelled** or **times out**, the workflow or logic app is **disabled or deleted**, or its access keys are **rotated**.
 
-Treat it like a password: send it only to the service that needs it.
+Our advice: treat it like a password, and send it only to the service that needs it.
 </Step>
 
 <Step id="approval" name="Approvals">
@@ -41,9 +41,9 @@ For human decisions, the Office 365 Outlook connector's **Send approval email** 
 </Step>
 
 <Step id="correlation" name="Which reply is which?">
-With many orders waiting, you need to match replies and logs to the right order. A trigger's **custom tracking ID**, or an `x-ms-client-tracking-id` header on the trigger request, correlates the run's events, and it appears as **ClientTrackingId** in the logs.
+With many orders waiting, you need to match replies and logs to the right order. Most triggers have a **Custom Tracking Id** property; for Request, HTTP and webhook-based triggers you can also pass an `x-ms-client-tracking-id` header. It correlates the run's events and appears as **ClientTrackingId** in Log Analytics.
 
-The HTTP Webhook action also sends `x-ms-client-tracking-id` to the target service, so it can identify the subscriber.
+The HTTP Webhook action also sends `x-ms-client-tracking-id` and `x-ms-workflow-operation-name` headers, which the target service can use to identify the subscriber.
 </Step>
 
 <Step id="split" name="Or split the wait" tag="TIP">
@@ -53,7 +53,7 @@ No run waits for days, and a lost callback doesn't leave a run hanging.
 </Step>
 
 <Step id="timeout" name="Plan for silence" tag="TIP">
-Whichever approach you choose, decide what happens when **nobody answers**: a timeout, a reminder, an escalation, a cancellation. Catch it with a run after of **Has timed out**.
+Whichever approach you choose, decide what happens when **nobody answers**: a timeout, a reminder, an escalation, a cancellation. Our suggestion: catch it with a run after of **Has timed out**.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -71,5 +71,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://learn.microsoft.com/en-us/connectors/office365/ (Send approval email)
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Fact-checked verbatim 2026-11-24.
 Not claimed: how long Send approval email waits (not on Learn). The split-workflow design and the credit-check scenario are ours.
 */}

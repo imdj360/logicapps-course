@@ -16,7 +16,7 @@ reviewStatus: draft
 <Step id="problem" name="No rollback" tag="PROBLEM">
 An order goes through three systems: **reserve stock**, **charge the card**, **book the courier**. The courier booking fails. Stock is reserved and the card is charged, in two systems that already committed their changes.
 
-Microsoft's point: traditional ACID guarantees don't apply across **independently managed data stores**. There's nothing to roll back.
+Microsoft's point: traditional ACID guarantees aren't directly applicable across **independently managed data stores**. There's nothing to roll back.
 </Step>
 
 <Step id="saga" name="The saga pattern">
@@ -30,16 +30,16 @@ Microsoft names three:
 
 - **Compensable**: can be undone by another transaction with the opposite effect, like reserving stock.
 - **Pivot**: the **point of no return**, like shipping the parcel.
-- **Retryable**: **idempotent** steps after the pivot, which are retried until the saga finishes.
+- **Retryable**: **idempotent** steps after the pivot, so they can be retried safely until the saga reaches its final state.
 
-Put risky steps before the pivot, while they can still be compensated.
+Microsoft's advice on irreversible steps: do them only after all critical validations succeed. Our reading: put the risky, compensable steps before the pivot.
 </Step>
 
 <Step id="orchestration" name="Orchestration or choreography">
 - **Choreography**: services exchange events, with no central controller. Good for simple flows with few services.
-- **Orchestration**: a central **orchestrator** tells each participant what to do. Better for complex flows, but the orchestrator becomes a single point of failure.
+- **Orchestration**: a central **orchestrator** tells each participant what to do. Better for complex flows, but the orchestrator is a point of failure.
 
-A stateful Logic Apps workflow is a natural orchestrator: Microsoft's Scheduler Agent Supervisor pattern names Logic Apps for visual, connector-based orchestration.
+In our view, a stateful Logic Apps workflow is a natural orchestrator. Microsoft's Scheduler Agent Supervisor page lists Logic Apps as an option for its Scheduler role, for visual workflows and connector-based integration.
 </Step>
 
 <Step id="compensate" name="Compensate in Logic Apps">
@@ -59,14 +59,14 @@ Microsoft is blunt: compensating transactions **can fail too**. Its advice:
 <Step id="when" name="When to use it">
 Use a saga when a business operation spans several services or stores and must be undone if a later step fails.
 
-Don't, says Microsoft, when steps are tightly coupled, when **retries alone** would handle most failures, or when the system **can't tolerate temporary inconsistency**: between the failure and the compensation, the data is briefly wrong.
+Microsoft's Saga page says it may not suit **tightly coupled** transactions; the Compensating Transaction page adds: skip compensation when **retries alone** are enough, or when the system **can't tolerate temporary inconsistency** (our gloss: between the failure and the compensation, the data is briefly wrong).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Across services there's **no rollback**: compensate instead.
 - A **saga** is local transactions plus compensations.
 - Steps are **compensable**, **pivot** or **retryable**.
-- Logic Apps works well as the **orchestrator**: Try, record progress, Catch and compensate.
+- In our design, Logic Apps is the **orchestrator**: Try, record progress, Catch and compensate.
 - Compensations must be **idempotent**, resumable and alert-backed.
 </Step>
 
@@ -75,5 +75,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/saga
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/scheduler-agent-supervisor
+Fact-checked verbatim 2026-11-24.
 Neither the Saga nor the Compensating Transaction page mentions Logic Apps; the Try/Catch compensation design is ours. The order scenario is ours.
 */}
