@@ -10,7 +10,7 @@ export const scene: Scene = {
     { id: 'trig', kind: 'trigger', label: 'Queue trigger', sublabel: 'built-in', x: 560, y: 240 },
     { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'steady pace', x: 790, y: 240 },
     { id: 'settle', kind: 'action', label: 'Complete', sublabel: 'or Abandon', x: 560, y: 90 },
-    { id: 'dlq', kind: 'servicebus', label: 'Dead-letter', sublabel: '$deadletterqueue', x: 330, y: 410 },
+    { id: 'dlq', kind: 'servicebus', label: 'Dead-letter', sublabel: 'DLQ', x: 330, y: 410 },
     { id: 'dlqtrig', kind: 'trigger', label: 'DLQ trigger', sublabel: 'alert · repair', x: 560, y: 410 },
   ],
   edges: [
