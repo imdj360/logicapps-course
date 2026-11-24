@@ -37,6 +37,8 @@ export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, devto
     if (!root) return;
     setSteps(readSteps(root));
     root.setAttribute('data-hydrated', 'true');
+    // Hidden (not just clipped) so screen readers don't get every step a second time.
+    root.hidden = true;
   }, []);
 
   if (!steps || steps.length === 0) return null;

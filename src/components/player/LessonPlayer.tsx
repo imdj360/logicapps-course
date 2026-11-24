@@ -25,6 +25,9 @@ interface Props {
 const isTyping = (el: EventTarget | null) =>
   el instanceof HTMLElement && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
 
+const isInteractive = (el: EventTarget | null) =>
+  el instanceof Element && !!el.closest('button, a, summary, [role="button"], [role="link"]');
+
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -35,6 +38,9 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
   const [replayKey, setReplayKey] = useState(0);
   const [reducedMotion] = useState(prefersReducedMotion);
   const completed = useRef(false);
+  const visited = useRef(new Set<number>());
+  const firstIndex = useRef(nav.index);
+  const moved = useRef(false);
 
   useEffect(() => { track('lesson_start', { lesson: slug }); }, [slug]);
 
@@ -42,7 +48,12 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
     window.history.replaceState(null, '', `#${nav.index + 1}`);
     markStepReached(slug, nav.index);
     track('step_reached', { lesson: slug, step: nav.index + 1 });
-    if (nav.index === count - 1 && !completed.current) {
+    visited.current.add(nav.index);
+    if (nav.index !== firstIndex.current) moved.current = true;
+    // A lesson counts as finished only when the visitor navigated to the recap and saw at
+    // least half the steps on the way — not when a shared link opens straight on it.
+    const engaged = moved.current && visited.current.size >= Math.ceil(count / 2);
+    if (nav.index === count - 1 && engaged && !completed.current) {
       completed.current = true;
       markComplete(slug);
       track('lesson_complete', { lesson: slug });
@@ -58,6 +69,7 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === ' ' && isInteractive(e.target)) return;
       if (e.key === 'ArrowRight') nav.next();
       else if (e.key === 'ArrowLeft') nav.back();
       else if (e.key === 'r' || e.key === 'R') setReplayKey((k) => k + 1);

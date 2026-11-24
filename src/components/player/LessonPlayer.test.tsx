@@ -93,6 +93,24 @@ describe('LessonPlayer', () => {
     expect(heading()).toBe('Wrap up');
   });
 
+  it('lets Space press a focused button instead of toggling pause', () => {
+    renderPlayer();
+    const next = screen.getByRole('button', { name: /Next: Second step/ });
+    next.focus();
+    fireEvent.keyDown(next, { key: ' ' });
+    expect(screen.getByRole('button', { name: /Pause/ })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('does not count a deep link to the recap as a finished lesson', () => {
+    const complete = vi.spyOn(progress, 'markComplete');
+    const track = vi.spyOn(analytics, 'track');
+    window.history.replaceState(null, '', '/lessons/demo/#3');
+    renderPlayer();
+    expect(heading()).toBe('Wrap up');
+    expect(complete).not.toHaveBeenCalled();
+    expect(track).not.toHaveBeenCalledWith('lesson_complete', expect.anything());
+  });
+
   it('follows hash changes made after the page loaded', () => {
     renderPlayer();
     act(() => {

@@ -79,13 +79,15 @@ Drop-off per lesson = `step_reached` counts by step. Use UTM tags on links from 
 ## Deploying
 
 `.github/workflows/azure-static-web-apps.yml` runs unit tests, e2e tests and the build on every push and pull request.
-It deploys only when the repository variable `SWA_ENABLED` is `true`.
+It deploys only when the repository variable `SWA_ENABLED` is `true`, and only if `PUBLIC_SITE_URL` is set.
+The Static Web Apps config lives in `public/staticwebapp.config.json` so it ends up in `dist/`.
 
 ## Launch checklist (Daniel)
 
 - [ ] Create a GitHub repository and push this repo
 - [ ] Create an Azure Static Web App (Free plan), add its deployment token as secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, set variable `SWA_ENABLED=true`
-- [ ] Choose a domain, add it to the Static Web App, set `PUBLIC_SITE_URL`
+- [ ] Set `PUBLIC_SITE_URL` to the `*.azurestaticapps.net` URL before the first deploy (the workflow refuses to deploy without it)
+- [ ] Later: choose a domain, add it to the Static Web App, update `PUBLIC_SITE_URL`
 - [ ] Optional: create a Plausible site, set `PUBLIC_PLAUSIBLE_DOMAIN`
 - [ ] Set `PUBLIC_DEVTO_URL` (and optionally `PUBLIC_CONTACT_EMAIL`)
 - [ ] Review and approve the four launch lessons

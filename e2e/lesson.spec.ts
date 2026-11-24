@@ -34,6 +34,7 @@ test('arrow key moves to the next step and updates the hash', async ({ page }) =
 
 test('recap links appear only on the recap step', async ({ page }) => {
   await page.goto('/lessons/sample/');
+  await expect(page.locator('.step-panel h2')).toHaveText('The problem');
   const recap = page.locator('.step-panel .recap-links');
   await expect(recap).toHaveCount(0);
   await page.goto('/lessons/sample/#3');

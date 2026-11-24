@@ -57,7 +57,7 @@ Changing state goes through a person. After the agent answers, the workflow send
 
 Only on *Approve* does the workflow continue to a separate *Resubmit runs* step. On *Reject* it stops and logs why.
 
-<Callout title="Watch out">The Agent action has no built-in approval gate. The approval is a step you design into the workflow, and the agent never gets the resubmit tool.</Callout>
+<Callout title="Watch out">Don't rely on the agent to ask permission. Design the approval into the workflow as its own step, and never give the agent the resubmit tool.</Callout>
 </Step>
 
 <Step id="trace" name="See what it did" tag="TIP">

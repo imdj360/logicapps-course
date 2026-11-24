@@ -199,9 +199,8 @@ kbd { font: 500 10.5px/1 var(--font-mono); border: 1px solid var(--border-strong
 .recap-links h3 { font: 600 11px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 0.5rem; }
 .recap-links ul { margin: 0 0 0.5rem; padding-left: 1.1rem; }
 
-/* Static step text: visible without JS; hidden once the player hydrates. */
+/* Static step text: visible without JS; the player sets `hidden` once it hydrates. */
 .static-steps { margin-top: 1.5rem; }
-.static-steps[data-hydrated='true'] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .static-steps section { margin-bottom: 1.5rem; }
 
 /* ---------- home ---------- */
