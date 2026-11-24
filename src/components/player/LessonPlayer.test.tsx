@@ -51,6 +51,15 @@ describe('LessonPlayer', () => {
     expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
   });
 
+  it('has previous and next arrows next to the step count', () => {
+    renderPlayer();
+    expect(screen.getByRole('button', { name: 'Previous step' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
+    expect(screen.getByRole('heading', { name: 'Second step' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Previous step' }));
+    expect(screen.getByRole('heading', { name: 'First step' })).toBeInTheDocument();
+  });
+
   it('marks the lesson complete on the last step', () => {
     const complete = vi.spyOn(progress, 'markComplete');
     const track = vi.spyOn(analytics, 'track');

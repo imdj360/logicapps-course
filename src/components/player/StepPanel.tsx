@@ -15,7 +15,11 @@ export function StepPanel({ step, index, count, nextName, onNext, onBack, recap 
   return (
     <div className="panel step-panel" aria-live="polite">
       <div className="step-panel__top">
-        <span>Step {index + 1} / {count}</span>
+        <div className="step-panel__count">
+          <button type="button" className="step-arrow" onClick={onBack} disabled={index === 0} aria-label="Previous step" title="Previous step (←)">←</button>
+          <span>Step {index + 1} / {count}</span>
+          <button type="button" className="step-arrow" onClick={onNext} disabled={!nextName} aria-label="Next step" title="Next step (→)">→</button>
+        </div>
         {step.tag && <span className={`tag tag--${step.tag}`}>{step.tag}</span>}
       </div>
       <h2>{step.name}</h2>
