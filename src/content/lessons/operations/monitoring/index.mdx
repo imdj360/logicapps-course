@@ -23,13 +23,11 @@ Run history can answer the second question if you know which run to open. For th
 <Step id="runhistory" name="Run history first">
 In Standard, open a workflow and, under **Tools**, select **Run history**. Select a run, then select each step to see its **inputs**, **outputs** and any **errors**.
 
-It covers **stateful** workflows (stateless ones only while you enable run history for debugging), and keeps runs for **90 days** by default. It's per run, not a place to see trends.
+It covers **stateful** workflows (stateless ones only if you enable run history), and keeps runs for **90 days** by default. It's per run, not a place to see trends.
 </Step>
 
 <Step id="appinsights" name="Application Insights">
-Standard can send its telemetry to **Application Insights**. It needs the Azure Functions **v4** runtime, which is the default, and Application Insights enabled on the logic app.
-
-For the richer **enhanced telemetry**, add this to `host.json`:
+Standard can send its telemetry to **Application Insights**. For the richer **enhanced telemetry**, the logic app needs the Azure Functions **v4** runtime (the default) and Application Insights enabled, plus this in `host.json`:
 
 ```json
 "extensions": {
@@ -48,7 +46,7 @@ For the richer **enhanced telemetry**, add this to `host.json`:
 - **exceptions**: trigger and action failures.
 - **dependencies**: one resource calling another, such as a parent workflow calling a child.
 
-A request's `operation_Id` is the **run ID**, so one query brings back a whole run:
+A request's `operation_Id` is the **run ID**, so one query brings back all the trigger and action events of a run (union with `exceptions` or `dependencies` for the rest):
 
 ```kusto
 requests
@@ -70,7 +68,7 @@ Telemetry costs money. By default the level is **Information**. To keep only err
 </Step>
 
 <Step id="loganalytics" name="Or Log Analytics">
-Without Application Insights, add a **diagnostic setting** on the logic app: under **Logs**, select **Workflow Runtime Logs**, and send it to a Log Analytics workspace. Events such as `WorkflowRunStarted`, `WorkflowActionCompleted` and `WorkflowTriggerEnded` land in the **LogicAppWorkflowRuntime** table:
+Or add a **diagnostic setting** on the logic app: under **Logs**, select **Workflow Runtime Logs**, and send it to a Log Analytics workspace. Events such as `WorkflowRunStarted`, `WorkflowActionCompleted` and `WorkflowTriggerEnded` land in the **LogicAppWorkflowRuntime** table:
 
 ```kusto
 LogicAppWorkflowRuntime
@@ -88,7 +86,7 @@ For more, add **tracked properties** to an action, such as the order number and 
 </Step>
 
 <Step id="views" name="Live views" tag="TIP">
-Application Insights also gives you **Live metrics**, the **Application map** and metrics in the `workflow.operations` namespace, such as **Runs Completed**. The logic app's **Log stream** shows events as they happen.
+With enhanced telemetry on, Application Insights also gives you **Live metrics**, the **Application map** and metrics in the `workflow.operations` namespace, such as **Runs Completed**. The logic app's **Log stream** shows the debugging output.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -105,5 +103,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/enable-enhanced-telemetry-standard-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-logic-apps-overview
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (90-day retention)
+Fact-checked verbatim 2026-11-24.
 Not claimed: anything from create-monitoring-tracking-queries (Consumption only), a Standard monitoring data reference (none on Learn). The run ID in the query is Learn's sample value. "Telemetry costs money" is our framing.
 */}

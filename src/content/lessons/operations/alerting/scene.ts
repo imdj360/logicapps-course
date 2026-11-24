@@ -36,7 +36,7 @@ export const scene: Scene = {
       visible: [...core],
       highlight: ['rule', 'rule-team'],
       tokens: [{ id: 'r1', edge: 'metrics-rule', tone: 'info' }, { id: 'r2', edge: 'rule-team', tone: 'fail' }],
-      chips: [{ label: 'check', value: 'every 1 min' }, { label: 'look back', value: '5 min' }],
+      chips: [{ label: 'example check', value: 'every 1 min' }, { label: 'look back', value: '5 min' }],
     },
     delay: {
       visible: [...core],

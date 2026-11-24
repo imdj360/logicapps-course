@@ -41,7 +41,7 @@ export const scene: Scene = {
       visible: [...core, 'conn2', 'app-conn2', 'conn2-dest'],
       highlight: ['conn', 'conn2'],
       tokens: [{ id: 'c1', edge: 'app-conn', tone: 'info' }, { id: 'c2', edge: 'app-conn2', tone: 'info' }],
-      chips: [{ label: 'Service Bus managed', value: '6,000 calls/min' }, { label: 'spread', value: 'more connections' }],
+      chips: [{ label: 'Service Bus connector', value: '6,000 calls/min' }, { label: 'spread', value: 'more connections' }],
     },
     destination: {
       visible: [...core, 'queue', 'app-queue', 'queue-dest'],

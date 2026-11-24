@@ -20,21 +20,21 @@ You're half awake. A fixed order of checks helps: **trigger**, then **run**, the
 </Step>
 
 <Step id="trigger" name="Start with the trigger">
-Microsoft's troubleshooting guide starts with **trigger history**:
+Microsoft's docs start with **trigger history**:
 
 - **Failed**: the trigger itself broke. Select the attempt and choose **Outputs** to see the error.
 - **Skipped**: it checked and found nothing new. That's not an error, and no run was created.
-- **Succeeded**: the trigger fired. A run started, so move on to run history.
+- **Succeeded**: it found data. Usually a **Fired** status appears too; if not, a condition or Split on may mean no run started. If a run exists, move on to run history.
 </Step>
 
 <Step id="run" name="Then the run">
 In **Run history**, open a failed run. **Failed** means at least one action failed and nothing after it handled the failure.
 
-Select each step to review its **inputs**, **outputs** and **error message**. The failed action is red; the ones after it show **Skipped**.
+Select each step to review its **inputs**, **outputs** and **error message**. The failed action shows **Failed**; actions after it whose run-after conditions weren't met show **Skipped**.
 </Step>
 
 <Step id="action" name="Read the failing action">
-Usually the answer is in the failed action's outputs: a status code and a message from the service it called. A 401 points at credentials or permissions, a 429 at throttling, a 5xx at the other side.
+Usually the answer is in the failed action's outputs: a status code and a message from the service it called. As a rule of thumb (ours): a 401 points at credentials or permissions, a 429 at throttling, a 5xx at the other side.
 
 Check whether it's **one run or many**: a query over your logs, like the ones in the monitoring lesson, tells you if this is one bad message or an outage.
 </Step>
@@ -46,19 +46,19 @@ Some errors point below your workflow, at the **storage account** the runtime de
 - `Azure.Storage.Blobs: This request is not authorized to perform this operation`
 - `Failed to save workflow`
 
-Check the `AzureWebJobsStorage` setting, the private endpoints for Blob, File, Table and Queue, and DNS. In the portal, **Diagnose and solve problems** has a **Logic App Down or Reporting Errors** check.
+Check the `AzureWebJobsStorage` setting, the private endpoints for Blob, File, Table and Queue, and DNS.
 </Step>
 
 <Step id="fix" name="Fix, then resubmit" tag="FIX">
 Once the cause is fixed, **resubmit** the failed runs from run history, or use **Submit from this action** to rerun from the failed step.
 
-Resubmit reruns the **same workflow version** with the same inputs. Submit from an action needs a finished, sequential run with 40 or fewer actions, and can't start inside or after a For each or Until loop. And resubmitting **might create duplicate data**: check whether the failed run already did part of the work.
+Resubmit reruns the **same workflow version** with the same inputs. Submit from an action needs a finished, sequential run with 40 or fewer actions, and can't start from a For each or Until action, or from any action inside or after one. And resubmitting **might create duplicate data**: check whether the failed run already did part of the work.
 </Step>
 
 <Step id="after" name="After the night" tag="TIP">
 Turn the incident into one improvement: a catch scope that would have alerted with a clear message, an idempotency check that makes resubmits safe, or a **Health Check** workflow.
 
-And for production, Microsoft says that to get the app-level SLA for Standard, set **Maximum Burst** to **2 or more** instances.
+And for production, Microsoft says that to get the app-level SLA for Standard, set **Maximum Burst** to **2 or more** instances. If the app can't scale because of that setting, **Diagnose and solve problems** > **Logic App Down or Reporting Errors** shows a warning.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -74,5 +74,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-diagnosing-failures
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
+Fact-checked verbatim 2026-11-24.
 Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The 3am scenario and the trigger-run-action-platform order as a checklist are ours; Learn's own order is trigger history, then run history.
 */}

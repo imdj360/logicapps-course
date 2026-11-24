@@ -32,16 +32,16 @@ You can filter them by **Workflow Name** and **Status**. The names differ from C
 <Step id="rule" name="Create an alert rule">
 On the logic app, under **Monitoring**, select **Alerts**, then **Create** > **Alert rule**. Choose:
 
-- a **signal**: one of the workflow metrics, filtered to your workflow;
-- a **condition**: for example, greater than a threshold;
+- a **signal**: one of the workflow metrics (we'd filter it to your workflow);
+- a **condition**: for example, greater than or equal to a threshold;
 - an **evaluation**: Learn's example checks every **1 minute** over the last **5 minutes**;
-- an **action group**: who gets notified, and how.
+- who gets notified, and how (in Azure Monitor, an action group).
 
 Learn's worked example is for Consumption, so check the exact metric name in the portal.
 </Step>
 
 <Step id="delay" name="Alert on delay, not just failure" tag="TIP">
-Failures aren't the only problem. **Workflow Job Execution Delay** rises when jobs wait to run, the same signal the scaler watches. Our advice: alert on it for workflows where latency matters, such as anything a customer waits for.
+Failures aren't the only problem. **Workflow Job Execution Delay** measures the time between a job being scheduled and actually running; Learn says the scaler works to keep these delays under control. Our advice: alert on it for workflows where latency matters, such as anything a customer waits for.
 </Step>
 
 <Step id="logalerts" name="Log alerts">
@@ -77,6 +77,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-logic-apps-overview
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
+Fact-checked verbatim 2026-11-24.
 Learn notes: the metrics page describes Workflow Runs Failure Rate as "the number of failed workflow runs", so whether it's a count or a percentage is ambiguous; we avoid saying which. The alert example on Learn (Triggers Failed) is Consumption only.
 Not claimed: a Standard alert-rule walkthrough (none on Learn). The delay alert, the log-alert query use and the alert-fatigue advice are ours.
 */}

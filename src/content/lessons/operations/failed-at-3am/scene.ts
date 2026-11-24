@@ -29,7 +29,7 @@ export const scene: Scene = {
       visible: ['phone', 'trig', 'phone-trig'],
       highlight: ['trig'],
       tokens: [{ id: 't1', edge: 'phone-trig', tone: 'info' }],
-      chips: [{ label: 'Failed', value: 'open Outputs', tone: 'fail' }, { label: 'Skipped', value: 'no run, not an error' }, { label: 'Succeeded', value: 'go to run history', tone: 'ok' }],
+      chips: [{ label: 'Failed', value: 'open Outputs', tone: 'fail' }, { label: 'Skipped', value: 'no run, not an error' }, { label: 'Succeeded + Fired', value: 'go to run history', tone: 'ok' }],
     },
     run: {
       visible: ['phone', 'trig', 'run', 'phone-trig', 'trig-run'],
@@ -41,7 +41,7 @@ export const scene: Scene = {
       visible: [...path],
       failed: ['act'],
       tokens: [{ id: 'a1', edge: 'run-act', tone: 'fail' }],
-      chips: [{ label: '401', value: 'credentials' }, { label: '429', value: 'throttling' }, { label: '5xx', value: 'their side' }],
+      chips: [{ label: 'rule of thumb: 401', value: 'credentials' }, { label: '429', value: 'throttling' }, { label: '5xx', value: 'their side' }],
     },
     platform: {
       visible: [...path, 'storage', 'run-storage'],

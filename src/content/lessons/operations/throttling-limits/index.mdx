@@ -28,7 +28,7 @@ Throttling can happen at:
 </Step>
 
 <Step id="resource" name="Your logic app">
-Standard has far fewer resource-level caps than Consumption. A Standard workflow has **no limit on the number of actions** that can run in any interval, where Consumption allows 100,000 per 5 minutes.
+Learn lists no action-count limit for Standard: a Standard workflow has **no limit on the number of actions** that can run in any interval, where Consumption allows 100,000 per 5 minutes by default (300,000 in high throughput mode).
 
 What you control is **trigger concurrency**: unlimited by default. Turn it on to cap concurrent runs at **1 to 100**, with up to **200 waiting runs**. Remember that turning it on can't be undone. To spot resource-level throttling in Standard, Microsoft points to the **Http 4xx** metric.
 </Step>
@@ -36,7 +36,7 @@ What you control is **trigger concurrency**: unlimited by default. Turn it on to
 <Step id="connector" name="The connector">
 Every managed connector has **its own limits**, listed on its reference page. The Service Bus connector, for example, allows up to **6,000 calls per minute**.
 
-When a connector returns 429, the action's **retry policy** kicks in. To go further, Microsoft suggests **multiple connections** so the workflow can partition the work, a separate connection per action, or changing the **For each** parallelism.
+When a connector returns 429, the action's **retry policy** kicks in, where the action supports one. To go further, Microsoft's options (its examples use Consumption) are **multiple connections** so the workflow can partition the work, a separate connection per action, or changing the **For each** parallelism.
 </Step>
 
 <Step id="destination" name="The service you call">
@@ -49,7 +49,7 @@ The fixes slow the caller down:
 </Step>
 
 <Step id="storage" name="And the storage account" tag="TIP">
-In Standard there's a fourth, quieter limit: the **storage account** behind your app. It throttles beyond 20,000 requests per second. Spread the work across workflows and logic apps; each logic app scales independently. The storage account lesson covers the details.
+In Standard there's a fourth, quieter limit: the **storage account** behind your app. It throttles beyond 2,000 requests per partition and 20,000 per second per account. Spread the work across workflows, or across multiple storage accounts (up to 32, set up before you create the app). The storage account lesson covers the details.
 </Step>
 
 <Step id="sizes" name="Message size limits">
@@ -74,6 +74,7 @@ If you call a Standard workflow's Request trigger through the **API Management R
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/handle-throttling-problems-429-errors
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 Learn note: the throttling page suggests the Http 4xx metric for Standard; that's a general App Service metric, not specific to throttling.
 Not claimed: Standard connector-level throttling behaviour (Learn describes it only for Consumption). The import scenario is ours.
 */}
