@@ -10,7 +10,7 @@ youWillLearn:
   - What the scaler watches when it adds instances
   - How to get ahead of a predictable peak
   - When storage, not compute, becomes the limit
-  - How deployment slots and zone redundancy work for Standard
+  - How zone redundancy works for Standard
 relatedArticles:
   - title: "Cut Logic Apps Standard Costs by 70% in Dev & POC Azure Environments"
     url: https://dev.to/imdj/cut-logic-apps-standard-costs-by-70-in-dev-poc-azure-environments-22on
@@ -21,8 +21,6 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
   - title: "Create example Standard workflow in Azure portal"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
-  - title: "Set Up Deployment Slots for Zero Downtime"
-    url: https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
   - title: "Enable Zone Redundancy for Workflows"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/set-up-zone-redundancy-availability-zones
 reviewStatus: approved
@@ -76,12 +74,6 @@ For stateful workflows, Microsoft's guideline is about **100,000 action executio
 Each workflow you add to a logic app increases its **cold start** time. Microsoft also recommends no more than **50 actions per workflow** to keep the designer responsive, and splitting business logic into multiple workflows where it makes sense.
 </Step>
 
-<Step id="slots" name="Deploy without downtime">
-**Deployment slots** let you deploy a new version to a staging slot, then **swap** it with production without interruption.
-
-Some rules for Standard: non-production slots are **read-only**, workflows **only run in the production slot**, traffic distribution is disabled, and blue-green deployment and A/B testing aren't supported.
-</Step>
-
 <Step id="zones" name="Zone redundancy" tag="TIP">
 For resilience within a region, you can enable **zone redundancy**. For Standard it's a **one-time setting when you create the resource**, available on both the Workflow Service Plan and ASE v3. If the region doesn't support it, the option shows as unavailable.
 </Step>
@@ -91,7 +83,7 @@ For resilience within a region, you can enable **zone redundancy**. For Standard
 - The scaler watches the **trigger** and **job delay**, about every 15–30 seconds.
 - Scaling out can take **25–50 minutes** for 1 to 100 instances: use **prewarmed instances** or split work across logic apps.
 - **Storage** can throttle beyond 20,000 requests per second per account: plan extra storage accounts before you create the app.
-- **Deployment slots** swap without downtime; workflows run only in production. **Zone redundancy** is set at creation.
+- **Zone redundancy** is set at creation.
 </Step>
 
 {/*
@@ -99,7 +91,6 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
-- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-zone-redundancy-availability-zones
 Fact-checked verbatim 2026-11-24.
 Not claimed: maximum burst instance count, numbers for prewarmed or minimum instances, scaling between WS tiers, a recommended number of workflows per app, zone-redundancy pricing. The 9am scenario is illustrative.

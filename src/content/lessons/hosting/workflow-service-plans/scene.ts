@@ -12,7 +12,6 @@ export const scene: Scene = {
     { id: 'w2', kind: 'hosting-plan', label: 'Instance 2', sublabel: 'added', x: 370, y: 240 },
     { id: 'w3', kind: 'hosting-plan', label: 'Instance 3', sublabel: 'prewarmed', x: 370, y: 370 },
     { id: 'storage', kind: 'storage', label: 'Azure Storage', sublabel: '20k req/s', x: 630, y: 240 },
-    { id: 'slot', kind: 'hosting-plan', label: 'Staging slot', sublabel: 'read-only', x: 790, y: 110 },
   ],
   edges: [
     { id: 'queue-w1', from: 'queue', to: 'w1' },
@@ -23,7 +22,6 @@ export const scene: Scene = {
     { id: 'w1-storage', from: 'w1', to: 'storage' },
     { id: 'w2-storage', from: 'w2', to: 'storage' },
     { id: 'w3-storage', from: 'w3', to: 'storage' },
-    { id: 'slot-w1', from: 'slot', to: 'w1', style: 'dashed' },
   ],
   steps: {
     problem: {
@@ -70,19 +68,13 @@ export const scene: Scene = {
       highlight: ['w1'],
       chips: [{ label: 'more workflows', value: 'slower cold start', tone: 'warn' }, { label: 'actions per workflow', value: '≤ 50' }],
     },
-    slots: {
-      visible: [...base, 'slot', 'slot-w1'],
-      highlight: ['slot', 'slot-w1'],
-      tokens: [{ id: 'd1', edge: 'slot-w1', tone: 'ok' }],
-      chips: [{ label: 'swap', value: 'no downtime', tone: 'ok' }, { label: 'workflows run', value: 'production only' }, { label: 'A/B testing', value: 'not supported', tone: 'warn' }],
-    },
     zones: {
       visible: [...base, ...scaled],
       highlight: ['w1', 'w2', 'w3'],
       chips: [{ label: 'zone redundancy', value: 'set at creation' }, { label: 'available on', value: 'WS plan · ASE v3' }],
     },
     recap: {
-      visible: [...base, ...scaled, 'scaler', 'scaler-queue', 'scaler-w2', 'storage', 'w1-storage', 'w2-storage', 'w3-storage', 'slot', 'slot-w1'],
+      visible: [...base, ...scaled, 'scaler', 'scaler-queue', 'scaler-w2', 'storage', 'w1-storage', 'w2-storage', 'w3-storage'],
       chips: [{ label: 'scale', value: 'plan ahead' }, { label: 'storage', value: 'watch it' }],
     },
   },
