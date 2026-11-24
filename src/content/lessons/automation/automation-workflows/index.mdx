@@ -1,0 +1,105 @@
+---
+title: Building an automation workflow
+module: automation
+order: 3
+minutes: 12
+level: Intermediate
+summary: Follow Microsoft's workflow quickstart for Logic Apps Automation (preview). Describe the intent to the AI assistant or use the designer, then publish, test and monitor in the browser. We stay within what Learn states.
+youWillLearn:
+  - How to start a workflow from the application page
+  - How the AI assistant and the designer differ as starting points
+  - What you still complete after the assistant generates a workflow
+  - How draft, publish, test and monitoring fit together
+  - What Learn does and doesn't show about agents, tools, MCP servers and approval
+reviewStatus: draft
+---
+
+<Step id="problem" name="From intent to workflow" tag="PROBLEM">
+A supplier reports a short shipment. You want a workflow that reads the message, decides what to do and asks a person when it is unsure. You don't want to wire every branch by hand.
+
+The quickstart opens with the same wish: **define the business logic only once, and then run the automation reliably and autonomously with human oversight when necessary**. This lesson follows Microsoft's quickstart, which is a **preview** guide, so screens and steps can change. The supplier scenario is ours.
+</Step>
+
+<Step id="open" name="Open the application">
+Before you start you need a project and an application, and a role that can create workflows: the workflow quickstart says **Contributor**, the application quickstart says **Contributor or Author**.
+
+In the Azure Logic Apps Automation portal, select your project on the **Projects** tab, then select your application. The portal opens the application's **Workflows** page. Select **Create workflow**, enter a name and select **Build**. The designer opens with an empty canvas and an **Add a trigger** placeholder.
+</Step>
+
+<Step id="start" name="Pick a starting point">
+Learn offers these starting points; you can combine them, but pick one to begin:
+
+- **AI assistant**: describe the logic in plain words and the assistant generates the workflow.
+- **Workflow designer**: start with an empty designer and add a trigger, actions, agents, tools, MCP servers and other components.
+- **Templates**: per the overview, prebuilt patterns with a prepopulated trigger and actions. You still complete setup such as authentication and parameter values. The quickstart's template details sit in hidden page markup, so we skip them.
+
+Whatever you choose, **you get a workflow that you can test and monitor in the portal**.
+</Step>
+
+<Step id="describe" name="Describe the intent">
+With the designer open, select **Copilot** on the bottom toolbar and enter a detailed description in the **Copilot** pane. Learn's tip: be specific, including **the trigger event or condition**, **the actions that you want to happen**, and **the results that you expect**.
+
+Select **Generate**. Copilot **generates and validates your workflow in real time**, which can take **several moments up to a few minutes**. The assistant creates the structure, including the trigger, actions and branches.
+</Step>
+
+<Step id="finish" name="Finish what the assistant left" tag="TIP">
+Generating isn't the end. Before you test, Learn says to:
+
+- set up the **connections** for operations that call outside services
+- fill required fields the assistant left empty (marked with an **asterisk** or a **red outline**)
+- fix **alerts** that appear on steps that need extra setup, such as missing values, settings, connections or tools
+
+You then keep refining by entering prompts in the chat window.
+</Step>
+
+<Step id="build" name="Build in the designer">
+In the designer, you select **Add a trigger**, search or browse, pick one, and fill in its inputs. After the trigger, select the plus sign (**+**) to add an action. The quickstart's example uses the **When an HTTP request is received** trigger and a **Response** action that returns status 200 and a greeting.
+
+The operations gallery shows **built-in operations**, which run natively in the Automation runtime, and **Azure connectors**, which run in multitenant Azure on shared resources. The overview says there are **1,400+** connectors.
+</Step>
+
+<Step id="agents" name="Agents, tools and approval">
+Learn names the building blocks you can add: **agents**, **tools**, **MCP servers** and connectors. An agent is **an AI agent with tool capabilities**, and a tool is something an agent **calls to complete a task**. The runtime executes plans **with human approval where needed**, and the compare page lists **built-in approval and intervention points**.
+
+Honest gap: the workflow quickstart's worked example is a plain web request with no agent. It doesn't show how to configure a tool, an MCP server or an approval step, so we don't either. Check the portal and Learn for those details.
+</Step>
+
+<Step id="test" name="Publish and test">
+By default the designer runs in **draft mode** and saves changes automatically. The **published** version runs in production. Select **Publish** at the top right to make the draft live.
+
+For web request or webhook triggers, you can test the draft first. Schedule triggers and outside events need you to publish **before the trigger can fire**. To test, select **Test**, enter **Test data (JSON)**, then select **Test Draft**.
+</Step>
+
+<Step id="monitor" name="Monitor the run">
+After you test, the portal switches from Designer view to **Monitoring view**. The read-only canvas shows a **color-coded status** for each step, and a side window lists each run with its status, timestamp and duration. An **execution log** shows operations in order.
+
+Select an operation to see its **Output**, **Input** and **Properties**. For failed operations, the same panel shows the error message.
+</Step>
+
+<Step id="refine" name="Refine and republish">
+Learn says you don't need to get everything right the first time. From Monitoring view, go back to Designer view and change the workflow in any of three ways:
+
+- the **designer**: add actions or edit values
+- the **assistant**: select **Chat** and give follow-up instructions such as adding error handling
+- the **code editor**: select **Code** to edit the underlying JSON; Learn says **changes in Designer view and Code view stay synchronized**
+
+All edits go into the draft. Select **Publish** to send them to production.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Create a workflow from your **application**, then start with the **AI assistant**, the **designer** or a **template** (templates per the overview).
+- Describe the **trigger, actions and expected results**; then finish **connections, required fields and alerts** yourself.
+- Edits go to a **draft**; **Publish** makes it live. Test and monitor **in the browser**.
+- Learn shows agents, tools, MCP servers and human approval as building blocks, but not a worked example. Be careful what you assume.
+- It is all **preview**, so re-check Learn.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/quickstart-create-dynamic-automation-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/dynamic-workflow-automation-introduction (1,400+ connectors, runtime tasks, key concepts)
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/compare-automation-services (built-in approval and intervention points)
+Fact-checked verbatim 2026-11-24.
+Learn gaps: the quickstart's visible worked example is a web request handler; its "Add Tool" content (Action, MCP Tool, Sub-workflow) sits in commented-out markup in the page source, so it is not claimed. No steps for configuring a model, a tool, an MCP server, or an approval or escalation step. No limits, pricing or regions.
+Not claimed: how the assistant decides what to generate, or that generated workflows are correct without review. The short-shipment scenario is ours.
+*/}

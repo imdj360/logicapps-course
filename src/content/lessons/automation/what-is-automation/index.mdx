@@ -1,0 +1,108 @@
+---
+title: What Logic Apps Automation is
+module: automation
+order: 1
+minutes: 10
+level: Beginner
+summary: A preview sibling of Standard and Consumption for processes that don't follow fixed paths. See the problem it targets, how its runtime works, and when to pick it, with the caveats of a preview.
+youWillLearn:
+  - The kind of process Logic Apps Automation targets
+  - How its runtime works, in Microsoft's five tasks
+  - How it differs from Standard and Consumption
+  - What it shares with Standard, and what the browser tooling covers
+  - Why it is a preview and what that means for you
+reviewStatus: draft
+---
+
+<Step id="problem" name="Processes without a fixed path" tag="PROBLEM">
+Picture a supplier emailing about a late delivery, a short shipment or a changed price. Each message is different, the rules keep shifting, and exceptions pile up.
+
+Microsoft describes this kind of work: **some processes don't follow fixed paths and resist traditional, prescriptive automation**. Steps change each time, rules are unclear, and data is unstructured or unpredictable. Hardcode every path and you get **brittle workflows that break when conditions change**.
+
+**Azure Logic Apps Automation** targets this work. It is a **preview** capability, so details can change. The supplier example is ours.
+</Step>
+
+<Step id="approach" name="Describe it, let it reason">
+Microsoft's pitch: you **describe what you want to automate**, and the platform builds workflows that **reason about each request, choose the best next step at runtime, and escalate to a human when needed**.
+
+Learn says this suits **ambiguous, fast-changing work with high cognitive load**. You work in a **visual designer** with an **AI assistant** and **1,400+ ready-to-use connectors**.
+</Step>
+
+<Step id="runtime" name="How the runtime works">
+Automation uses a **probabilistic approach that supports agentic behavior**. Microsoft lists five tasks the runtime performs:
+
+1. Interpret the provided requests or instructions.
+2. Evaluate the available and relevant data, context, and domain knowledge.
+3. Iteratively reason and assess the possible actions.
+4. Choose and plan the best way to complete the task.
+5. Execute the plan with human approval where needed.
+
+Learn's examples include **purchase order processing across systems and tools**, and **case triage and exception handling across systems**.
+</Step>
+
+<Step id="pick" name="When to choose it">
+Learn's rule of thumb is short:
+
+- A business process that is **variable and decision-loaded**: choose Automation.
+- A business process that is **stable, known, and predictable**: choose **Standard or Consumption**.
+
+The compare page says the same in its scenario table: variable, decision-heavy processes where the path changes each time go to Automation; stable, repeatable processes with known steps go to Standard or Consumption.
+</Step>
+
+<Step id="orchestration" name="Fixed paths or runtime choice">
+The overview compares how each side orchestrates work:
+
+- **Automation**: probabilistic, with agentic planning and execution. Dynamic next-step selection at runtime.
+- **Standard and Consumption**: deterministic, rule-based orchestration. Predefined branches and conditions.
+
+Standard and Consumption are not agent-free: the compare page lists **agent loops for autonomous and conversational agentic workflows** for both. Our reading: the structure around those loops is still one you define up front. In this course we keep Standard as the default home for your workflows (ours).
+</Step>
+
+<Step id="sibling" name="A sibling, not a replacement">
+Microsoft calls Automation **a sibling automation tool** for scenarios with unpredictable paths. Automation and **Standard** use the **same runtime, connectors, and management plane** (the compare page says "management tools").
+
+Consumption is different: Learn says it **uses pay-as-you-go billing with a different runtime and hosting**. You don't need Logic Apps experience to start with Automation.
+</Step>
+
+<Step id="compare" name="Compute, code and fit">
+From the compare page, side by side:
+
+- **Compute**: Automation has dedicated compute that scales to zero. Standard has dedicated compute that you configure and manage. Consumption has shared compute managed by Microsoft.
+- **Inline code**: Automation, JavaScript and Python. Standard, JavaScript, C# and PowerShell. Consumption, JavaScript.
+- **Best for**: Automation, AI-heavy, code-rich, long-running, in-product workflows at enterprise scale. Standard, enterprise integrations, structured processes and scheduled jobs. Consumption, lightweight integrations and proof-of-concept projects.
+
+The same page also compares Automation with Microsoft Copilot Studio and non-Microsoft platforms.
+</Step>
+
+<Step id="browser" name="Built in the browser">
+Learn says you can **build, test, and monitor workflows entirely inside your browser**: there is **nothing else to install on your computer**. The compare page also lists **local development in Visual Studio Code**, which Learn does not detail. There are three starting points:
+
+- **AI assistant**: a chat where you use prompts to generate or refine workflows.
+- **Workflow designer**: a visual experience where you build, test and run agentic workflows.
+- **Workflow templates**: prebuilt patterns with a prepopulated trigger and actions.
+
+Even so, you finish templates and generated workflows yourself: Learn says you still complete setup such as authentication and parameter values. Human **approval and intervention points** are built in.
+</Step>
+
+<Step id="preview" name="It is a preview" tag="TIP">
+Every Learn page in this set carries the note that **this preview capability is subject to the Supplemental Terms of Use for Microsoft Azure Previews**. Preview features can change, so re-check the Learn pages before you rely on any detail here.
+
+Learn's overview does not state pricing details, region availability or limits for Automation. Look those up on the current docs before planning a rollout (ours).
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Automation targets processes that **don't follow fixed paths**: unclear rules, changing steps, unstructured data.
+- Its runtime is **probabilistic and agentic**: interpret, evaluate, reason, plan, then execute with **human approval where needed**.
+- Choose it for **variable, decision-loaded** work; **Standard or Consumption** for stable, predictable work.
+- It is a **sibling** of Standard: same runtime, connectors and management plane. Consumption differs.
+- You can **build, test and monitor in the browser** with nothing to install; the compare page also lists local development in VS Code. It is a **preview**.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/dynamic-workflow-automation-introduction
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/compare-automation-services
+Fact-checked verbatim 2026-11-24.
+Learn wording differs: the overview says Automation and Standard share a "management plane", the compare page says "management tools". The overview says Standard and Consumption support human oversight "through workflow steps and integrations", while Automation has it "built-in".
+Not claimed: pricing, regions, quotas or limits (not stated on these pages), a migration path from Standard, or how the probabilistic runtime behaves internally. The supplier-email scenario and "Standard as default home in this course" are ours.
+*/}

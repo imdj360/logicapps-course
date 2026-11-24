@@ -1,0 +1,101 @@
+---
+title: Projects, applications and workflows
+module: automation
+order: 2
+minutes: 10
+level: Beginner
+summary: Logic Apps Automation (preview) organizes work in three levels. See what a project, an application and a workflow each hold, who can see what, and how the levels map to Standard.
+youWillLearn:
+  - The three levels, project then application then workflow
+  - What a project is for and who owns it
+  - How an application packages related workflows
+  - How roles and privacy work at each level
+  - How these levels compare to Standard
+relatedArticles:
+  - title: "Logic Apps Automation runs on Container Apps: what the portal doesn't tell you"
+    url: https://dev.to/imdj/logic-apps-automation-runs-on-container-apps-what-the-portal-doesnt-tell-you-18n9
+reviewStatus: draft
+---
+
+<Step id="problem" name="Keeping automations apart" tag="PROBLEM">
+Imagine one team automating order handling and another automating supplier invoices. Without clear boundaries, their connections, settings and workflows get mixed together and are harder to govern as the team grows.
+
+Learn describes the same worry: you need to keep applications and their workflows, connections and other items **organized, secure, and separate so that unrelated work doesn't mix together**. This feature is a **preview**, so details can change. The team example is ours.
+</Step>
+
+<Step id="levels" name="Three levels">
+Azure Logic Apps Automation organizes your work at three levels:
+
+- **Project**: the top-level container that groups applications.
+- **Application**: a deployable package that stores workflows, connections, parameters, analytics, settings, and other items.
+- **Workflow**: the automation workload itself, with a starting event (**trigger**) and steps (**actions**).
+
+You build from the top down: project first, then application, then workflow.
+</Step>
+
+<Step id="project" name="The project">
+A project is **an isolated container with its own compute, networking, security, and governance**. Learn suggests **one project per team, business area, or scenario**.
+
+You create it in the Azure Logic Apps Automation portal: on the **Projects** tab, select **Create project**, then choose Basic or Advanced (Advanced opens the Azure portal). You provide a subscription, a resource group, a location and a unique project name. Creation **might take several minutes**.
+
+You need an Azure subscription to create projects. Builders who only create workflows need portal access, with **no Azure subscription necessary**.
+</Step>
+
+<Step id="members" name="Owner and project roles">
+Whoever creates the project becomes its **owner**, a single value that you can't clear or remove. Learn says the owner is **a property, not a permission level**. The owner gets Contributor permissions plus the power to delete the project and resources.
+
+You add members in **Settings**, under **Users**, with **Add user**, choosing a role by the principle of least privilege. The project roles are **Reader**, **Author** and **Contributor**. People you add must be in the same Microsoft Entra tenant.
+</Step>
+
+<Step id="app" name="The application">
+An application is the **deployable and scalable package** inside a project. Learn suggests **one application per logical workload or related workflows**, for example `order-processing` or `daily-reports`.
+
+To create one you need the project **Contributor or Author** role; Reader isn't enough. On the **Apps** page, select **Create app**, enter a name and select **Create**. It **might take a minute or two**, so watch the **Status** column and wait until the app is ready before you create connections or workflows.
+</Step>
+
+<Step id="privacy" name="Private by default">
+Applications are **private by default**. Only the creator, the application owner, can see an app's contents. Project owners and contributors can see **application metadata** for governance, but not workflow content, connections or run history.
+
+To share an app, an application owner or contributor opens the app's **Settings**, then **User permissions**, and adds people. The app roles are **Reader** and **Contributor**. Learn says **by design, the Author role is unavailable at the application level**.
+</Step>
+
+<Step id="workflow" name="The workflow">
+A workflow is **the unit that runs an automation workload**. Each complete workflow:
+
+- lives within an **automation application**
+- starts with a **single trigger**, the event that runs it
+- follows the trigger with **one or multiple actions**
+
+The workflow quickstart says you need the **Contributor** role to create workflows, while the application quickstart says **Contributor or Author**. Learn is inconsistent here, so check your role. The next lesson builds one.
+</Step>
+
+<Step id="standard" name="Compared with Standard">
+Learn maps the new levels to things you may know. A **project** is similar to **a Visual Studio Code project that includes one or multiple Standard logic apps and their workflows**. An **application** is similar to **a Standard logic app**. A **workflow** is like other workflows in Standard and Consumption.
+
+So a Standard logic app and an Automation application both package related workflows. Learn doesn't claim they are the same resource type, and neither do we.
+</Step>
+
+<Step id="author" name="Author's observation" tag="TIP">
+Learn doesn't say where an application runs. In Daniel's tests (author's observation, not in Learn), each app became its own **Azure Container App**, the Azure portal showed the project as an **Automation Environment**, and each change to an app created a new version.
+
+These details were seen in one preview environment and can change. The tests are written up in the related article.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Project** is the isolated top-level container: one per team, business area or scenario.
+- **Application** is the deployable package: one per logical workload.
+- **Workflow** has one trigger and one or more actions, and lives in an application.
+- Applications are **private by default**; project roles are Reader, Author, Contributor; app roles are Reader and Contributor.
+- Everything is in **preview**, so check Learn for changes.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/quickstart-create-dynamic-automation-projects
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/quickstart-create-dynamic-automation-applications
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/quickstart-create-dynamic-automation-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/automation/dynamic-workflow-automation-introduction (key concepts table)
+Fact-checked verbatim 2026-11-24.
+Not claimed: where an application runs, pricing, regions, quotas or limits on projects, applications or workflows (none stated on these pages), or any Standard-to-Automation migration. The order-versus-invoice team scenario is ours.
+Author's observation, not in Learn (from Daniel's article, https://dev.to/imdj/logic-apps-automation-runs-on-container-apps-what-the-portal-doesnt-tell-you-18n9): each app becomes its own Azure Container App; the Azure portal shows the project as "Automation Environment"; each change creates a new version.
+*/}

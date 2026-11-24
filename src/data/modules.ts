@@ -71,7 +71,12 @@ export const MODULES: ModuleDef[] = [
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),
   ] },
-  { id: 'advanced', number: '10', title: 'Advanced integration patterns', lessons: [
+  { id: 'automation', number: '10', title: 'Logic Apps Automation (preview)', lessons: [
+    l('what-is-automation', 'What Logic Apps Automation is'),
+    l('projects-apps-workflows', 'Projects, applications and workflows'),
+    l('automation-workflows', 'Building an automation workflow'),
+  ] },
+  { id: 'advanced', number: '11', title: 'Advanced integration patterns', lessons: [
     l('claim-check', 'Claim check'),
     l('request-reply-service-bus', 'Request-reply over Service Bus'),
     l('sequential-convoy', 'Sequential convoy'),
@@ -81,7 +86,7 @@ export const MODULES: ModuleDef[] = [
     l('circuit-breaker', 'Circuit breaker'),
     l('long-waits-correlation', 'Correlation & long waits'),
   ] },
-  { id: 'systems', number: '11', title: 'Whole systems', lessons: [
+  { id: 'systems', number: '12', title: 'Whole systems', lessons: [
     l('order-processing', 'Order-processing pipeline'),
     l('edi-b2b', 'EDI / B2B flow'),
     l('integration-hub', 'Event-driven integration hub'),
