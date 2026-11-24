@@ -47,6 +47,7 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
   return (
     <div className="stage">
       <StateChips chips={step.chips} />
+      <div className="stage__scroll">
       <svg className="stage__svg" viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Diagram for this step">
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -93,6 +94,7 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
           );
         })}
       </svg>
+      </div>
       <Legend items={scene.legend} />
     </div>
   );

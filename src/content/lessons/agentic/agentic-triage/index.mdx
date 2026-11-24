@@ -1,0 +1,92 @@
+---
+title: Agentic triage
+module: agentic
+order: 5
+minutes: 12
+level: Advanced
+summary: A run fails at night. An agent workflow investigates, explains the cause and proposes a fix, and a human decides whether to resubmit.
+youWillLearn:
+  - What autonomous and conversational agent workflows are
+  - How the agent loop chooses tools built from actions
+  - How to keep a human in charge of anything that changes state
+  - Where to see what the agent did and what it cost
+reviewStatus: draft
+---
+
+<Step id="problem" name="Twelve failures by 7am" tag="PROBLEM">
+Overnight, twelve runs of your order workflow failed. The on-call engineer will open each run, read the failed action's outputs, check the logs, work out whether it's safe to resubmit, and do it twelve times.
+
+Most of that is reading and reasoning, which is the kind of work an **agent** is good at. Let's build an agent workflow that does the investigation, and leaves the decision to a human.
+</Step>
+
+<Step id="types" name="Agent workflows">
+Logic Apps has two kinds of agent workflow:
+
+- **Autonomous agents** start from any supported trigger and run without a human in the conversation.
+- **Conversational agents** start with *When a chat session starts* and talk with a person.
+
+You can create both in **Standard** (stateful workflows) and in **Consumption**, where agent workflows are still in **preview**. Our triage agent is autonomous: a failure alert starts it.
+</Step>
+
+<Step id="loop" name="The agent loop">
+The heart of the workflow is the **Agent** action. You give it **instructions**: its role, its tasks and how to answer. Here: *"Investigate failed runs of the order workflow. Find the cause. Propose a fix. Never change anything yourself."*
+
+The agent then loops: the **model** (for example an Azure OpenAI deployment) plans which **tool** to call, the tool runs, the result goes back to the model, and so on until it has an answer.
+</Step>
+
+<Step id="tools" name="Tools are actions">
+A **tool** is a sequence of one or more ordinary **actions** inside the Agent action. It can't contain a trigger, and it must start with an action.
+
+Our agent gets two read-only tools: *Get run history* (the failed run's actions, inputs and outputs) and *Query logs* (recent errors for the partner API). Tool parameters are filled in by the model only when it calls that tool.
+</Step>
+
+<Step id="investigate" name="The agent investigates">
+The alert starts a run. The model calls *Get run history* and sees that *Call partner API* failed with **503** after retries. It calls *Query logs* and finds the partner reported a deployment between 02:00 and 02:40, and successful calls since 02:41.
+
+Each call is one iteration of the loop, and you can step through the iterations in run history.
+</Step>
+
+<Step id="propose" name="A proposal, not an action">
+The agent's answer: *"12 runs failed between 02:05 and 02:39 with 503 from the partner API during their deployment. The API has been healthy since 02:41. The failure happened before Save order, so a full resubmit won't duplicate orders. Proposal: resubmit all 12 runs."*
+
+Notice what it didn't do: it has **no tool that changes anything**. It can only read and propose.
+</Step>
+
+<Step id="approve" name="A human approves" tag="FIX">
+Changing state goes through a person. After the agent answers, the workflow sends its proposal to the on-call engineer as an **approval** (for example an approval email or a Teams message), and **waits** for the response.
+
+Only on *Approve* does the workflow continue to a separate *Resubmit runs* step. On *Reject* it stops and logs why.
+
+<Callout title="Watch out">The Agent action has no built-in approval gate. The approval is a step you design into the workflow, and the agent never gets the resubmit tool.</Callout>
+</Step>
+
+<Step id="trace" name="See what it did" tag="TIP">
+Open the run and select the agent. The **agent log** shows the instructions, every tool call with its inputs and results, the model's messages, and **how many tokens** each request used.
+
+In Standard you can also send agent-loop events to Application Insights, so you can follow cost and behaviour over time.
+</Step>
+
+<Step id="guardrails" name="Guardrails">
+A few habits keep agent workflows safe:
+
+- Give agents **read-only tools** by default; put changes behind an approval step.
+- Use a **managed identity** for the model connection in production.
+- Watch **tokens**: the model's context length is limited, and agent history can be trimmed by token or message count.
+- Keep instructions short and specific about what the agent must never do.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Autonomous** agent workflows run from a trigger; **conversational** ones chat with a person.
+- The **Agent** action loops: the model picks a **tool** (a sequence of actions), reads the result, repeats.
+- Let agents **investigate and propose**; route anything that changes state through a **human approval** step.
+- The **agent log** in run history shows every tool call and the tokens used.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-autonomous-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-conversational-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
+Not claimed: Standard GA date, built-in approval gate, max agent iterations. The overnight scenario and log contents are illustrative.
+*/}

@@ -7,10 +7,10 @@ export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'trigger', kind: 'trigger', label: 'Order received', x: 110, y: 110 },
-    { id: 'call', kind: 'connector-managed', label: 'Call partner API', sublabel: 'inside Try scope', x: 340, y: 110 },
+    { id: 'call', kind: 'connector-managed', label: 'Call partner API', sublabel: 'in Try scope', x: 340, y: 110 },
     { id: 'save', kind: 'connector-builtin', label: 'Save order', x: 580, y: 110 },
     { id: 'partner', kind: 'user', label: 'Partner API', x: 340, y: 270 },
-    { id: 'catch', kind: 'scope', label: 'Catch scope', sublabel: 'run after: Failed', x: 580, y: 270 },
+    { id: 'catch', kind: 'scope', label: 'Catch scope', sublabel: 'after: Failed', x: 580, y: 270 },
     { id: 'alert', kind: 'action', label: 'Alert team', x: 800, y: 270 },
     { id: 'term', kind: 'condition', label: 'Terminate', sublabel: 'status: Failed', x: 800, y: 420 },
     { id: 'you', kind: 'human', label: 'You', sublabel: 'next morning', x: 110, y: 420 },

@@ -74,7 +74,7 @@ describe.each(entries)('lesson $slug', ({ frontmatter, steps, body, scene }) => 
 
   it('keeps node labels short enough for the card', () => {
     for (const n of scene!.nodes) expect(n.label.length, n.label).toBeLessThanOrEqual(16);
-    for (const n of scene!.nodes) if (n.sublabel) expect(n.sublabel.length, n.sublabel).toBeLessThanOrEqual(20);
+    for (const n of scene!.nodes) if (n.sublabel) expect(n.sublabel.length, n.sublabel).toBeLessThanOrEqual(15);
   });
 
   it('keeps nodes inside the view box', () => {

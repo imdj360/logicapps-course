@@ -108,6 +108,7 @@ a.credit:hover { color: var(--fg); }
 .meta span { font: 500 12px/1 var(--font-mono); padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 
 .player { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1rem; align-items: start; }
+.player__side { display: grid; gap: 1rem; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
 .stage-wrap { padding: 0.85rem; }
 .stage-toolbar { display: flex; justify-content: flex-end; gap: 0.4rem; margin-bottom: 0.5rem; }
@@ -122,6 +123,7 @@ a.credit:hover { color: var(--fg); }
 .chip--fail { border-left-color: var(--fail); } .chip--fail .chip__value { color: var(--fail); }
 .chip--neutral { border-left-color: var(--border-strong); }
 
+.stage__scroll { overflow-x: auto; border-radius: var(--radius-md); }
 .stage__svg { width: 100%; height: auto; display: block; border-radius: var(--radius-md); background: var(--surface-2); border: 1px dashed var(--border); }
 .edge { stroke: var(--border-strong); stroke-width: 2; }
 .edge--dashed { stroke-dasharray: 6 5; }
@@ -225,6 +227,16 @@ kbd { font: 500 10.5px/1 var(--font-mono); border: 1px solid var(--border-strong
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
   .player { grid-template-columns: minmax(0, 1fr); }
+  /* Single column: diagram, then step text, then the step timeline. */
+  .player__main { display: contents; }
+  .stage-wrap { order: 1; }
+  .player__side { order: 2; }
+  .timeline { order: 3; margin-top: 0; }
+}
+
+@media (max-width: 700px) {
+  /* Keep diagram labels legible; the diagram scrolls inside its panel instead. */
+  .stage__svg { min-width: 620px; }
 }
 
 @media (max-width: 900px) {

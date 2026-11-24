@@ -77,7 +77,7 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
   return (
     <div className="player-root">
       <div className="player">
-        <div>
+        <div className="player__main">
           <div className="panel stage-wrap">
             <div className="stage-toolbar">
               <button type="button" className="btn btn--sm" onClick={() => { setPaused(false); setReplayKey((k) => k + 1); }}>
@@ -91,7 +91,7 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
           </div>
           <Timeline steps={steps} index={nav.index} onSelect={nav.goTo} />
         </div>
-        <div style={{ display: 'grid', gap: '1rem' }}>
+        <div className="player__side">
           <StepPanel
             step={step}
             index={nav.index}

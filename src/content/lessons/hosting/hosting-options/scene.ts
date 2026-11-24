@@ -12,8 +12,8 @@ export const scene: Scene = {
     { id: 'hyb', kind: 'hosting-plan', label: 'Hybrid', sublabel: 'Arc Kubernetes', x: 780, y: 230 },
     { id: 'shared', kind: 'user', label: 'Other tenants', sublabel: 'shared compute', x: 115, y: 410 },
     { id: 'storage', kind: 'storage', label: 'Azure Storage', sublabel: 'state · history', x: 255, y: 410 },
-    { id: 'func', kind: 'hosting-plan', label: 'Functions host', sublabel: 'runtime extension', x: 425, y: 410 },
-    { id: 'vnet', kind: 'keyvault', label: 'Private VNet', sublabel: 'endpoints · integ.', x: 600, y: 410 },
+    { id: 'func', kind: 'hosting-plan', label: 'Functions host', sublabel: 'runtime', x: 425, y: 410 },
+    { id: 'vnet', kind: 'keyvault', label: 'Private VNet', sublabel: 'private access', x: 600, y: 410 },
     { id: 'sql', kind: 'storage', label: 'SQL Server', sublabel: 'state · history', x: 780, y: 410 },
   ],
   edges: [
