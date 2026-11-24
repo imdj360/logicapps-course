@@ -4,12 +4,12 @@ module: advanced
 order: 1
 minutes: 9
 level: Advanced
-summary: A 40 MB invoice PDF doesn't belong in a queue message. Store the payload once, pass a reference, and let each receiver fetch it when it needs it.
+summary: A 40 MB invoice is too big for a queue message. Put the file in Blob Storage and send only its address through the queue.
 youWillLearn:
-  - What the Claim Check pattern is and when to use it
-  - The message size limits in Service Bus and Logic Apps that make it necessary
-  - How Event Grid and Blob Storage can produce the claim check for you
-  - Who deletes the payload, and how to keep it secure
+  - What a claim check is, in one sentence
+  - How to build it with Blob Storage and Service Bus in Standard
+  - Who deletes the file, and how to keep it secure
+  - When to use it, and when not to
 learnLinks:
   - title: "Claim Check pattern"
     url: https://learn.microsoft.com/en-us/azure/architecture/patterns/claim-check
@@ -23,58 +23,70 @@ reviewStatus: approved
 lastVerified: '2026-11-24'
 ---
 
-<Step id="problem" name="Too big to queue" tag="PROBLEM">
-Supplier invoices arrive as large PDFs with XML attached. Several workflows need them, connected through Service Bus. But queues are built for **many small messages**: large ones risk being **rejected**, slow everything down, and can cost more.
+<Step id="problem" name="Too big for the queue" tag="PROBLEM">
+Suppliers send invoices as **40 MB PDFs**. Two workflows need them, and they talk through a Service Bus queue.
+
+But a Service Bus message on the Standard tier can be at most **256 KB**. The invoice won't fit.
 </Step>
 
-<Step id="pattern" name="The pattern">
-Microsoft's **Claim Check** pattern: store the large payload in an **external data store**, and send only a **reference** to it, the claim check, through the messaging system. Receivers use the reference to fetch the payload **when they need to process it**.
+<Step id="pattern" name="The idea">
+**Don't send the file. Send where the file is.**
 
-The messaging system never sees or stores the payload.
+Like a coat check at a theatre: you hand in the coat and get a small ticket. The ticket travels; the coat stays safe. Microsoft calls this the **Claim Check** pattern.
 </Step>
 
-<Step id="limits" name="The limits that force it">
-- **Service Bus**: 256 KB per message on Basic and Standard. Premium defaults to 1 MB per entity, and can go up to **100 MB** over AMQP.
-- **Logic Apps Service Bus connector**: large messages need the **built-in** connector in Standard; the **managed** connector is capped at **1 MB**, even on Premium.
-- **Logic Apps**: 100 MB per message, or up to 1 GB per action with chunking where supported.
+<Step id="limits" name="Why the queue says no">
+- Service Bus Standard: **256 KB** per message. Premium: up to **100 MB** (over AMQP).
+- The **managed** Service Bus connector: **1 MB**, even on Premium. Large messages need the **built-in** connector.
+- Big messages also slow a queue down, even when they fit.
 </Step>
 
 <Step id="sequence" name="How it flows">
-1. The sender writes the payload to the store, such as **Blob Storage**.
-2. **Only after the write succeeds**, it publishes a message with the reference.
-3. The receiver reads the reference and fetches the payload directly from the store.
-
-In Logic Apps, that's a **Create blob** action before **Send message**, and a **Get blob content** action in the receiving workflow (our mapping; Learn's pattern page has no Logic Apps example).
+1. The sender **saves the invoice** in Blob Storage.
+2. **Only when that succeeds**, it sends a small message with the blob's path.
+3. The receiver reads the message, then **fetches the invoice** from Blob Storage.
 </Step>
 
-<Step id="eventgrid" name="Let Event Grid do it">
-All four of Microsoft's samples use **Blob Storage**, and three use **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
+<Step id="build" name="Build it in Logic Apps">
+Our build in Standard, with built-in actions:
 
-In production, Microsoft says to filter for fully committed blobs and to design the receiver for **delayed, duplicate and out-of-order** events.
+**Sender workflow**
+1. **Upload blob to storage container**: the invoice.
+2. **Send message** (Service Bus): body `{ "blob": "invoices/INV-778.pdf" }`.
+
+**Receiver workflow**
+1. Trigger: **When messages are available in a queue**.
+2. **Read blob content**, using the path from the message.
+3. Process the invoice.
 </Step>
 
-<Step id="lifecycle" name="Who deletes the payload?" tag="PROBLEM">
-The payload outlives the message. Decide which component **owns deletion**, and make sure a valid claim check never points at a deleted payload: align message expiry with blob retention.
+<Step id="eventgrid" name="Skip the message (option)">
+You can let the upload itself be the ticket. Microsoft's samples use **Event Grid**: saving the blob raises a **BlobCreated** event, and the blob's URL in that event is the claim check.
 
-Writing the payload and publishing the reference aren't one transaction, so a failure in between can leave an **orphaned** payload. Microsoft suggests the Idempotent Consumer pattern for duplicates.
+In Standard, the built-in trigger **When a blob is added or updated** is a simpler way to start the receiver from the upload (ours).
+</Step>
+
+<Step id="lifecycle" name="Who deletes the file?" tag="PROBLEM">
+The message disappears once it's read. The file doesn't.
+
+Decide **which workflow deletes it**, for example the receiver with **Delete a blob** when it's done (ours). And never delete a file that a waiting message still points to.
 </Step>
 
 <Step id="security" name="Keep it secure" tag="TIP">
-Don't embed **security tokens** in the claim check. Microsoft's advice: keep authorization a separate interaction between each system and the data store. In Logic Apps, that fits a **managed identity** with a role on the storage account (our mapping). For temporary access, use the **Valet Key** pattern.
+Don't put keys or tokens in the message: just the path. Let each workflow reach Blob Storage with its own **managed identity** (ours).
 </Step>
 
 <Step id="when" name="When to use it">
-Use it when payloads regularly exceed the message size limit, when large messages strain the broker, or when the payload is **sensitive** and shouldn't pass through queue tools.
+**Use it** when files are bigger than your queue allows, or too sensitive to sit in a queue.
 
-Skip it when latency matters more than size, or when a tier that fits the payload is an option, such as Service Bus Premium. Either way, Microsoft's advice is to keep messages as small as possible.
+**Skip it** when a higher tier fits the message, such as Service Bus Premium, or when every millisecond counts: fetching the file adds a step.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Store the payload, send a **reference**: the claim check.
-- Service Bus: **256 KB** Standard, up to **100 MB** Premium (AMQP); managed connector **1 MB**.
-- Publish the reference only **after** the write succeeds.
-- **Event Grid** BlobCreated events can be the claim check.
-- Decide who **deletes** the payload; keep tokens out of the reference.
+- Send **where the file is**, not the file.
+- Save first, **then** send the message.
+- Build: Upload blob → Send message; Read blob content on the other side.
+- Decide who **deletes** the file. No keys in the message.
 </Step>
 
 {/*
@@ -84,5 +96,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 Fact-checked verbatim 2026-11-24.
-The claim-check page doesn't mention Logic Apps; the Create blob / Get blob content mapping and the managed-identity note are ours. The invoice scenario is ours.
+Built-in action names from the AzureBlob built-in reference (Upload blob to storage container, Read blob content, Delete a blob, When a blob is added or updated). The claim-check page doesn't mention Logic Apps; the Create blob / Get blob content mapping and the managed-identity note are ours. The invoice scenario is ours.
 */}

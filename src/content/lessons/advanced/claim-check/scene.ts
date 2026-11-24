@@ -5,10 +5,10 @@ const core = ['sender', 'blob', 'queue', 'receiver', 'sender-blob', 'sender-queu
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'sender', kind: 'action', label: 'Sender flow', sublabel: 'Create blob', x: 120, y: 240 },
-    { id: 'blob', kind: 'storage', label: 'Blob Storage', sublabel: '40 MB payload', x: 450, y: 90 },
-    { id: 'queue', kind: 'servicebus', label: 'Queue', sublabel: 'reference only', x: 450, y: 390 },
-    { id: 'receiver', kind: 'action', label: 'Receiver flow', sublabel: 'Get blob', x: 780, y: 240 },
+    { id: 'sender', kind: 'action', label: 'Sender flow', sublabel: 'Upload blob', x: 120, y: 240 },
+    { id: 'blob', kind: 'storage', label: 'Blob Storage', sublabel: '40 MB invoice', x: 450, y: 90 },
+    { id: 'queue', kind: 'servicebus', label: 'Queue', sublabel: 'path only', x: 450, y: 390 },
+    { id: 'receiver', kind: 'action', label: 'Receiver flow', sublabel: 'Read blob', x: 780, y: 240 },
     { id: 'eg', kind: 'connector-managed', label: 'Event Grid', sublabel: 'BlobCreated', x: 780, y: 80 },
   ],
   edges: [
@@ -23,12 +23,12 @@ export const scene: Scene = {
       visible: ['sender', 'queue', 'receiver', 'sender-queue', 'queue-receiver'],
       failed: ['queue'],
       tokens: [{ id: 'p1', edge: 'sender-queue', tone: 'fail' }],
-      chips: [{ label: 'payload', value: '40 MB' }, { label: 'queue', value: 'rejects or slows', tone: 'fail' }],
+      chips: [{ label: 'invoice', value: '40 MB' }, { label: 'Standard queue', value: '256 KB max', tone: 'fail' }],
     },
     pattern: {
       visible: [...core],
       highlight: ['blob', 'queue'],
-      chips: [{ label: 'store', value: 'payload' }, { label: 'send', value: 'reference' }],
+      chips: [{ label: 'file', value: 'stays in Blob Storage' }, { label: 'message', value: 'carries its path', tone: 'ok' }],
     },
     limits: {
       visible: [...core],
@@ -38,7 +38,13 @@ export const scene: Scene = {
     sequence: {
       visible: [...core],
       tokens: [{ id: 's1', edge: 'sender-blob', tone: 'info' }, { id: 's2', edge: 'sender-queue', tone: 'ok' }, { id: 's3', edge: 'receiver-blob', tone: 'info' }],
-      chips: [{ label: '1', value: 'write payload' }, { label: '2', value: 'then send reference' }],
+      chips: [{ label: '1', value: 'save the file' }, { label: '2', value: 'then send the path' }, { label: '3', value: 'receiver fetches it' }],
+    },
+    build: {
+      visible: [...core],
+      highlight: ['sender', 'receiver'],
+      tokens: [{ id: 'b1', edge: 'sender-blob', tone: 'info' }, { id: 'b2', edge: 'sender-queue', tone: 'ok' }, { id: 'b3', edge: 'receiver-blob', tone: 'info' }],
+      chips: [{ label: 'sender', value: 'Upload blob → Send message' }, { label: 'receiver', value: 'queue trigger → Read blob content' }],
     },
     eventgrid: {
       visible: [...core, 'eg', 'blob-eg'],
@@ -49,7 +55,7 @@ export const scene: Scene = {
     lifecycle: {
       visible: [...core],
       highlight: ['blob'],
-      chips: [{ label: 'decide', value: 'who deletes' }, { label: 'risk', value: 'orphaned payloads', tone: 'warn' }],
+      chips: [{ label: 'message', value: 'gone after reading' }, { label: 'file', value: 'stays until deleted', tone: 'warn' }],
     },
     security: {
       visible: [...core],
@@ -62,7 +68,7 @@ export const scene: Scene = {
     },
     recap: {
       visible: [...core, 'eg', 'blob-eg'],
-      chips: [{ label: 'queue carries', value: 'a ticket, not the bag' }],
+      chips: [{ label: 'queue carries', value: 'the ticket, not the coat' }],
     },
   },
   legend: [{ tone: 'info', label: 'payload' }, { tone: 'ok', label: 'reference' }, { tone: 'fail', label: 'too large' }],
