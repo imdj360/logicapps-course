@@ -1,0 +1,87 @@
+---
+title: Resubmitting runs & failure handling
+module: reliability
+order: 5
+minutes: 10
+level: Intermediate
+summary: A partner API goes down at night. Follow the run through retries, a catch scope and a resubmit, and learn when resubmitting is safe.
+youWillLearn:
+  - What the default retry policy does, and which errors it retries
+  - How to catch failures with scopes and run-after
+  - What Resubmit and "Submit from this action" actually rerun
+  - Why resubmitting can create duplicates
+reviewStatus: draft
+---
+
+<Step id="problem" name="The API was down" tag="PROBLEM">
+At 02:13 your order workflow calls a partner's API, and the partner is in the middle of a deployment. The API answers **503 Service Unavailable**.
+
+By morning the partner is back, but the order is stuck. What did Logic Apps do on its own, what could you have built, and how do you get the order through now?
+</Step>
+
+<Step id="retry" name="Retries come first">
+Before anything fails, the action **retries**. Most actions use the **default retry policy**: an exponential interval policy with up to **4 retries**.
+
+Retries happen for **408** (timeout), **429** (too many requests) and **5xx** responses, like our 503. If a retry succeeds, the action shows **Succeeded with retries** in run history.
+
+You can switch an action to *Fixed interval*, *Exponential interval* or *None*.
+</Step>
+
+<Step id="fails" name="When retries run out">
+The partner stays down longer than the retries last. *Call partner API* ends as **Failed**.
+
+*Save order* only runs after *Succeeded*, so it's marked **Skipped**. Nothing handled the failure, so the whole run is **Failed**.
+</Step>
+
+<Step id="catch" name="Catch it with a scope" tag="FIX">
+The documented pattern is **try/catch with scopes**. Put the risky actions inside a *Scope*, then add a second scope after it whose **run after** setting is **Failed** (you can also tick *TimedOut* and *Skipped*).
+
+That catch scope only runs when something in the first scope failed. Inside it you can alert the team. The expression `result('Try')` returns the results of the scope's top-level actions, so you can filter for the failed ones and include their errors in the alert.
+</Step>
+
+<Step id="terminate" name="Keep the run honest">
+There's a catch to catching: if a later action **handles** the failure, the run counts as **Succeeded**. Your monitoring would see green.
+
+End the catch scope with a **Terminate** action set to **Failed**, with your own error code and message. The run is now marked failed, but with a clear reason, and the team has already been alerted.
+</Step>
+
+<Step id="resubmit" name="Resubmit the run" tag="FIX">
+In the morning the partner is back. Open the failed run and select **Resubmit**.
+
+Logic Apps reruns the workflow **with the same inputs** as the original run, and adds it as a **new run** in run history. It uses the **same workflow version** as the original run, even if you've changed the workflow since.
+</Step>
+
+<Step id="from-action" name="Resubmit from an action" tag="TIP">
+You don't always want to start from the top. **Submit from this action** reruns from a chosen action: actions before it **reuse their original inputs and outputs**, and the selected action and everything after it run again.
+
+It has limits: the run must be finished (Succeeded, Failed or Cancelled), the workflow must be **sequential** with **40 actions or fewer**, and you can't start from inside or after a *For each* or *Until* loop.
+</Step>
+
+<Step id="duplicates" name="Watch for duplicates" tag="PROBLEM">
+Resubmitting runs actions **again**. Microsoft's docs warn that create or delete operations can produce **duplicate data**, or try to delete something that's already gone.
+
+Suppose *Save order* had worked and the failure came later: a full resubmit would save the order twice. Design actions so running them twice is harmless, for example by checking whether the order ID already exists before inserting.
+</Step>
+
+<Step id="limits" name="How long you have" tag="TIP">
+You can only resubmit a run that's still in **run history**: **90 days** from the run's start by default.
+
+In Standard, **stateless** workflows don't keep run history by default, so there's nothing to resubmit unless you turn run history on for them.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- The **default retry policy** retries 408, 429 and 5xx responses, up to 4 times.
+- Use a **Try scope** plus a **Catch scope** that runs after *Failed* to handle errors, and `result()` to see what failed.
+- A handled failure makes the run *Succeeded*; add **Terminate (Failed)** to keep it visible.
+- **Resubmit** reruns with the same inputs and workflow version; **Submit from this action** reuses earlier outputs.
+- Resubmitting can **duplicate side effects**: make actions safe to run twice.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Not claimed: retry interval numbers (Learn is inconsistent), bulk resubmit, idempotency guidance beyond the duplicate-data warning (the order-ID check is our advice).
+*/}
