@@ -1,0 +1,93 @@
+---
+title: CI/CD with Bicep & ARM
+module: security
+order: 4
+minutes: 11
+level: Intermediate
+summary: Ship a Standard logic app the same way every time. Deploy infrastructure and workflows separately, promote one zip through environments, and swap without downtime.
+youWillLearn:
+  - Why Standard separates infrastructure from workflow code
+  - What a deployment zip must contain
+  - How to prepare connections for Azure before release
+  - How to deploy from GitHub Actions, Azure DevOps or the CLI, and swap slots
+reviewStatus: draft
+---
+
+<Step id="problem" name="Works on my laptop, again" tag="PROBLEM">
+Today someone exports the workflow from the portal and pastes it into production. Test and production drift, and nobody can say what's running where.
+
+Standard is built for a proper pipeline: the same artifact, promoted from environment to environment.
+</Step>
+
+<Step id="separate" name="Infrastructure and code">
+Microsoft's model: single-tenant Logic Apps **separates app code from infrastructure**. You provision infrastructure, such as the logic app, its plan, storage and networking, with templates. You build the workflows into a **zip**, an immutable artifact you deploy to each environment.
+</Step>
+
+<Step id="infra" name="The infrastructure">
+A Standard deployment needs:
+
+- the **logic app**, an App Service resource of kind `functionapp,workflowapp`;
+- a **Workflow Standard** hosting plan;
+- a **storage account**, for both stateful and stateless workflows;
+- **API connections**, if you use managed connectors;
+- optionally **Application Insights**.
+
+Deploy these with ARM templates or Bicep. Learn's Bicep and ARM quickstarts cover Consumption, so for Standard, start from Microsoft's GitHub and Azure DevOps samples.
+</Step>
+
+<Step id="zip" name="The deployment zip">
+A bundle-based project needs no build step; a NuGet-based one builds like a .NET project. Then zip it so the workflow folders, `host.json` and `connections.json` sit at the **root** of the zip, with **no extra folders**.
+
+`local.settings.json` isn't used in Azure, and can contain secrets, so keep it out of source control.
+</Step>
+
+<Step id="connections" name="Prepare connections" tag="PROBLEM">
+Managed connections made in VS Code use **raw keys** for local work, which expire after seven days. Before release, change their authentication in `connections.json` to `ManagedServiceIdentity`.
+
+Each managed API connection also needs an **access policy** for the logic app's identity. Microsoft calls an ARM template the easiest way to create the connections, and its samples include the access policies.
+</Step>
+
+<Step id="config" name="Per-environment values">
+Settings differ per environment, so keep them out of the zip:
+
+- **App settings**: set them in the pipeline, for example with the `appSettings` parameter of the Azure DevOps task.
+- **Parameters**: keep a `parameters.json` per environment and deploy the right one; `connections.json` can reference parameters and app settings.
+</Step>
+
+<Step id="release" name="Deploy the zip">
+Microsoft documents three ways:
+
+- **GitHub Actions**: `Azure/functions-action@v1` with the app name, the zip and a publish profile.
+- **Azure DevOps**: the `AzureFunctionApp@2` task with `deploymentMethod: 'zipDeploy'`.
+- **Azure CLI**: `az logicapp deployment source config-zip`, from a CLI extension that's still in preview.
+</Step>
+
+<Step id="slots" name="Swap without downtime">
+**Deployment slots** let you deploy to a staging slot and swap it into production without interruption, for example with `az functionapp deployment slot swap ... --target-slot production`.
+
+Non-production slots are **read-only** and don't run workflows; blue-green and A/B testing aren't supported.
+</Step>
+
+<Step id="roles" name="Least privilege for people" tag="TIP">
+Standard has four built-in roles: **Logic Apps Standard Reader**, **Operator** (enable, disable, resubmit), **Developer** (edit workflows and connections) and **Contributor** (everything except access). Give the pipeline and people only what they need.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Infrastructure** via templates; **workflows** as one zip, promoted through environments.
+- Zip with workflow folders and config files at the **root**.
+- Switch connections to **managed identity** and add **access policies** before release.
+- Inject **app settings** and **parameters** per environment.
+- Deploy with GitHub Actions, Azure DevOps or the CLI; **swap slots** for zero downtime.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-devops-deployment-single-tenant-azure-logic-apps
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
+- https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity (Microsoft.Web/sites kind)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app (roles)
+Learn inconsistencies: the setup page's example zip lists local.settings.json while the DevOps page says it's ignored in Azure; the Azure DevOps prose mentions a publish profile while its YAML uses a service connection.
+Not claimed: a Standard Bicep template on Learn (none found). "Works on my laptop" is our framing.
+*/}

@@ -1,0 +1,82 @@
+---
+title: Managed identity
+module: security
+order: 1
+minutes: 10
+level: Intermediate
+summary: Stop storing passwords for Azure services. Let the logic app's own identity sign in to storage, Service Bus, Key Vault and APIs, and avoid the one mistake that breaks every connection.
+youWillLearn:
+  - The system-assigned and user-assigned identities of a Standard logic app
+  - How to grant an identity access to a target resource
+  - Which connectors and actions can use a managed identity
+  - Why disabling the system-assigned identity breaks connections for good
+reviewStatus: draft
+---
+
+<Step id="problem" name="Secrets everywhere" tag="PROBLEM">
+Your workflows hold a storage key, a Service Bus connection string and an API secret. Each one can leak, and each one has to be rotated.
+
+A **managed identity** lets the logic app authenticate to Azure resources as itself, with no secret for you to store. Microsoft recommends it wherever it's supported.
+</Step>
+
+<Step id="identities" name="Two kinds of identity">
+- **System-assigned**: tied to the logic app. In Standard it's **enabled by default**; there's exactly one.
+- **User-assigned**: a separate Azure resource you create first, then attach. You can share it across logic apps.
+
+A logic app can have the system-assigned and several user-assigned identities enabled, but **uses one at a time**. The logic app, the identity and the target resource must be in the **same subscription**.
+</Step>
+
+<Step id="access" name="Grant access on the target">
+An identity can do nothing until the target resource lets it in. Many resources, such as storage accounts, need an **Azure role assignment**, for example **Storage Blob Data Contributor**. Some, such as key vaults, also support **access policies**.
+
+Grant access on the resource itself: if the identity can't see the higher-level resources, the designer won't show the target.
+</Step>
+
+<Step id="builtin" name="Built-in connectors">
+In Standard, these built-in connectors support managed identity: Azure Automation, Blob Storage, Event Hubs, Service Bus, Queues, Tables, HTTP, HTTP + Webhook and SQL Server.
+
+One limit: apart from **SQL Server** and **HTTP**, most built-in service provider connectors currently support only the **system-assigned** identity.
+</Step>
+
+<Step id="managed" name="Managed connectors">
+Managed connectors that support Microsoft Entra OAuth, such as Key Vault, Cosmos DB, Event Grid and Azure Resource Manager, can create a **managed identity** connection, which uses the logic app's identity at run time.
+
+In Standard, such a connection actually uses two connections: one to an internal token store and one to the target resource. The first uses the system-assigned identity by default.
+</Step>
+
+<Step id="http" name="HTTP with managed identity">
+For services without a connector, the **HTTP** action can authenticate with a managed identity. Under **Advanced parameters**, add **Authentication**, choose **Managed identity**, and set the **Audience** to the resource you're calling:
+
+- Azure Resource Manager: `https://management.azure.com/` (the default)
+- Key Vault: `https://vault.azure.net`
+- All storage accounts: `https://storage.azure.com/`
+
+The audience must match **exactly**, trailing slash included or not, or you get a 400 or 401.
+</Step>
+
+<Step id="disable" name="Don't disable it" tag="PROBLEM">
+If you disable the system-assigned identity, **every connection that uses it stops working**, even if you enable it again a moment later. Disabling deletes the identity's object ID, and re-enabling creates a new one.
+
+To take away its access, **remove its role assignments** instead.
+</Step>
+
+<Step id="cautions" name="Two cautions" tag="TIP">
+- The **hybrid** model doesn't support managed identity authentication; use an app registration there.
+- Microsoft warns that anyone who can edit a workflow effectively holds the permissions of every identity assigned to it. Give editing rights to trusted people only.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Standard enables the **system-assigned** identity by default; **user-assigned** identities are separate, shareable resources.
+- Grant access on the **target**: a role assignment or access policy.
+- Many built-in and managed connectors, and the **HTTP** action, can use it.
+- Set the HTTP **audience** exactly, trailing slash and all.
+- Never disable the system-assigned identity: remove role assignments instead.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
+- https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+Not claimed: identity count limits (Learn only links to a limits page). "Secrets everywhere" is our framing.
+*/}

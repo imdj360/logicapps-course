@@ -1,0 +1,74 @@
+---
+title: Event-driven integration hub
+module: systems
+order: 3
+minutes: 11
+level: Advanced
+summary: Replace point-to-point spaghetti with a hub. Use Service Bus topics, Event Grid and Event Hubs with Logic Apps so systems publish once and subscribers come and go.
+youWillLearn:
+  - What Microsoft's reference architecture recommends for enterprise integration
+  - How topics let several subscribers react to one message
+  - Where Event Grid and Event Hubs fit, and their limits in Standard
+  - How to keep workflows small and the hub manageable
+reviewStatus: draft
+---
+
+<Step id="problem" name="Everything talks to everything" tag="PROBLEM">
+Over the years, every system got a direct connection to every other: the ERP calls the warehouse, the warehouse calls the CRM, the CRM calls billing. Changing one system means changing several integrations.
+
+An **integration hub** puts a broker in the middle: systems publish once, and others subscribe to what they need.
+</Step>
+
+<Step id="reference" name="Microsoft's reference architecture">
+Microsoft's architecture for enterprise integration uses **message brokers and events to decouple services**: **Service Bus** as the message broker and **Event Grid** for event routing, with Logic Apps orchestrating.
+
+It names the patterns: **queue-based load leveling** and **publisher-subscriber**, broadcasting messages to multiple consumers.
+</Step>
+
+<Step id="topics" name="Topics: publish once">
+A Service Bus **topic** delivers each message to every **subscription**. The ERP publishes "order shipped" once; the CRM, billing and analytics each have their own subscription, and their own workflow.
+
+In Standard, use the built-in trigger **When messages are available in a topic subscription (peek-lock)**. Topics need the **Standard or Premium** Service Bus tier.
+</Step>
+
+<Step id="eventgrid" name="Event Grid: react to events">
+**Event Grid** routes events, such as a blob being created. In Standard, the **trigger** comes from the **managed** Event Grid connector, *When a resource event occurs*; the **built-in** connector only **publishes** events.
+
+Because the managed trigger is a webhook from the public cloud, it doesn't work when the logic app accepts traffic only through a private endpoint.
+</Step>
+
+<Step id="eventhubs" name="Event Hubs: streams">
+For high-volume streams, such as telemetry, the built-in **Event Hubs** trigger reads events in batches, **one partition per run**. Each connection handles about **1,000 events per minute**; Microsoft suggests spreading higher volumes across connections or workflows.
+
+The trigger keeps its own position in the stream. Updating the trigger resets it, so it might read from the start again.
+</Step>
+
+<Step id="small" name="Small workflows" tag="TIP">
+Our rule for a hub: **one workflow per responsibility**, such as one per subscription. Shared logic goes into child workflows, called with **Workflow Operations: Invoke a workflow in this workflow app**. Workflows stay under the 500-action limit and are easier to deploy and test.
+</Step>
+
+<Step id="front" name="A managed front door">
+Microsoft's basic integration architecture puts **API Management** in front of Logic Apps for external callers, and recommends allowing calls to the Logic Apps endpoints **only from API Management's IP address**. It also notes Logic Apps works best where responses don't need very low latency.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A hub decouples systems: **publish once**, subscribe as needed.
+- **Topics** fan out messages; use the built-in **peek-lock** topic trigger.
+- **Event Grid** trigger is **managed** (a webhook); built-in only publishes.
+- **Event Hubs**: one partition per run, about 1,000 events per minute per connection.
+- Keep workflows small; put **API Management** in front.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/enterprise-integration/queues-events
+- https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/enterprise-integration/basic-enterprise-integration
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
+- https://learn.microsoft.com/en-us/connectors/azureeventgrid/
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/eventgridpublisher/
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/eventhub/
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-azure-event-hubs
+- https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare (Invoke a workflow action name)
+Not claimed: built-in Event Hubs batch settings, a Learn "workflow per responsibility" guideline (ours). The order-shipped scenario is ours.
+*/}

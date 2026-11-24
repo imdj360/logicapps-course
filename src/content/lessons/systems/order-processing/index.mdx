@@ -1,0 +1,76 @@
+---
+title: Order-processing pipeline
+module: systems
+order: 1
+minutes: 12
+level: Intermediate
+summary: Put the course together. Design an order pipeline that answers the shop fast, never loses an order, survives a slow ERP, and tells you when something breaks.
+youWillLearn:
+  - How to split an order flow into a fast front door and a reliable back end
+  - Where queues, peek-lock and idempotency fit together
+  - How to transform, call the ERP and handle failures
+  - What to monitor once it's live
+reviewStatus: draft
+---
+
+<Step id="problem" name="The whole picture" tag="PROBLEM">
+The shop sends orders. The ERP must receive each one **exactly once in effect**, even when it's slow or down for maintenance. The shop must get an answer in seconds.
+
+No single feature does all that. This capstone combines the patterns from earlier modules into one design. The design is ours; each building block cites Microsoft.
+</Step>
+
+<Step id="front" name="A fast front door">
+A workflow with a **Request** trigger accepts the order, checks the basics, and puts it on a **Service Bus queue**. It answers right away: a Response with **202 Accepted**, or the asynchronous response setting.
+
+Microsoft's integration architecture points out the benefit: a queue lets you **queue messages when a back-end system isn't available**.
+</Step>
+
+<Step id="queue" name="The queue decouples">
+The queue absorbs bursts and outages. Microsoft's reference architecture calls this the **queue-based load leveling** pattern, and recommends Service Bus with Logic Apps to decouple systems for scalability and reliability.
+
+Give each message a **MessageId** from the order number, so Service Bus **duplicate detection** can drop accidental resends.
+</Step>
+
+<Step id="process" name="Process with peek-lock">
+A second workflow uses the **built-in** Service Bus trigger in **peek-lock** mode. Microsoft's architecture guidance: with peek-lock, the workflow can **validate each message before completing or abandoning it**, which prevents accidental message loss.
+
+The workflow is **stateful**, so every run has history and can be resubmitted.
+</Step>
+
+<Step id="transform" name="Transform and write">
+Reshape the order for the ERP with a **Liquid** template (JSON) or an **XSLT** map (XML). Then call the ERP, with a **retry policy** for temporary failures and a **timeout** that matches how long the business can wait.
+
+Make the write **idempotent**: upsert by order number, or check before creating, so a retry or resubmit can't create a second order.
+</Step>
+
+<Step id="failures" name="When it fails">
+Wrap the processing in a **Try** scope with a **Catch** scope that runs on failure or timeout. Catch alerts the team with the details from `result('Try')`, then ends with **Terminate (Failed)** so the run stays visible.
+
+Messages that can't be processed go to the **dead-letter queue**, where a small workflow can alert and help repair them.
+</Step>
+
+<Step id="observe" name="See it running">
+Use the order number as the **client tracking ID**, so you can find any order's runs in Application Insights or Log Analytics. Alert on **Workflow Runs Failure Rate** for the processing workflow, and on **Job Execution Delay** if orders start to wait.
+</Step>
+
+<Step id="scale" name="Room to grow" tag="TIP">
+If volume grows, the queue keeps the shop fast while the processing side scales. Watch the storage account and connector limits, and split heavy work across workflows or logic apps, as in the throttling and storage lessons.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Front door**: Request trigger, quick checks, queue, answer **202**.
+- **Queue**: load leveling, duplicate detection on a business MessageId.
+- **Back end**: built-in Service Bus trigger, **peek-lock**, stateful.
+- Transform, call the ERP with **retries and timeouts**, write **idempotently**.
+- **Try/Catch**, dead-letter handling, tracking IDs and alerts.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/enterprise-integration/queues-events
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection
+- plus the sources of the lessons this one draws on (Service Bus, idempotency, run-after, monitoring)
+The overall design is ours, assembled from documented building blocks; Learn doesn't describe this exact pipeline.
+*/}

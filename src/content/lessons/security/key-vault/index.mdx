@@ -1,0 +1,74 @@
+---
+title: Key Vault
+module: security
+order: 2
+minutes: 9
+level: Intermediate
+summary: Some secrets can't be replaced by an identity. Keep them in Key Vault, reference them from app settings, read them at run time, and keep them out of run history.
+youWillLearn:
+  - How Key Vault references in app settings work
+  - How rotation and caching affect references
+  - When to read a secret at run time with the Key Vault connector
+  - How to hide secrets in run history
+reviewStatus: draft
+---
+
+<Step id="problem" name="A secret you can't avoid" tag="PROBLEM">
+A partner API only accepts an API key. A managed identity can't help: the secret has to live somewhere.
+
+That somewhere should be **Azure Key Vault**, not an app setting in plain text and never the workflow definition.
+</Step>
+
+<Step id="references" name="Key Vault references">
+An app setting can **point at** a Key Vault secret instead of holding the value:
+
+```text
+@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/partner-api-key)
+```
+
+or `@Microsoft.KeyVault(VaultName=myvault;SecretName=partner-api-key)`. The logic app reads it with its **system-assigned identity** by default, which needs the **Key Vault Secrets User** role, or **Get** permission on secrets in an access policy.
+</Step>
+
+<Step id="rotation" name="Rotation and caching">
+Leave out the secret version, and the app uses the **latest** version: after a rotation, it picks up the new one **within 24 hours**. Values are cached and refetched every 24 hours, and any configuration change restarts the app and refetches them immediately.
+</Step>
+
+<Step id="designer" name="Secrets only" tag="PROBLEM">
+Microsoft warns: reference **only secrets** this way. The designer can't dereference an app setting that points at Key Vault, so a non-secret value it needs, such as a URL path, causes an error and a failed call.
+</Step>
+
+<Step id="params" name="Through parameters">
+In Standard, the `securestring` and `secureobject` parameter types aren't supported. Microsoft's pattern instead: define a **parameter**, and set its value from an app setting in `parameters.json` with `@appsetting('...')`, where the app setting is a Key Vault reference. Workflows then use `@parameters('...')`.
+</Step>
+
+<Step id="connector" name="Read it at run time">
+Sometimes a workflow needs a secret during a run, for example to pass it to an API. The built-in **Azure Key Vault** connector, Standard only, has actions such as **Get secret**, authenticated with a **managed identity** or Entra OAuth against your **Vault URI**.
+</Step>
+
+<Step id="secure" name="Keep it out of run history" tag="FIX">
+A secret you read at run time shows up in run history unless you hide it. In the action's **Settings**, under **Security**, turn on **Secure Outputs** (and **Secure Inputs** on the actions that use it).
+
+Secured data isn't sent to Log Analytics, and you can't add tracked properties to that action. Turn it on for **every downstream action** that handles the secret too.
+</Step>
+
+<Step id="slots" name="Per environment" tag="TIP">
+Microsoft recommends **separate vaults** per environment, and marking app settings that use Key Vault references as **slot settings**, so a swap doesn't move production secrets into staging.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Reference secrets from app settings with `@Microsoft.KeyVault(...)`, read with the app's identity.
+- Without a version, rotations are picked up within **24 hours**.
+- Reference **secrets only**; the designer can't resolve them.
+- Use the **Key Vault connector** for secrets needed during a run.
+- Turn on **Secure Inputs/Outputs** so secrets stay out of run history.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/keyvault/
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
+Not claimed: which RBAC role the built-in Key Vault connector's Get secret needs (Learn doesn't say). The partner API key scenario and secret name are ours.
+*/}
