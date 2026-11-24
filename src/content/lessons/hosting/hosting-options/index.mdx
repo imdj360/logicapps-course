@@ -1,0 +1,98 @@
+---
+title: Hosting options side by side
+module: hosting
+order: 1
+minutes: 10
+level: Intermediate
+summary: The same workflow can live in four different places. See what changes in cost, isolation, scaling and networking.
+youWillLearn:
+  - How Consumption and Standard differ at runtime
+  - What the Workflow Service Plan tiers give you
+  - When an App Service Environment v3 or a hybrid deployment fits
+  - What every Standard logic app depends on behind the scenes
+reviewStatus: draft
+---
+
+<Step id="problem" name="One workflow, four homes" tag="PROBLEM">
+Your order workflow works. Now three people have opinions about where it should run.
+
+Finance wants to pay only when it runs. Security wants no public endpoints. The plant manager wants it to keep running in the factory's own datacenter.
+
+Logic Apps has an answer for each of them, but they're different hosting options with different trade-offs. Let's put them side by side.
+</Step>
+
+<Step id="consumption" name="Consumption">
+**Consumption** runs in the **multitenant** Logic Apps service. Compute, storage and networking are shared with other customers, and you don't manage any of it.
+
+Each logic app resource holds **one workflow**. You pay **per execution**: every trigger and action run is billed. Built-in operations get a free allowance, and managed connectors are billed at Standard or Enterprise connector rates.
+</Step>
+
+<Step id="consumption-fit" name="When Consumption fits" tag="TIP">
+Consumption is great for workflows that run occasionally and don't need private networking: you pay for executions, not for compute sitting idle.
+
+It stops fitting when you have many workflows that belong together, steady high volume, or a requirement to reach resources only through a private network. That's where Standard comes in.
+</Step>
+
+<Step id="standard" name="Standard on a Workflow Service Plan">
+**Standard** runs on the **single-tenant** Logic Apps runtime, on compute that belongs to your logic app. One logic app can hold **many workflows**, both stateful and stateless.
+
+You choose a Workflow Service Plan tier per instance:
+- **WS1**: 1 vCPU, 3.5 GB memory
+- **WS2**: 2 vCPU, 7 GB memory
+- **WS3**: 4 vCPU, 14 GB memory
+
+You pay for the plan, not per action.
+</Step>
+
+<Step id="scaling" name="How Standard scales">
+A Workflow Service Plan scales **dynamically**. The scaler looks at your triggers and how long jobs wait to execute, and adds or removes instances.
+
+Scaling out takes time. Microsoft's guidance is that going from 1 to 100 workers can take 25–50 minutes, which is why you can keep **prewarmed instances** ready for sudden load.
+</Step>
+
+<Step id="network" name="Private networking">
+Standard can live on your network. **Private endpoints** handle **inbound** traffic, so the workflow's endpoints aren't public. **VNet integration** handles **outbound** traffic, so actions can reach databases and APIs that only exist on your private network.
+
+That answers Security's request, without leaving the Workflow Service Plan.
+</Step>
+
+<Step id="ase" name="App Service Environment v3">
+When you need **full isolation**, Standard can run in an **App Service Environment v3** on an **Isolated v2** App Service plan (Windows only). The environment is dedicated to you and your logic apps inherit its network setup.
+
+<Callout title="Watch out">There's no dynamic scaling here. You define autoscale rules on the App Service plan yourself. ASE v1 and v2 are no longer supported for Standard logic apps.</Callout>
+</Step>
+
+<Step id="hybrid" name="Hybrid: your own datacenter">
+For the plant manager: the **hybrid deployment model** runs the Standard runtime in an **Azure Container Apps extension** on an **Azure Arc-enabled Kubernetes** cluster, on-premises, in a private cloud or another public cloud.
+
+Instead of Azure Storage, run history and state go to **SQL Server**, with an SMB file share for artifacts.
+
+<Callout title="Watch out">Some features aren't available in hybrid, such as deployment slots, and managed API connections need an Entra app registration instead of a managed identity. Check the current limitations before you choose it.</Callout>
+</Step>
+
+<Step id="behind" name="What sits behind Standard" tag="TIP">
+Every Standard logic app on Azure needs an **Azure Storage account**, even for stateless workflows. Queues schedule triggers; tables and blobs hold workflow state, inputs, outputs and run history.
+
+And the runtime itself is an **extension of the Azure Functions runtime**. That's why a Standard project has a `host.json`, uses Functions app settings, and runs locally in VS Code. More on both in the next lessons.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Consumption**: multitenant, one workflow per resource, pay per execution, no compute to manage.
+- **Standard (WS1–WS3)**: single-tenant, many workflows, pay for the plan, dynamic scaling, private endpoints and VNet integration.
+- **ASE v3**: fully isolated and dedicated, Isolated v2 plans, you manage scaling.
+- **Hybrid**: Standard on your own Kubernetes via Azure Arc, with SQL Server for state.
+- Standard always depends on a **storage account** and the **Functions runtime**.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-standard-workflows-hybrid-deployment-requirements
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-hybrid-deployment
+- https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-devops-deployment-single-tenant-azure-logic-apps
+Not claimed (unconfirmed on Learn): Consumption VNet statement, max burst numbers, hybrid GA date.
+*/}
