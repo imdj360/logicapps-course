@@ -1,0 +1,10 @@
+---
+import { siteConfig } from '../config/site';
+const domain = siteConfig.plausibleDomain;
+---
+{domain && (
+  <>
+    <script is:inline defer data-domain={domain} src="https://plausible.io/js/script.tagged-events.js"></script>
+    <script is:inline>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };</script>
+  </>
+)}
