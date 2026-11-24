@@ -1,0 +1,88 @@
+---
+title: Agent workflows vs fixed workflows
+module: agentic
+order: 1
+minutes: 11
+level: Intermediate
+summary: Some processes follow rules; others need judgement. See how a Logic Apps agent loop works, what it's built from, and when a fixed workflow is still the better choice.
+youWillLearn:
+  - How agent workflows differ from fixed workflows, in Microsoft's words
+  - The parts of an agent loop (model, instructions and tools)
+  - Autonomous and conversational agents, and how each starts
+  - The limits and costs to know before you build one
+reviewStatus: draft
+---
+
+<Step id="problem" name="Rules or judgement?" tag="PROBLEM">
+Most of this course builds **fixed** workflows: a trigger, then a known sequence of actions. That's ideal when the rules are clear.
+
+But some work needs judgement: reading a free-text complaint, deciding what it's about, and picking the right next step. Logic Apps can put a **large language model** in charge of those decisions, in an **agent workflow**.
+</Step>
+
+<Step id="compare" name="Two kinds of workflow">
+Microsoft's comparison:
+
+- **Fixed (nonagent) workflows** work best in stable environments, follow predefined rules, and perform static, predictable, repetitive tasks.
+- **Agent workflows** can adapt when unexpected events happen, choose tools based on prompts and available data, and handle unstructured data.
+
+They combine well: an agent workflow is still a workflow, with all the actions and connectors you already know.
+</Step>
+
+<Step id="loop" name="The agent loop">
+The heart of an agent workflow is the **Agent** action, an **agent loop** that works iteratively: it **thinks** about the task, **acts** by calling a tool, and optionally **learns** from the result, then repeats until it has an answer.
+
+Each agent needs a connection to a **model**. In Standard, that's typically an **Azure OpenAI** deployment; Foundry and API Management model sources are in preview.
+</Step>
+
+<Step id="instructions" name="Instructions">
+You give the agent **instructions**: the role it plays, the tasks it can perform, and how to respond. Microsoft suggests describing the workflow's structure, the available actions, any restrictions, and how to handle special cases.
+
+Its advice: be **prescriptive**, and expect to refine the instructions over several iterations.
+</Step>
+
+<Step id="tools" name="Tools are actions">
+A **tool** is a sequence of one or more actions that completes a task for the agent. A tool must start with an action, can't contain a trigger, works only inside its own agent loop, and doesn't support control-flow actions.
+
+**Agent parameters** let the model supply a tool's inputs each time it calls the tool. Microsoft's guideline is **no more than 10 tools** per agent loop: too many hurt quality.
+</Step>
+
+<Step id="types" name="Autonomous or conversational">
+- An **autonomous** agent starts from any supported trigger and works from system instructions and nonhuman inputs. Microsoft says these suit work that might run a long time or needs stronger governance.
+- A **conversational** agent starts with the chat-session trigger (Learn calls it "When a chat session starts" in one place and "When a new chat session starts" in another) and talks with people. These suit user-driven, short-lived or session-based work.
+</Step>
+
+<Step id="where" name="Where you can build them">
+In **Standard**, agent workflows run in **stateful** workflows; stateless isn't supported. In **Consumption**, agent workflows are still in **preview**.
+
+Several Standard features around agents are also in preview, such as multi-agent patterns, Easy Auth for agent chat, and some model sources. Check the status of each feature you rely on.
+</Step>
+
+<Step id="limits" name="Context and history">
+Every call sends the conversation so far to the model, and models have a **context length**: gpt-4o, for example, accepts 128,000 input tokens. Logic Apps can trim the agent's history by **token count** or **message count**, but Microsoft marks that as an **experimental** capability.
+
+Learn doesn't state a maximum number of loop iterations, so design instructions and tools so the agent can finish.
+</Step>
+
+<Step id="cost" name="What it costs" tag="TIP">
+In **Standard**, agent workflows don't add a charge of their own, but **model usage** does. In **Consumption**, agent loops are billed by the tokens each agent action uses.
+
+To save tokens, Microsoft suggests trimming large tool results, for example with a **Compose** action, before they go back to the model.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Fixed** workflows for stable, rule-based work; **agent** workflows when you need judgement over unstructured input.
+- An agent loop **thinks, acts and learns**, using a **model**, **instructions** and **tools**.
+- Tools are sequences of **actions**; keep to about **10** per agent.
+- **Autonomous** agents start from a trigger; **conversational** ones from a chat session.
+- Standard: **stateful only**. Watch context length; model usage is what you pay for.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-autonomous-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-conversational-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-versus-multiple-agents
+Learn conflicts: the chat trigger's name differs between pages; model-source lists differ between the concepts, autonomous and conversational pages; the concepts intro oddly says agentic workflows "automate predictable and stable business processes". We avoid listing model sources exhaustively.
+Not claimed: a maximum iteration count or agent timeout (not on Learn). The complaint-reading example is ours.
+*/}

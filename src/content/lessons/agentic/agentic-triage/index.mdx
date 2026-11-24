@@ -23,7 +23,7 @@ Most of that is reading and reasoning, which is the kind of work an **agent** is
 Logic Apps has two kinds of agent workflow:
 
 - **Autonomous agents** start from any supported trigger and run without a human in the conversation.
-- **Conversational agents** start with *When a chat session starts* and talk with a person.
+- **Conversational agents** start with the chat-session trigger and talk with a person.
 
 You can create both in **Standard** (stateful workflows) and in **Consumption**, where agent workflows are still in **preview**. Our triage agent is autonomous: a failure alert starts it.
 </Step>
@@ -37,7 +37,7 @@ The agent then loops: the **model** (for example an Azure OpenAI deployment) pla
 <Step id="tools" name="Tools are actions">
 A **tool** is a sequence of one or more ordinary **actions** inside the Agent action. It can't contain a trigger, and it must start with an action.
 
-Our agent gets two read-only tools: *Get run history* (the failed run's actions, inputs and outputs) and *Query logs* (recent errors for the partner API). Tool parameters are filled in by the model only when it calls that tool.
+Our agent gets two read-only tools: *Get run history* (the failed run's actions, inputs and outputs) and *Query logs* (recent errors for the partner API). Agent parameters let the model fill in a tool's inputs when it calls that tool. These two tools are our design: Learn has no guidance on agents that read run history, so treat them as ordinary actions you build yourself.
 </Step>
 
 <Step id="investigate" name="The agent investigates">
@@ -63,15 +63,15 @@ Only on *Approve* does the workflow continue to a separate *Resubmit runs* step.
 <Step id="trace" name="See what it did" tag="TIP">
 Open the run and select the agent. The **agent log** shows the instructions, every tool call with its inputs and results, the model's messages, and **how many tokens** each request used.
 
-In Standard you can also send agent-loop events to Application Insights, so you can follow cost and behaviour over time.
+With Application Insights or advanced telemetry set up, agent loop events appear in your logs like any other action, so you can follow cost and behaviour over time.
 </Step>
 
 <Step id="guardrails" name="Guardrails">
 A few habits keep agent workflows safe:
 
-- Give agents **read-only tools** by default; put changes behind an approval step.
+- Our advice: give agents **read-only tools** by default, and put changes behind an approval step.
 - Use a **managed identity** for the model connection in production.
-- Watch **tokens**: the model's context length is limited, and agent history can be trimmed by token or message count.
+- Watch **tokens**: the model's context length is limited, and agent history can be trimmed by token or message count (an experimental capability).
 - Keep instructions short and specific about what the agent must never do.
 </Step>
 
@@ -83,6 +83,7 @@ A few habits keep agent workflows safe:
 </Step>
 
 {/*
+Re-checked against Learn 2026-11-24 (agentic facts sheet).
 Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-autonomous-agent-workflows

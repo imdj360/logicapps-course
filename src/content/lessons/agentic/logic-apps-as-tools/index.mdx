@@ -1,0 +1,81 @@
+---
+title: Logic Apps as tools & MCP servers
+module: agentic
+order: 2
+minutes: 10
+level: Advanced
+summary: Turn existing workflows into tools that AI agents can call, through the Model Context Protocol or Microsoft Foundry, and know what each route requires.
+youWillLearn:
+  - How a Standard logic app becomes an MCP server
+  - What a workflow needs to work as a tool
+  - How MCP servers authenticate callers
+  - How Foundry agents use Logic Apps tools
+reviewStatus: draft
+---
+
+<Step id="problem" name="Your workflows, their agents" tag="PROBLEM">
+Your team has dozens of tested workflows: create a customer, check stock, raise an invoice. Now other teams are building **AI agents** and want to use them.
+
+Rather than rebuild that logic, you can expose the workflows as **tools** that agents call.
+</Step>
+
+<Step id="mcp" name="A logic app as an MCP server">
+The **Model Context Protocol (MCP)** is a standard way for agents to discover and call tools. A **Standard** logic app can act as an **MCP server**: each workflow you choose becomes a tool. This is in **preview**.
+
+In the portal, open the logic app and, under **Agents**, select **MCP servers**. You can host several logical MCP servers in one logic app, each grouping related workflows.
+</Step>
+
+<Step id="requirements" name="What a workflow needs">
+To be a tool, a workflow must:
+
+- start with the **Request** trigger, *When an HTTP request is received*;
+- end with a **Response** action;
+- be enabled, in a running logic app on a **Workflow Service Plan** or **ASE v3** (Learn's API Center page is less strict about hosting).
+
+You can also create new tool workflows from connector actions while you register the server: each action you select becomes its own workflow.
+</Step>
+
+<Step id="describe" name="Describe the tool well">
+An agent only knows a tool by its description. Add a **trigger description** and a **Request Body JSON Schema** with a `description` for each parameter and a `required` list.
+
+Microsoft's advice when an agent calls a tool inconsistently: make the trigger and parameter descriptions **more distinct**.
+</Step>
+
+<Step id="auth" name="Who can call it">
+MCP endpoints use **OAuth 2.0** by default, which needs **Easy Auth** (App Service Authentication) with a Microsoft Entra app registration. The alternative is **key-based** access: generate a key, choose its duration, and store it right away, because you can't see it again.
+
+Learn's OAuth setup also requires Easy Auth to **allow unauthenticated requests** through to the endpoint, so read that section carefully before you configure it.
+</Step>
+
+<Step id="transport" name="Transports and networking" tag="TIP">
+Standard MCP servers support **Streamable HTTP** and **Server-Sent Events (SSE)**. SSE needs extra setup: VNet integration and a `host.json` setting for cross-worker communication. Streamable HTTP needs nothing more.
+
+Because it's your logic app, the usual options apply: private endpoints, VNet integration, run history and Application Insights for every tool call.
+</Step>
+
+<Step id="apicenter" name="MCP servers from a connector">
+**Azure API Center** offers another route, also in preview: build an MCP server from a single **managed connector**, backed by a Standard logic app. Each tool has one action, built-in and custom connectors aren't supported, and the API center and logic app must share a subscription.
+</Step>
+
+<Step id="foundry" name="Tools for Foundry agents">
+Agents in **Microsoft Foundry** can use Logic Apps tools too (preview). A whole workflow can be a tool if it starts with a Request trigger and ends with a Response action, which also suits long-running work or a workflow that waits for a **human approval**.
+
+Foundry provides the agent's model, instructions, knowledge and guardrails; Logic Apps provides the actions.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A Standard logic app can be an **MCP server** (preview): workflows become tools.
+- Tool workflows start with a **Request** trigger and end with a **Response**.
+- Good **descriptions and schemas** decide how well agents use your tools.
+- Secure MCP endpoints with **OAuth via Easy Auth**, or keys.
+- **API Center** and **Foundry** offer further routes, both in preview.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-model-context-protocol-server-standard
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-mcp-server-api-center
+- https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/add-agent-tools-connector-actions
+Learn conflicts: hosting for MCP servers ("Workflow Service Plan or App Service Environment v3 only" vs "any hosting option" on the API Center page); transport wording. Not claimed: authentication for API Center-created servers, the host.json key for overriding the OAuth scope, a Consumption MCP path. The scenario is ours.
+*/}

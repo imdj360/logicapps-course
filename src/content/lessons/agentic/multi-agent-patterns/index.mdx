@@ -1,0 +1,74 @@
+---
+title: Single and multiple agents
+module: agentic
+order: 3
+minutes: 10
+level: Advanced
+summary: One agent doing everything gets slow and fragile. Learn the multi-agent patterns Logic Apps supports, from a simple chain to agents that hand work to each other.
+youWillLearn:
+  - Why a single agent struggles with complex work
+  - The prompt chaining, routing and handoff patterns
+  - Parallel, orchestrator-workers and evaluator-optimizer patterns
+  - How to choose the simplest pattern that works
+reviewStatus: draft
+---
+
+<Step id="problem" name="One agent, too many jobs" tag="PROBLEM">
+Your customer-service agent triages questions, looks up orders, processes refunds and recommends products. As you add tools, its answers get worse.
+
+Microsoft names the problems: **cognitive load**, **error propagation**, **no specialization** and **scalability constraints**. Its answer is to split the work across **multiple agent loops**. These patterns are in **preview** for Standard.
+</Step>
+
+<Step id="benefits" name="Why split the work">
+Multiple agents let each one focus on one area of expertise, be **tuned independently**, and contain **faults** so one agent's error doesn't spread. They also give **natural checkpoints for human review**, and let different teams work on different agents.
+
+Microsoft's design principle: prefer **simple, composable patterns** over complex frameworks.
+</Step>
+
+<Step id="chain" name="Prompt chaining">
+The simplest pattern: a **chain** of agents, where each agent's output is the next one's input. For example: extract the figures from a report, format them, then sort them.
+
+Use it when the task splits cleanly into fixed, sequential subtasks. Microsoft recommends **validation gates** between steps, and accepts the extra latency for better accuracy.
+</Step>
+
+<Step id="routing" name="Routing">
+A first step **classifies** the input and sends it to a specialised agent: billing questions to a billing agent, technical ones to a support agent. It suits inputs that fall into distinct categories, each needing its own prompts.
+</Step>
+
+<Step id="handoff" name="Handoff">
+In a **handoff**, agents pass the conversation to each other while keeping its full context. Microsoft's example: a customer-service agent with **only handoff tools** triages the request and hands it to a **refund** or **sales** agent, each with its own business tools.
+
+It mimics human escalation, and isolates problems in one agent from the others.
+</Step>
+
+<Step id="parallel" name="Parallel and orchestrated">
+Three more patterns, in rising complexity:
+
+- **Parallelization**: independent subtasks at once (**sectioning**), or the same task several times for a consensus (**voting**).
+- **Orchestrator-workers**: one agent breaks the task down on the fly and delegates to others.
+- **Evaluator-optimizer**: one agent drafts, another evaluates and gives feedback, in a loop.
+</Step>
+
+<Step id="choose" name="Choose the simplest" tag="TIP">
+Start with the simplest pattern that fits: a chain or routing when the steps are predictable, and a handoff when a conversation must move between specialists. Use orchestrator-workers or evaluator loops only when you can't predict the subtasks or need repeated refinement.
+
+Note that Learn's agent concepts page says you can't add an agent **inline as a tool** in another agent, while its patterns page describes nested agents as tools; check the current guidance for your scenario.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A single agent struggles with **load**, **error spread** and **specialization**.
+- **Chain**: fixed steps in sequence, with validation gates.
+- **Routing**: classify, then send to a specialist. **Handoff**: pass the conversation with context.
+- **Parallel**, **orchestrator-workers** and **evaluator-optimizer** for harder problems.
+- Multi-agent patterns are in **preview**; start simple.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-versus-multiple-agents
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-handoff-agent-workflow
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-prompt-chain-agent-workflow
+- https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
+This lesson replaces the planned "Agents that operate Logic Apps": Learn has no guidance on agents calling Logic Apps management APIs, reading run history or resubmitting runs.
+Learn conflict: "You can't add an agent inline as a tool in another agent" (concepts) vs "Orchestrator-workers pattern - Nested agent loops as tools" (patterns). The customer-service scenario follows Learn's handoff example; the "choose" advice is our summary.
+*/}

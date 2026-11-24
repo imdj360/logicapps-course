@@ -1,0 +1,77 @@
+---
+title: Guardrails for agents
+module: agentic
+order: 4
+minutes: 10
+level: Advanced
+summary: An agent that can call tools can also call the wrong one. Set up identity, access, human checkpoints and monitoring so agents stay inside the lines you draw.
+youWillLearn:
+  - How to give the agent's model connection least privilege
+  - How to protect who can talk to a conversational agent
+  - Where humans fit in an agent workflow
+  - How to see what an agent did and what it cost
+reviewStatus: draft
+---
+
+<Step id="problem" name="Capable means risky" tag="PROBLEM">
+An agent decides which tools to call. That's what makes it useful, and also what makes it risky: a confusing prompt or a bad instruction can send it down a path you didn't intend.
+
+Guardrails are the limits you build around it: who it acts as, who can talk to it, what it can change, and how you see what it did.
+</Step>
+
+<Step id="identity" name="The model connection">
+For the connection to the model, Microsoft strongly recommends a **managed identity** in production. Give it the least-privileged role: **Cognitive Services OpenAI User** for Azure OpenAI, or **Foundry User** for a Foundry project.
+
+Two details: Foundry projects **require** managed identity, and the agent's model connection currently supports only the **system-assigned** identity. Use API keys only for exploration or non-production work.
+</Step>
+
+<Step id="callers" name="Who can talk to it">
+In the portal, conversational agents are tested with a temporary **developer key**, which Microsoft says is for non-production use only.
+
+For production, protect the chat endpoint with **Easy Auth** (App Service Authentication) and a dedicated Entra app registration. Require authentication, and don't allow any multitenant directory unless you have governance and Conditional Access in place. Easy Auth for agent workflows is in **preview**.
+</Step>
+
+<Step id="tools" name="Limit what tools can do">
+Every tool is an action you chose to give the agent. Our advice: start with **read-only** tools, and add tools that change data only when you need them, each with the narrowest identity and permissions.
+
+Learn's on-behalf-of guidance (preview) points the same way: use the user's identity for read-only operations, and **app-only authorization with explicit confirmation** for writes.
+</Step>
+
+<Step id="human" name="Keep a human in the loop">
+Learn's examples have agents hand edge cases to people: "include human reviewers for edge cases". A workflow can include an approval step, for example a tool workflow that waits for a human response, or a separate step after the agent.
+
+Learn doesn't describe a built-in approval gate on the Agent action, so design the checkpoint into the workflow yourself.
+</Step>
+
+<Step id="test" name="Test without side effects" tag="TIP">
+While you design an agent, Microsoft suggests **Compose** actions, which have no side effects, and **mocked** tool results, which leave data at the source unchanged. You see what the agent would do before it can do it.
+</Step>
+
+<Step id="observe" name="See what it did">
+In run history, the agent's **log** shows its instructions, its responses and the **tool executions**. Selecting the agent shows, per iteration, the messages sent to and from the model, the tools it asked for, their results, and the **tokens** each request used.
+
+With Application Insights or advanced telemetry, agent loop events appear in your logs like any other action.
+</Step>
+
+<Step id="cost" name="Watch the cost" tag="TIP">
+Tokens are the cost driver. Keep tool results small, for example by trimming them with a Compose action, keep to about 10 tools, and use the per-iteration token counts to spot an agent that loops more than it should.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Model connection: **system-assigned managed identity**, least-privileged role.
+- Chat endpoint: **Easy Auth** in production, not the developer key.
+- Tools: **read-only first**; writes with explicit confirmation.
+- Put **human checkpoints** in the workflow; there's no built-in gate.
+- Use the **agent log** and telemetry to see tools, results and tokens.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-autonomous-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-conversational-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-authentication-agent-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-on-behalf-of-user-flow
+- https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
+Not claimed: content-safety or prompt-injection features in Logic Apps (not on Learn), a built-in approval gate, a maximum iteration count. "Read-only tools first" is our advice, consistent with Learn's OBO best practice.
+*/}
