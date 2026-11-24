@@ -4,7 +4,7 @@ module: building
 order: 2
 minutes: 10
 level: Intermediate
-summary: Your database has no Logic Apps connector. Bring its JDBC driver to a Standard logic app and query it directly, and know when a dedicated connector is the better choice.
+summary: Bring a database's JDBC driver to a Standard logic app and query it directly, from MySQL to Oracle, and know when a dedicated connector is the better choice.
 youWillLearn:
   - What the built-in JDBC connector does, and where it's available
   - How to add a JDBC driver JAR to a Standard logic app
@@ -39,6 +39,16 @@ A JDBC connection takes three values: the database **URL**, a **user identifier*
 Learn doesn't give URL examples. The JDBC URL format, typically starting with `jdbc:`, comes from **your driver's documentation**. Our advice: store the password as a secret in app settings, not in the workflow.
 </Step>
 
+<Step id="oracle" name="Example: Oracle over JDBC">
+Oracle works the same way. Learn's JDBC page doesn't use Oracle as its example, but "any JDBC-supported relational database" includes it.
+
+- **Driver**: Oracle's JDBC driver JAR (the `ojdbc` family), downloaded from Oracle and added like any other driver JAR.
+- **URL**: Oracle's thin-driver format, for example `jdbc:oracle:thin:@//db-host:1521/ORDERS`.
+- **User and password**: a database account with only the rights the workflow needs.
+
+The driver name and URL format come from Oracle's JDBC documentation, not from Learn; check the driver version against Oracle's compatibility notes.
+</Step>
+
 <Step id="actions" name="Three actions">
 The connector has **actions only**, no triggers:
 
@@ -53,13 +63,13 @@ So a workflow starts with another trigger, such as a schedule or a queue message
 Don't build SQL by concatenating values from the trigger into the query text. Pass them through the action's **query parameters** input instead. That's our advice, the same as for any database code: it keeps data from being read as SQL.
 </Step>
 
-<Step id="alternatives" name="Check for a dedicated connector first">
-JDBC is the generic option. Two databases have their own built-in connectors in Standard:
+<Step id="alternatives" name="JDBC or a dedicated connector?">
+JDBC is the generic option. Two databases also have their own built-in connectors in Standard:
 
 - **SQL Server**: actions to insert, update and run stored procedures, **triggers** on inserted, updated or deleted rows (with change tracking), and managed identity authentication.
 - **Oracle Database**: a built-in connector, in **public preview**, for Oracle 11 and later. No data gateway, and Learn lists no driver-upload step; it connects with `host:port/service-name`. It has actions only, and a default query timeout of 30 seconds.
 
-Learn doesn't document using JDBC for Oracle, so for Oracle, start with its own connector.
+So for Oracle you have two built-in routes. The **Oracle Database** connector gives you ready-made operations such as Get rows, Insert row and stored procedures, but it's in preview. **JDBC** gives you raw queries through a driver you control. For SQL Server, the dedicated connector adds triggers and managed identity, which JDBC doesn't offer.
 </Step>
 
 <Step id="network" name="Reaching the database">
@@ -74,7 +84,7 @@ The JDBC reference is short. Learn doesn't state a required Java version, URL ex
 - **JDBC** is a Standard-only built-in connector: bring your database's JDBC driver.
 - Add the JARs as **Client or SDK Assembly (Java)**, or to `lib/builtinOperationSdks/JAR`.
 - Connect with a **URL**, **user** and **password**; actions are **Execute query**, **Get tables** and **Get schema**.
-- Prefer the **SQL Server** or **Oracle Database** built-in connectors when they fit.
+- **Oracle** works over JDBC too, with Oracle's driver and `jdbc:oracle:thin:` URL; compare it with the Oracle Database built-in (preview).
 - Pass values as **query parameters**, and test what Learn doesn't document.
 </Step>
 
@@ -88,5 +98,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-oracledatabase
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/oracledb/
 Fact-checked verbatim 2026-11-24.
-Not claimed: Oracle over JDBC (Learn doesn't document it), JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
+Oracle over JDBC: covered by Learn's "any JDBC-supported relational database", not documented as an Oracle example; the author has connected Oracle this way. The ojdbc driver and jdbc:oracle:thin URL format are from Oracle's JDBC documentation, not Learn.
+Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
 */}

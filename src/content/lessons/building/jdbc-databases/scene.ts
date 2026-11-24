@@ -18,6 +18,7 @@ export const scene: Scene = {
     { id: 'jar-jdbc', from: 'jar', to: 'jdbc', style: 'dashed' },
     { id: 'wf-ora', from: 'wf', to: 'ora', style: 'dashed' },
     { id: 'ora-oradb', from: 'ora', to: 'oradb' },
+    { id: 'jdbc-oradb', from: 'jdbc', to: 'oradb', style: 'dashed' },
   ],
   steps: {
     problem: {
@@ -42,6 +43,12 @@ export const scene: Scene = {
       highlight: ['jdbc-db'],
       chips: [{ label: 'connection', value: 'URL · user · password' }, { label: 'URL format', value: "from your driver's docs", tone: 'warn' }],
     },
+    oracle: {
+      visible: [...core, 'jar', 'oradb', 'jar-jdbc', 'jdbc-oradb'],
+      highlight: ['jdbc-oradb', 'oradb', 'jar'],
+      tokens: [{ id: 'or1', edge: 'jdbc-oradb', tone: 'ok' }],
+      chips: [{ label: 'driver', value: "Oracle's ojdbc JAR" }, { label: 'URL', value: 'jdbc:oracle:thin:@//host:1521/svc' }, { label: 'format from', value: "Oracle's docs" }],
+    },
     actions: {
       visible: [...core],
       highlight: ['jdbc'],
@@ -57,7 +64,7 @@ export const scene: Scene = {
       visible: [...core, 'ora', 'oradb', 'wf-ora', 'ora-oradb'],
       highlight: ['ora', 'ora-oradb'],
       tokens: [{ id: 'o1', edge: 'ora-oradb', tone: 'ok' }],
-      chips: [{ label: 'SQL Server', value: 'own built-in, with triggers' }, { label: 'Oracle', value: 'own built-in (preview)' }],
+      chips: [{ label: 'SQL Server', value: 'built-in adds triggers · MI' }, { label: 'Oracle', value: 'JDBC or built-in (preview)' }],
     },
     network: {
       visible: [...core, 'ora', 'oradb', 'wf-ora', 'ora-oradb'],
@@ -69,8 +76,8 @@ export const scene: Scene = {
       chips: [{ label: 'not on Learn', value: 'Java version · URL examples' }, { label: 'so', value: 'test first', tone: 'warn' }],
     },
     recap: {
-      visible: [...core, 'jar', 'ora', 'oradb', 'jar-jdbc', 'wf-ora', 'ora-oradb'],
-      chips: [{ label: 'generic', value: 'JDBC' }, { label: 'dedicated', value: 'SQL Server · Oracle' }],
+      visible: [...core, 'jar', 'ora', 'oradb', 'jar-jdbc', 'wf-ora', 'ora-oradb', 'jdbc-oradb'],
+      chips: [{ label: 'generic', value: 'JDBC: MySQL · Aurora · Oracle' }, { label: 'dedicated', value: 'SQL Server · Oracle' }],
     },
   },
   legend: [
