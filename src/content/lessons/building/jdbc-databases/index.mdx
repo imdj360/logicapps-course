@@ -1,0 +1,91 @@
+---
+title: Databases over JDBC
+module: building
+order: 2
+minutes: 10
+level: Intermediate
+summary: Your database has no Logic Apps connector. Bring its JDBC driver to a Standard logic app and query it directly, and know when a dedicated connector is the better choice.
+youWillLearn:
+  - What the built-in JDBC connector does, and where it's available
+  - How to add a JDBC driver JAR to a Standard logic app
+  - The connection settings and the three JDBC actions
+  - When to use the SQL Server or Oracle built-in connectors instead
+reviewStatus: draft
+---
+
+<Step id="problem" name="A database with no connector" tag="PROBLEM">
+Your stock levels live in a MySQL database, or in AWS Aurora. There's no dedicated Logic Apps connector for it, and you don't want to build an API in front of it just to read a table.
+
+If the database has a **JDBC driver**, a Standard logic app can talk to it directly.
+</Step>
+
+<Step id="what" name="The JDBC built-in connector">
+**JDBC** is a **built-in** connector, available **only in Standard**. You bring the JDBC driver, a set of JAR libraries, for any JDBC-supported relational database, and the connector uses it. Microsoft names SQL Server, AWS Aurora and MySQL as examples.
+
+Like other built-in connectors, it doesn't need the **on-premises data gateway**.
+</Step>
+
+<Step id="driver" name="Bring your own driver">
+The driver JARs are a **Client or SDK Assembly (Java)** artifact. Add them in one of three ways:
+
+- **Portal**: on the logic app, under **Artifacts** > **Assemblies**, add them with that assembly type.
+- **VS Code**: put them in your project's `lib/builtinOperationSdks/JAR` folder.
+- **Kudu**: upload them to `site/wwwroot/lib/builtinOperationSdks/JAR/`.
+</Step>
+
+<Step id="connect" name="The connection">
+A JDBC connection takes three values: the database **URL**, a **user identifier** and a **password**.
+
+Learn doesn't give URL examples. The JDBC URL format, usually starting with `jdbc:`, comes from **your driver's documentation**. Store the password as a secret in app settings, not in the workflow.
+</Step>
+
+<Step id="actions" name="Three actions">
+The connector has **actions only**, no triggers:
+
+- **Execute query**: runs a raw query, with optional **query parameters** to inject.
+- **Get tables**: lists the tables in the database.
+- **Get schema**: returns the schema of a table.
+
+So a workflow starts with another trigger, such as a schedule or a queue message, and queries the database from there.
+</Step>
+
+<Step id="params" name="Use query parameters" tag="TIP">
+Don't build SQL by concatenating values from the trigger into the query text. Pass them through the action's **query parameters** input instead. That's our advice, the same as for any database code: it keeps data from being read as SQL.
+</Step>
+
+<Step id="alternatives" name="Check for a dedicated connector first">
+JDBC is the generic option. Two databases have their own built-in connectors in Standard:
+
+- **SQL Server**: actions to insert, update and run stored procedures, **triggers** on inserted, updated or deleted rows (with change tracking), and managed identity authentication.
+- **Oracle Database**: a built-in connector, in **public preview**, for Oracle 11 and later. No data gateway and no driver upload; it connects with `host:port/service-name`. It has actions only, and a default query timeout of 30 seconds.
+
+Learn doesn't document using JDBC for Oracle, so for Oracle, start with its own connector.
+</Step>
+
+<Step id="network" name="Reaching the database">
+Built-in connectors run inside your logic app, so the database must be **reachable from the runtime**. For Oracle, Microsoft describes using **VNet integration** for private endpoints, or the **hybrid** model for databases on your own infrastructure. Learn's JDBC page doesn't cover networking, but the same network path applies.
+</Step>
+
+<Step id="gaps" name="What Learn doesn't cover" tag="TIP">
+The JDBC reference is short. Learn doesn't state a required Java version, URL examples, which SQL statements are supported, or whether the connector is preview or generally available. Test with your driver and database before you rely on it.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **JDBC** is a Standard-only built-in connector: bring your database's JDBC driver.
+- Add the JARs as **Client or SDK Assembly (Java)**, or to `lib/builtinOperationSdks/JAR`.
+- Connect with a **URL**, **user** and **password**; actions are **Execute query**, **Get tables** and **Get schema**.
+- Prefer the **SQL Server** or **Oracle Database** built-in connectors when they fit.
+- Pass values as **query parameters**, and test what Learn doesn't document.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/jdbc/
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-maps (Client or SDK Assembly (Java))
+- https://learn.microsoft.com/en-us/azure/connectors/built-in
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/sql/
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-sqlazure
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-oracledatabase
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/oracledb/
+Not claimed: Oracle over JDBC (Learn doesn't document it), JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
+*/}
