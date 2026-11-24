@@ -26,10 +26,13 @@ learnLinks:
 reviewStatus: draft
 ---
 
-<Step id="problem" name="Two workflows, two needs" tag="PROBLEM">
-The shop website needs two workflows. **Take order** answers the website while the customer waits, so it has to be fast. **Process order** must never lose an order: if something fails, you want to see what happened and run it again.
+<Step id="problem" name="Fast answer, safe processing" tag="PROBLEM">
+When a customer clicks **Buy**, two things must happen:
 
-In a Standard logic app you choose, per workflow, between **stateful** and **stateless**. Each of these workflows needs a different one.
+- The website must hear **"Order received"** within a second.
+- The order must be processed and **never lost**, even if something fails on the way.
+
+So the shop uses two workflows. **Take order** answers the website fast, then hands the order to **Process order**, which does the real work. In a Standard logic app each workflow is either **stateful** or **stateless**, and these two need different ones.
 </Step>
 
 <Step id="stateful" name="Stateful: everything written down">
@@ -63,7 +66,7 @@ The **Recurrence** trigger is currently **unavailable** for stateless workflows.
 </Step>
 
 <Step id="async" name="No async, no chunking">
-Because stateless runs are synchronous, they skip the asynchronous pattern. If an HTTP call answers **202 Accepted** with a `location` header, a stateless workflow **won't poll** that URL. It moves on to the next step.
+Stateless runs are synchronous, so they skip the asynchronous pattern. Say *Take order* calls a **stock service** that answers **202 Accepted** with a `location` header, meaning "still working, check back here". A stateless workflow **won't poll** that URL. It moves straight on to the next step.
 
 Stateless workflows also don't support **chunking** of large messages. For long-running calls or large content, use stateful.
 </Step>
@@ -85,8 +88,6 @@ Yes. Here's what happens when the customer clicks **Buy**:
 Microsoft calls this the **synchronous ("fire and forget")** pattern.
 
 The opposite case: when a workflow calls a **stateless** one, it **waits** for the answer.
-
-Our tip: put a **queue** between the two workflows, so the order is kept even if *Process order* is busy or failing.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -106,6 +107,6 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-visual-studio-code (WithStatelessRunHistory)
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-native-recurrence
 Triggers (verbatim on Learn): overview 'Stateless workflows can use only push triggers where you don't specify a schedule'; Recurrence page 'currently unavailable for Standard logic app stateless workflows'; VS Code page 'support only managed connector actions, not triggers'. Learn says nothing about built-in polling triggers (SFTP, File System, Blob) in stateless workflows, so we don't either.
-Not claimed: numbers for the speed or cost gain (Learn gives none); that payloads over 64 KB are rejected (Learn says they may slow down or crash); that a stateless run is "lost"; whether stateless keeps trigger history. The queue hand-off in the "mix" step is our advice.
+Not claimed: numbers for the speed or cost gain (Learn gives none); that payloads over 64 KB are rejected (Learn says they may slow down or crash); that a stateless run is "lost"; whether stateless keeps trigger history. The shop scenario and the stock service are ours.
 Fact-checked verbatim 2026-11-24 (strict audit).
 */}
