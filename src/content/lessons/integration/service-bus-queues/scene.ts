@@ -11,6 +11,8 @@ export const scene: Scene = {
     { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'steady pace', x: 790, y: 240 },
     { id: 'settle', kind: 'action', label: 'Complete', sublabel: 'or Abandon', x: 560, y: 90 },
     { id: 'dlq', kind: 'servicebus', label: 'Dead-letter', sublabel: 'DLQ', x: 330, y: 410 },
+    { id: 'topic', kind: 'servicebus', label: 'Orders topic', sublabel: '2 subscriptions', x: 330, y: 90 },
+    { id: 'wh', kind: 'user', label: 'Warehouse', sublabel: 'own copy', x: 790, y: 90 },
     { id: 'dlqtrig', kind: 'trigger', label: 'DLQ trigger', sublabel: 'alert · repair', x: 560, y: 410 },
   ],
   edges: [
@@ -19,6 +21,9 @@ export const scene: Scene = {
     { id: 'trig-erp', from: 'trig', to: 'erp' },
     { id: 'trig-settle', from: 'trig', to: 'settle', style: 'dashed' },
     { id: 'queue-dlq', from: 'queue', to: 'dlq', style: 'dashed' },
+    { id: 'shop-topic', from: 'shop', to: 'topic' },
+    { id: 'topic-wh', from: 'topic', to: 'wh' },
+    { id: 'topic-erp', from: 'topic', to: 'erp' },
     { id: 'dlq-dlqtrig', from: 'dlq', to: 'dlqtrig' },
   ],
   steps: {
@@ -48,6 +53,12 @@ export const scene: Scene = {
       highlight: ['settle', 'trig-settle'],
       tokens: [{ id: 'k1', edge: 'trig-settle', tone: 'ok' }],
       chips: [{ label: 'message', value: 'locked' }, { label: 'settle with', value: 'Complete · Abandon · Dead-letter …' }, { label: 'long runs', value: 'Renew lock', tone: 'warn' }],
+    },
+    topics: {
+      visible: ['shop', 'topic', 'wh', 'erp', 'shop-topic', 'topic-wh', 'topic-erp'],
+      highlight: ['topic'],
+      tokens: [{ id: 't1', edge: 'topic-wh', tone: 'ok' }, { id: 't2', edge: 'topic-erp', tone: 'ok' }],
+      chips: [{ label: 'queue', value: 'one reader per message' }, { label: 'topic', value: 'a copy per subscription', tone: 'ok' }, { label: 'trigger', value: 'topic subscription (peek-lock)' }],
     },
     sessions: {
       visible: [...flow],

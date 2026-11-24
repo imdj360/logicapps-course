@@ -38,7 +38,7 @@ const d = entry.data;
       <p class="lesson-head__summary">{d.summary}</p>
       <p class="lesson-head__provenance" data-testid="provenance">
         {d.reviewStatus === 'approved' && d.lastVerified
-          ? `Written with AI assistance and fact-checked against Microsoft Learn documentation (${d.lastVerified}). Daniel Jonathan spot-checks lessons by hand.`
+          ? `Written with AI assistance and fact-checked against Microsoft Learn documentation (${d.lastVerified}). Daniel Jonathan spot-checks lessons by hand. Facts come from the Microsoft Learn pages linked at the end; anything marked “ours” is our own advice.`
           : 'AI-assisted draft: not yet reviewed.'}
       </p>
     </div>
@@ -55,6 +55,7 @@ const d = entry.data;
     scene={scene}
     youWillLearn={d.youWillLearn}
     relatedArticles={d.relatedArticles}
+    learnLinks={d.learnLinks}
     devtoUrl={siteConfig.devtoUrl}
   />
 

@@ -13,6 +13,17 @@ youWillLearn:
 relatedArticles:
   - title: "Dockerizing Azure Service Bus Emulator and Test with Logic Apps"
     url: https://dev.to/imdj/dockerizing-azure-service-bus-emulator-and-test-with-logic-apps-3lme
+learnLinks:
+  - title: "Connect to Azure Service Bus from Workflows"
+    url: https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+  - title: "Azure Service Bus Queues, Topics, and Subscriptions"
+    url: https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions
+  - title: "Service Bus (built-in connector reference)"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
+  - title: "Edit App and Host Settings for Standard Logic Apps"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+  - title: "Limits and Configuration Reference Guide"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 reviewStatus: approved
 lastVerified: '2026-11-24'
 ---
@@ -39,6 +50,17 @@ By default it **auto-completes**: in a stateful workflow, once the trigger's out
 With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it, for example with **Complete**, **Abandon** or **Dead-letter** (there's also Defer), using the message's lock token.
 
 The lock doesn't last forever. Our advice: keep runs shorter than the lock (when you tune trigger concurrency and waiting runs, Microsoft warns that runs shouldn't wait longer than the message lock timeout), or use **Renew lock on a message in queue**.
+</Step>
+
+<Step id="topics" name="Topics: one message, many readers">
+A **queue** gives each message to **one** reader. A **topic** gives every **subscription** its own copy: Microsoft says each published message is made available to each subscription registered with the topic.
+
+So when the ERP *and* the warehouse both need every order, the shop sends to an **Orders topic** with two subscriptions, and each team's workflow reads its own subscription. The built-in topic triggers are:
+
+- **When messages are available in a topic**: like the queue trigger, it auto-completes.
+- **When messages are available in a topic subscription (peek-lock)**: you settle each message yourself, as above.
+
+The ERP and warehouse example is ours.
 </Step>
 
 <Step id="sessions" name="In order: sessions">
@@ -68,6 +90,7 @@ And avoid an infinite loop: a trigger and an action that use the **same queue** 
 <Step id="recap" name="Recap" tag="RECAP">
 - Prefer the **built-in** Service Bus connector in Standard: better performance, and large messages (managed caps at 1 MB).
 - The default trigger **auto-completes**; **peek-lock** lets you Complete, Abandon or Dead-letter.
+- A **topic** gives each subscription its own copy; read it with a topic subscription trigger.
 - **Sessions** keep related messages in order (sequential convoy).
 - Read failures from `queue/$deadletterqueue`.
 - Keep concurrency above the batch size, and use a namespace-level connection.
@@ -76,6 +99,8 @@ And avoid an infinite loop: a trigger and an action that use the **same queue** 
 {/*
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions (topics and subscriptions)
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/ (topic trigger names)
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config

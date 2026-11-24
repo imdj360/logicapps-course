@@ -10,6 +10,7 @@ export const lessonSchema = z
     summary: z.string(),
     youWillLearn: z.array(z.string()).min(1),
     relatedArticles: z.array(z.object({ title: z.string(), url: z.string() })).default([]),
+    learnLinks: z.array(z.object({ title: z.string(), url: z.string() })).default([]),
     reviewStatus: z.enum(['draft', 'approved']).default('draft'),
     lastVerified: z.string().optional(),
   })
