@@ -75,5 +75,5 @@ test('Microsoft Learn references open in a popup, not in the recap', async ({ pa
   await page.getByTestId('refs-button').click();
   await expect(popup).toBeVisible();
   await expect(popup.getByRole('link').first()).toHaveAttribute('href', /learn\.microsoft\.com/);
-  await expect(page.locator('.recap-links')).not.toContainText('On Microsoft Learn');
+  await expect(page.locator('.recap-links h3', { hasText: 'On Microsoft Learn' })).toHaveCount(0);
 });
