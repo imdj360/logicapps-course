@@ -14,13 +14,13 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="One agent, too many jobs" tag="PROBLEM">
-Your customer-service agent triages questions, looks up orders, processes refunds and recommends products. As you add tools, its answers get worse.
+Your customer-service agent triages questions, looks up orders, processes refunds and recommends products. As you add capabilities, quality tends to drop.
 
 Microsoft names the problems: **cognitive load**, **error propagation**, **no specialization** and **scalability constraints**. Its answer is to split the work across **multiple agent loops**. These patterns are in **preview** for Standard.
 </Step>
 
 <Step id="benefits" name="Why split the work">
-Multiple agents let each one focus on one area of expertise, be **tuned independently**, and contain **faults** so one agent's error doesn't spread. They also give **natural checkpoints for human review**, and let different teams work on different agents.
+Multiple agents let each one focus on one area of expertise, be **tuned independently**, and contain **faults**, so one agent's error doesn't necessarily spread. They also give **natural checkpoints for human review**, and let different teams work on different agents.
 
 Microsoft's design principle: prefer **simple, composable patterns** over complex frameworks.
 </Step>
@@ -50,7 +50,7 @@ Three more patterns, in rising complexity:
 </Step>
 
 <Step id="choose" name="Choose the simplest" tag="TIP">
-Start with the simplest pattern that fits: a chain or routing when the steps are predictable, and a handoff when a conversation must move between specialists. Use orchestrator-workers or evaluator loops only when you can't predict the subtasks or need repeated refinement.
+Our rule of thumb: start with the simplest pattern that fits: a chain or routing when the steps are predictable, and a handoff when a conversation must move between specialists. Use orchestrator-workers or evaluator loops only when you can't predict the subtasks or need repeated refinement.
 
 Note that Learn's agent concepts page says you can't add an agent **inline as a tool** in another agent, while its patterns page describes nested agents as tools; check the current guidance for your scenario.
 </Step>
@@ -69,6 +69,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-handoff-agent-workflow
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-prompt-chain-agent-workflow
 - https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
+Fact-checked verbatim 2026-11-24.
 This lesson replaces the planned "Agents that operate Logic Apps": Learn has no guidance on agents calling Logic Apps management APIs, reading run history or resubmitting runs.
 Learn conflict: "You can't add an agent inline as a tool in another agent" (concepts) vs "Orchestrator-workers pattern - Nested agent loops as tools" (patterns). The customer-service scenario follows Learn's handoff example; the "choose" advice is our summary.
 */}

@@ -9,7 +9,7 @@ export const scene: Scene = {
     { id: 'mcp', kind: 'mcp-server', label: 'MCP server', sublabel: 'logic app', x: 380, y: 240 },
     { id: 'w1', kind: 'trigger', label: 'Check stock', sublabel: 'Request · Resp.', x: 680, y: 140 },
     { id: 'w2', kind: 'trigger', label: 'Raise invoice', sublabel: 'Request · Resp.', x: 680, y: 340 },
-    { id: 'auth', kind: 'keyvault', label: 'Easy Auth', sublabel: 'OAuth or key', x: 380, y: 80 },
+    { id: 'auth', kind: 'keyvault', label: 'MCP auth', sublabel: 'OAuth or key', x: 380, y: 80 },
     { id: 'foundry', kind: 'llm-agent', label: 'Foundry agent', sublabel: 'preview', x: 110, y: 410 },
   ],
   edges: [
@@ -60,7 +60,7 @@ export const scene: Scene = {
       visible: [...core, 'foundry', 'foundry-mcp'],
       highlight: ['foundry', 'foundry-mcp'],
       tokens: [{ id: 'f1', edge: 'foundry-mcp', tone: 'info' }],
-      chips: [{ label: 'Foundry', value: 'model · guardrails' }, { label: 'Logic Apps', value: 'actions' }],
+      chips: [{ label: 'Foundry', value: 'model · guardrails' }, { label: 'Logic Apps', value: 'automation layer' }],
     },
     recap: {
       visible: [...core, 'auth', 'foundry', 'auth-mcp', 'foundry-mcp'],

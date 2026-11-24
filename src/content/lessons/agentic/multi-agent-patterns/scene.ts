@@ -22,7 +22,7 @@ export const scene: Scene = {
     problem: {
       visible: ['chat', 'triage', 'chat-triage'],
       highlight: ['triage'],
-      chips: [{ label: 'one agent', value: 'too many tools', tone: 'warn' }, { label: 'status', value: 'patterns in preview' }],
+      chips: [{ label: 'one agent', value: 'too many jobs', tone: 'warn' }, { label: 'status', value: 'patterns in preview' }],
     },
     benefits: {
       visible: ['chat', 'chat-triage', ...handoff],

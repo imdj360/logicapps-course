@@ -47,7 +47,7 @@ export const scene: Scene = {
       visible: ['retailer', 'as2', 'x12', 'bad', 'retailer-as2', 'as2-x12', 'x12-bad', 'ia', 'ia-x12'],
       highlight: ['x12'],
       tokens: [{ id: 'x1', edge: 'as2-x12', tone: 'info' }, { id: 'x2', edge: 'x12-bad', tone: 'fail' }],
-      chips: [{ label: 'split', value: 'goodMessages · badMessages' }, { label: 'acks', value: 'TA1 · 997' }],
+      chips: [{ label: 'if split', value: 'goodMessages · badMessages' }, { label: 'acks, if configured', value: 'TA1 · 997' }],
     },
     transform: {
       visible: [...flow],

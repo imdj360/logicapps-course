@@ -36,9 +36,9 @@ You can also create new tool workflows from connector actions while you register
 </Step>
 
 <Step id="describe" name="Describe the tool well">
-An agent only knows a tool by its description. Add a **trigger description** and a **Request Body JSON Schema** with a `description` for each parameter and a `required` list.
+An agent relies on a tool's description to decide when and how to call it. Add a **trigger description** and a **Request Body JSON Schema** with a `description` for each parameter and a `required` list.
 
-Microsoft's advice when an agent calls a tool inconsistently: make the trigger and parameter descriptions **more distinct**.
+Microsoft's advice when an agent calls a tool inconsistently: make the trigger and parameter descriptions **more unique**, for example by describing the format of each input.
 </Step>
 
 <Step id="auth" name="Who can call it">
@@ -50,7 +50,7 @@ Learn's OAuth setup also requires Easy Auth to **allow unauthenticated requests*
 <Step id="transport" name="Transports and networking" tag="TIP">
 Standard MCP servers support **Streamable HTTP** and **Server-Sent Events (SSE)**. SSE needs extra setup: VNet integration and a `host.json` setting for cross-worker communication. Streamable HTTP needs nothing more.
 
-Because it's your logic app, the usual options apply: private endpoints, VNet integration, run history and Application Insights for every tool call.
+Because it's your logic app, the usual options apply: private endpoints and VNet integration, plus run history and Application Insights or Log Analytics integration.
 </Step>
 
 <Step id="apicenter" name="MCP servers from a connector">
@@ -60,7 +60,7 @@ Because it's your logic app, the usual options apply: private endpoints, VNet in
 <Step id="foundry" name="Tools for Foundry agents">
 Agents in **Microsoft Foundry** can use Logic Apps tools too (preview). A whole workflow can be a tool if it starts with a Request trigger and ends with a Response action, which also suits long-running work or a workflow that waits for a **human approval**.
 
-Foundry provides the agent's model, instructions, knowledge and guardrails; Logic Apps provides the actions.
+Foundry provides the agent's intelligence (models, instructions, knowledge and guardrails); Logic Apps provides the automation layer that runs the workflows and connector actions.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -77,5 +77,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-mcp-server-api-center
 - https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/add-agent-tools-connector-actions
+Fact-checked verbatim 2026-11-24.
 Learn conflicts: hosting for MCP servers ("Workflow Service Plan or App Service Environment v3 only" vs "any hosting option" on the API Center page); transport wording. Not claimed: authentication for API Center-created servers, the host.json key for overriding the OAuth scope, a Consumption MCP path. The scenario is ours.
 */}

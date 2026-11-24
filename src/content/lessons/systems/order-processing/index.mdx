@@ -26,9 +26,9 @@ Microsoft's integration architecture points out the benefit: a queue lets you **
 </Step>
 
 <Step id="queue" name="The queue decouples">
-The queue absorbs bursts and outages. Microsoft's reference architecture calls this the **queue-based load leveling** pattern, and recommends Service Bus with Logic Apps to decouple systems for scalability and reliability.
+The queue absorbs bursts and outages. Microsoft's reference architecture for message brokers and events lists the **queue-based load leveling** pattern, to handle bursts in workloads, as one advantage of putting Service Bus between systems.
 
-Give each message a **MessageId** from the order number, so Service Bus **duplicate detection** can drop accidental resends.
+Give each message a **MessageId** from the order number. With **duplicate detection** enabled on the queue (Standard or Premium tier), Service Bus drops resends with the same MessageId within its time window.
 </Step>
 
 <Step id="process" name="Process with peek-lock">
@@ -44,13 +44,13 @@ Make the write **idempotent**: upsert by order number, or check before creating,
 </Step>
 
 <Step id="failures" name="When it fails">
-Wrap the processing in a **Try** scope with a **Catch** scope that runs on failure or timeout. Catch alerts the team with the details from `result('Try')`, then ends with **Terminate (Failed)** so the run stays visible.
+Wrap the processing in a **Try** scope with a **Catch** scope that runs on failure or timeout. Catch alerts the team with the details from `result('Try')`, then ends with **Terminate (Failed)** so the run shows as Failed.
 
 Messages that can't be processed go to the **dead-letter queue**, where a small workflow can alert and help repair them.
 </Step>
 
 <Step id="observe" name="See it running">
-Use the order number as the **client tracking ID**, so you can find any order's runs in Application Insights or Log Analytics. Alert on **Workflow Runs Failure Rate** for the processing workflow, and on **Job Execution Delay** if orders start to wait.
+Use the order number as the trigger's **custom tracking ID** (shown as ClientTrackingId in the logs), so you can find any order's runs. Alert on **Workflow Runs Failure Rate** for the processing workflow, and on **Workflow Job Execution Delay** if orders start to wait.
 </Step>
 
 <Step id="scale" name="Room to grow" tag="TIP">
@@ -71,6 +71,11 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
 - https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-premium-messaging
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-metrics
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
 - plus the sources of the lessons this one draws on (Service Bus, idempotency, run-after, monitoring)
+Fact-checked verbatim 2026-11-24.
 The overall design is ours, assembled from documented building blocks; Learn doesn't describe this exact pipeline.
 */}

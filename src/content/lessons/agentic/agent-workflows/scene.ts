@@ -35,7 +35,7 @@ export const scene: Scene = {
       visible: [...core, ...tools],
       highlight: ['agent', 'agent-model'],
       tokens: [{ id: 'l1', edge: 'agent-model', tone: 'info' }, { id: 'l2', edge: 'agent-t1', tone: 'ok' }],
-      chips: [{ label: 'loop', value: 'think → act → learn' }, { label: 'model', value: 'Azure OpenAI (Standard)' }],
+      chips: [{ label: 'loop', value: 'think → act → (learn)' }, { label: 'model', value: 'Azure OpenAI (Standard)' }],
     },
     instructions: {
       visible: [...core],

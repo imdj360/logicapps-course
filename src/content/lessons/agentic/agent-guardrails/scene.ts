@@ -49,7 +49,7 @@ export const scene: Scene = {
       visible: [...core, ...tools, 'human', 'write-human'],
       highlight: ['human', 'write-human'],
       tokens: [{ id: 'h1', edge: 'write-human', tone: 'info' }],
-      chips: [{ label: 'built-in gate', value: 'none', tone: 'warn' }, { label: 'so', value: 'design the checkpoint' }],
+      chips: [{ label: 'built-in gate', value: 'not documented', tone: 'warn' }, { label: 'so', value: 'design the checkpoint' }],
     },
     test: {
       visible: [...core, ...tools],
@@ -64,7 +64,7 @@ export const scene: Scene = {
     cost: {
       visible: [...core, 'log', 'agent-log'],
       highlight: ['model'],
-      chips: [{ label: 'cost driver', value: 'tokens' }, { label: 'tools', value: '≈ 10 max' }],
+      chips: [{ label: 'cost driver', value: 'tokens' }, { label: 'tools', value: '~10 guideline' }],
     },
     recap: {
       visible: [...core, ...tools, 'human', 'log', 'write-human', 'agent-log'],

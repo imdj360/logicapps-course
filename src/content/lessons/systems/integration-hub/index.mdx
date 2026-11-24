@@ -38,24 +38,24 @@ Because the managed trigger is a webhook from the public cloud, it doesn't work 
 </Step>
 
 <Step id="eventhubs" name="Event Hubs: streams">
-For high-volume streams, such as telemetry, the built-in **Event Hubs** trigger reads events in batches, **one partition per run**. Each connection handles about **1,000 events per minute**; Microsoft suggests spreading higher volumes across connections or workflows.
+For high-volume streams, such as telemetry, the **Event Hubs** trigger returns up to a set number of events per run, from **one partition per run**. Each built-in connection handles up to **1,000 events per minute**; Microsoft suggests spreading higher volumes across connections or workflows.
 
 The trigger keeps its own position in the stream. Updating the trigger resets it, so it might read from the start again.
 </Step>
 
 <Step id="small" name="Small workflows" tag="TIP">
-Our rule for a hub: **one workflow per responsibility**, such as one per subscription. Shared logic goes into child workflows, called with **Workflow Operations: Invoke a workflow in this workflow app**. Workflows stay under the 500-action limit and are easier to deploy and test.
+Our rule for a hub: **one workflow per responsibility**, such as one per subscription. Shared logic goes into child workflows, called with **Workflow Operations: Invoke a workflow in this workflow app**. Workflows stay under the 500-action limit and, in our experience, are easier to deploy and test.
 </Step>
 
 <Step id="front" name="A managed front door">
-Microsoft's basic integration architecture puts **API Management** in front of Logic Apps for external callers, and recommends allowing calls to the Logic Apps endpoints **only from API Management's IP address**. It also notes Logic Apps works best where responses don't need very low latency.
+Microsoft's basic integration architecture puts **API Management** in front of Logic Apps for external callers, and recommends allowing calls to the Logic Apps endpoints **only from API Management's IP address** (on classic tiers; v2 tiers have no static IP). It also notes Logic Apps works best where responses don't need very low latency.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - A hub decouples systems: **publish once**, subscribe as needed.
 - **Topics** fan out messages; use the built-in **peek-lock** topic trigger.
 - **Event Grid** trigger is **managed** (a webhook); built-in only publishes.
-- **Event Hubs**: one partition per run, about 1,000 events per minute per connection.
+- **Event Hubs**: one partition per run, up to 1,000 events per minute per connection.
 - Keep workflows small; put **API Management** in front.
 </Step>
 
@@ -70,5 +70,9 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-azure-event-hubs
 - https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare (Invoke a workflow action name)
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-premium-messaging
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 Not claimed: built-in Event Hubs batch settings, a Learn "workflow per responsibility" guideline (ours). The order-shipped scenario is ours.
 */}

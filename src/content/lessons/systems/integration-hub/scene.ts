@@ -10,7 +10,7 @@ export const scene: Scene = {
     { id: 'crm', kind: 'trigger', label: 'CRM workflow', sublabel: 'subscription', x: 680, y: 130 },
     { id: 'billing', kind: 'trigger', label: 'Billing flow', sublabel: 'subscription', x: 680, y: 350 },
     { id: 'eg', kind: 'connector-managed', label: 'Event Grid', sublabel: 'managed trigger', x: 380, y: 80 },
-    { id: 'eh', kind: 'servicebus', label: 'Event Hubs', sublabel: '1,000/min/conn', x: 380, y: 420 },
+    { id: 'eh', kind: 'servicebus', label: 'Event Hubs', sublabel: '≤1,000/min/conn', x: 380, y: 420 },
     { id: 'apim', kind: 'keyvault', label: 'API Mgmt', sublabel: 'front door', x: 110, y: 80 },
   ],
   edges: [
@@ -57,7 +57,7 @@ export const scene: Scene = {
     front: {
       visible: [...hub, 'apim', 'apim-erp'],
       highlight: ['apim'],
-      chips: [{ label: 'allow calls', value: "from APIM's IP only" }],
+      chips: [{ label: 'allow calls', value: "from APIM's IP (classic tiers)" }],
     },
     recap: {
       visible: [...hub, 'eg', 'eh', 'apim', 'eg-crm', 'eh-billing', 'apim-erp'],

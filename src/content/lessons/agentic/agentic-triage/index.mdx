@@ -61,7 +61,7 @@ Only on *Approve* does the workflow continue to a separate *Resubmit runs* step.
 </Step>
 
 <Step id="trace" name="See what it did" tag="TIP">
-Open the run and select the agent. The **agent log** shows the instructions, every tool call with its inputs and results, the model's messages, and **how many tokens** each request used.
+Open the run. The **agent log** shows the instructions and the tool executions. Selecting the agent shows, per iteration, the messages to and from the model, the tool results, and **how many tokens** each request used.
 
 With Application Insights or advanced telemetry set up, agent loop events appear in your logs like any other action, so you can follow cost and behaviour over time.
 </Step>
@@ -79,11 +79,11 @@ A few habits keep agent workflows safe:
 - **Autonomous** agent workflows run from a trigger; **conversational** ones chat with a person.
 - The **Agent** action loops: the model picks a **tool** (a sequence of actions), reads the result, repeats.
 - Let agents **investigate and propose**; route anything that changes state through a **human approval** step.
-- The **agent log** in run history shows every tool call and the tokens used.
+- The **agent log** and the agent's details in run history show the tool calls and the tokens used.
 </Step>
 
 {/*
-Re-checked against Learn 2026-11-24 (agentic facts sheet).
+Fact-checked verbatim 2026-11-24.
 Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-autonomous-agent-workflows

@@ -28,7 +28,7 @@ Two details: Foundry projects **require** managed identity, and the agent's mode
 <Step id="callers" name="Who can talk to it">
 In the portal, conversational agents are tested with a temporary **developer key**, which Microsoft says is for non-production use only.
 
-For production, protect the chat endpoint with **Easy Auth** (App Service Authentication) and a dedicated Entra app registration. Require authentication, and don't allow any multitenant directory unless you have governance and Conditional Access in place. Easy Auth for agent workflows is in **preview**.
+For production in Standard, protect the chat endpoint with **Easy Auth** (App Service Authentication) and a dedicated Entra app registration. Require authentication, and don't allow any multitenant directory unless you have governance and Conditional Access in place. Easy Auth for agent workflows is in **preview**. (Consumption uses OAuth 2.0 with an agent authorization policy instead.)
 </Step>
 
 <Step id="tools" name="Limit what tools can do">
@@ -54,14 +54,14 @@ With Application Insights or advanced telemetry, agent loop events appear in you
 </Step>
 
 <Step id="cost" name="Watch the cost" tag="TIP">
-Tokens are the cost driver. Keep tool results small, for example by trimming them with a Compose action, keep to about 10 tools, and use the per-iteration token counts to spot an agent that loops more than it should.
+Model tokens are the cost driver. Keep tool results small, for example by trimming them with a Compose action, keep to about 10 tools, and use the per-iteration token counts to spot an agent that loops more than it should.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Model connection: **system-assigned managed identity**, least-privileged role.
 - Chat endpoint: **Easy Auth** in production, not the developer key.
 - Tools: **read-only first**; writes with explicit confirmation.
-- Put **human checkpoints** in the workflow; there's no built-in gate.
+- Put **human checkpoints** in the workflow; Learn describes no built-in gate.
 - Use the **agent log** and telemetry to see tools, results and tokens.
 </Step>
 
@@ -73,5 +73,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-authentication-agent-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-on-behalf-of-user-flow
 - https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
+Fact-checked verbatim 2026-11-24.
 Not claimed: content-safety or prompt-injection features in Logic Apps (not on Learn), a built-in approval gate, a maximum iteration count. "Read-only tools first" is our advice, consistent with Learn's OBO best practice.
 */}

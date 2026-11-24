@@ -22,7 +22,7 @@ Logic Apps supports AS2, X12 and EDIFACT. Learn documents each piece; this lesso
 <Step id="account" name="The integration account">
 An **integration account** is a container for B2B artifacts: **trading partners**, **agreements**, **certificates**, **schemas** and **maps**.
 
-In Standard you can keep schemas and maps on the logic app itself, but you **still need an integration account** for partners, agreements and certificates, and for the AS2, X12 and EDIFACT operations. It must be in the same subscription and region. Avoid the **Free** tier in production: it isn't covered by the SLA.
+In Standard you can keep schemas and maps on the logic app itself, but you **still need an integration account** to store partners and agreements, which the AS2, X12 and EDIFACT operations use. Whether you link it or create a connection depends on the connector. It must be in the same subscription and region. Avoid the **Free** tier in production: it isn't covered by the SLA.
 </Step>
 
 <Step id="partners" name="Partners and agreements">
@@ -34,9 +34,9 @@ The built-in **AS2 (v2)** connector has actions but **no triggers**, so the flow
 </Step>
 
 <Step id="x12" name="Validate: Decode X12">
-The built-in **Decode X12** action converts the flat file to XML and validates it against the agreement: the envelope, the schemas, EDI rules, and **duplicate control numbers**. It splits the interchange: valid transaction sets go to `goodMessages`, failed ones to `badMessages`.
+The built-in **Decode X12** action converts the flat file to XML and validates it against the agreement: the envelope, the schemas, EDI rules, and **duplicate control numbers**. With the option to split the interchange into transaction sets, valid ones go to `goodMessages` and failed ones to `badMessages`.
 
-It also generates acknowledgments: a **TA1** technical acknowledgment and a **997** functional acknowledgment.
+If configured, it also generates acknowledgments: a **technical** acknowledgment (TA1) and a **functional** acknowledgment (997).
 </Step>
 
 <Step id="transform" name="Transform for the ERP">
@@ -44,18 +44,18 @@ Each good transaction set is now XML. Transform it to the ERP's format with an *
 </Step>
 
 <Step id="outbound" name="Send: encode">
-Outbound documents go the other way: **Encode X12** turns your XML into a flat file, resolving the agreement from sender and receiver, and **AS2 Encode** encrypts, signs and requests an MDN. For EDIFACT partners, the EDIFACT encode and decode actions work the same way, with **CONTRL** acknowledgments.
+Outbound documents go the other way: **Encode X12** turns your XML into a flat file, resolving the agreement from sender and receiver, and **AS2 Encode** signs, encrypts and compresses, with MDN support for acknowledgments. For EDIFACT partners, the EDIFACT encode and decode actions are similar, with **CONTRL** acknowledgments, though the built-in EDIFACT Decode has documented gaps, such as no duplicate control-number check.
 </Step>
 
 <Step id="tracking" name="Tracking" tag="TIP">
-For Standard, B2B tracking is in **preview**: it needs a **Premium** integration account and an **Azure Data Explorer** database, and currently tracks only **X12 and AS2**. Its dashboard helps follow acknowledgments such as MDNs and 997s.
+For Standard, B2B tracking is in **preview**: it needs a **Premium** integration account and an **Azure Data Explorer** database, and currently tracks only **X12 and AS2** built-in actions. Its dashboard helps follow acknowledgments such as MDNs and 997s.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - The **integration account** holds partners, agreements and certificates; Standard still needs it for EDI.
 - **Agreements** link your host partner to a guest partner.
 - **AS2 Decode** checks security and sends the **MDN**; **Decode X12** validates and splits.
-- Acknowledge with **TA1/997** (X12) or **CONTRL** (EDIFACT).
+- If configured, acknowledge with **TA1/997** (X12) or **CONTRL** (EDIFACT).
 - Transform with XSLT or Data Mapper; encode on the way out.
 </Step>
 
@@ -69,6 +69,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-x12
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-edifact
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-track-b2b-transactions-standard
+Fact-checked verbatim 2026-11-24.
 Learn inconsistency: whether Standard needs an integration account link or only a connection differs per connector page; we say "needs an integration account" without specifying.
 The end-to-end chain is ours: Learn documents the pieces but not this exact flow. The Request trigger before AS2 Decode is our choice.
 */}
