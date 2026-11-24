@@ -51,7 +51,13 @@ export const scene: Scene = {
       visible: [...reads],
       highlight: ['ship'],
       tokens: [{ id: 'f1', edge: 'trig-ship', tone: 'info' }],
-      chips: [{ label: 'inner first', value: 'utcNow() → addDays() → formatDateTime()' }, { label: 'result', value: '2026-11-27' }, { label: 'tip (ours)', value: 'test in Compose' }],
+      chips: [{ label: 'inner first', value: 'utcNow → addDays → formatDateTime' }, { label: 'result', value: '2026-11-27' }],
+    },
+    examples: {
+      visible: [...reads],
+      highlight: ['summary'],
+      tokens: [{ id: 'x1', edge: 'trig-summary', tone: 'info' }],
+      chips: [{ label: 'toUpper', value: 'CONTOSO BIKES' }, { label: 'first', value: 'WHEEL-26' }, { label: 'if', value: 'normal' }],
     },
     gotchas: {
       visible: [...reads],

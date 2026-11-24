@@ -83,24 +83,44 @@ Note that empty strings, arrays and objects aren't null, so `coalesce` keeps the
 </Step>
 
 <Step id="functions" name="Functions inside functions">
-Functions nest: the inner one runs first and feeds the outer one. Built up one step at a time for the ship date:
+Functions nest: the **inner one runs first** and feeds the outer one. Here's the ship date, built up one layer at a time:
 
-1. `utcNow()` → now, as a timestamp
-2. `addDays(utcNow(), 3)` → three days later
-3. `formatDateTime(addDays(utcNow(), 3), 'yyyy-MM-dd')` → `2026-11-27`
+```text
+utcNow()
+→ 2026-11-24T09:15:00Z
 
-More with the same order:
+addDays(utcNow(), 3)
+→ 2026-11-27T09:15:00Z
 
-| Goal | Expression | Result |
-|---|---|---|
-| Name in capitals | `toUpper(triggerBody()?['customer']?['name'])` | `CONTOSO BIKES` |
-| First SKU | `first(triggerBody()?['lines'])?['sku']` | `WHEEL-26` |
-| Bulk or normal | `if(greater(length(triggerBody()?['lines']), 5), 'bulk', 'normal')` | `normal` |
-| Warehouse line | `concat(triggerBody()?['orderId'], ' / ', toUpper(triggerBody()?['customer']?['name']))` | `SO-1042 / CONTOSO BIKES` |
+formatDateTime(addDays(utcNow(), 3), 'yyyy-MM-dd')
+→ 2026-11-27
+```
 
-Other everyday functions: `split()`, `join()`, `guid()`, `equals()`, `and()`, `or()`, `empty()`, `last()`, `int()`, `string()` and `json()`.
+Tip (ours): build a long expression in a **Compose** action first, run once, and check its output.
+</Step>
 
-Tip (ours): build a long expression in a **Compose** action first, run once, and check its output before you use it elsewhere.
+<Step id="examples" name="More examples">
+Three more with the same order.
+
+**Customer name in capitals**
+```text
+toUpper(triggerBody()?['customer']?['name'])
+→ CONTOSO BIKES
+```
+
+**First SKU on the order**
+```text
+first(triggerBody()?['lines'])?['sku']
+→ WHEEL-26
+```
+
+**Bulk or normal order**
+```text
+if(greater(length(triggerBody()?['lines']), 5), 'bulk', 'normal')
+→ normal
+```
+
+Other everyday functions: `split()`, `join()`, `equals()`, `empty()` and `int()`.
 </Step>
 
 <Step id="gotchas" name="Small things that bite" tag="TIP">
