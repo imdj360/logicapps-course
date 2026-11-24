@@ -54,7 +54,23 @@ A built-in connection keeps its settings in the file, and its secret in an **app
 }
 ```
 
-A workflow action uses it by name: its `serviceProviderConfiguration` has `"connectionName": "serviceBus"`.
+In `workflow.json`, a built-in action points at that entry by its **key**, through `serviceProviderConfiguration.connectionName`:
+
+```json
+"Send_order": {
+  "type": "ServiceProvider",
+  "inputs": {
+    "parameters": { "...": "..." },
+    "serviceProviderConfiguration": {
+      "connectionName": "serviceBus",
+      "operationId": "sendMessage",
+      "serviceProviderId": "/serviceProviders/serviceBus"
+    }
+  }
+}
+```
+
+The key (`serviceBus`) is the link: rename it in one file and you must rename it in the other.
 </Step>
 
 <Step id="managed" name="A managed connection">
@@ -67,6 +83,19 @@ A managed connection is different: the connection itself is a **separate Azure r
     "connection": { "id": "/subscriptions/.../connections/office365" },
     "connectionRuntimeUrl": "@appsetting('office365-ConnectionRuntimeUrl')",
     "authentication": { "type": "ManagedServiceIdentity" }
+  }
+}
+```
+
+A managed action points at its entry with `host.connection.referenceName` (shape from Daniel's projects; we didn't find it spelled out on Learn):
+
+```json
+"Send_an_email": {
+  "type": "ApiConnection",
+  "inputs": {
+    "host": { "connection": { "referenceName": "office365" } },
+    "method": "post",
+    "path": "/v2/Mail"
   }
 }
 ```
@@ -114,7 +143,8 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
 - https://learn.microsoft.com/en-us/azure/connectors/introduction
-- https://learn.microsoft.com/en-us/azure/logic-apps/create-custom-built-in-connector-standard (serviceProviderConfiguration.connectionName)
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-custom-built-in-connector-standard (serviceProviderConfiguration.connectionName, "type": "ServiceProvider")
+The ApiConnection host.connection.referenceName shape is from the author's production projects (client names removed); not found on Learn.
 Fact-checked verbatim 2026-11-24.
 Not claimed: how managed-connection actions reference the connection in workflow.json (Learn's pages don't show it), agentConnections, an explicit "never put secrets in connections.json" rule (we describe Learn's pattern instead). The Office 365 example is adapted from Learn's Service Bus examples; "it worked on my laptop" is our framing.
 */}

@@ -67,7 +67,7 @@ Instead of Azure Storage, run history, inputs and outputs go to a **SQL database
 </Step>
 
 <Step id="behind" name="What sits behind Standard" tag="TIP">
-A Standard logic app on Azure comes with an **Azure Storage account**. For stateful workflows, **queues** schedule triggers, **tables** hold workflow state and **blobs** hold run history. Stateless workflows keep their state in memory instead.
+A Standard logic app on Azure comes with an **Azure Storage account**. For stateful workflows, **queues** schedule triggers, **tables** hold workflow state, and **blobs** hold run history: the inputs and outputs of each action (Daniel's storage article shows the table rows linking to those blobs). Stateless workflows keep their state in memory instead.
 
 And the runtime itself is an **extension of the Azure Functions runtime**. That's why a Standard project has a `host.json`, uses Functions app settings, and runs locally in VS Code. The Hosting & runtime module goes deeper into both.
 </Step>

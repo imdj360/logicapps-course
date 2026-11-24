@@ -74,7 +74,7 @@ export const scene: Scene = {
       visible: [...fast, ...safe, 'price-queue'],
       highlight: ['price-queue', 'queue'],
       tokens: [{ id: 'm1', edge: 'price-queue', tone: 'ok' }, { id: 'm2', edge: 'queue-order', tone: 'ok' }],
-      chips: [{ label: 'customer waits for', value: 'stateless' }, { label: 'must not be lost', value: 'stateful', tone: 'ok' }],
+      chips: [{ label: 'stateless calls stateful', value: '202, no wait' }, { label: 'calls a stateless child', value: 'parent waits' }, { label: 'ours', value: 'queue between', tone: 'ok' }],
     },
     recap: {
       visible: [...fast, ...safe, 'price-queue', 'you', 'you-storage'],

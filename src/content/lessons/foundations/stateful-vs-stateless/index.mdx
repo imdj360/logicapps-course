@@ -62,10 +62,18 @@ A stateless workflow **doesn't store run history** by default, so there's nothin
 To debug, switch on **Debug state** in the workflow's settings in the Azure portal. That adds the app setting `Workflows.<workflow-name>.OperationOptions` with the value `WithStatelessRunHistory`; in VS Code you add it to `local.settings.json` yourself. It's meant for debugging only, isn't supported in production, and costs some performance, so turn it off when you're done.
 </Step>
 
-<Step id="mix" name="Use both together" tag="TIP">
-Workflows can call each other in the same Standard logic app. When a stateless workflow calls a stateful one, Learn calls the pattern **synchronous ("fire and forget")**: the child returns 202 Accepted and the parent carries on without waiting for its results. A parent waits only when the child is **stateless**.
+<Step id="mix" name="Can stateless call stateful?" tag="TIP">
+Yes. Workflows in the same Standard logic app can call each other, for example when the child starts with a **Request** trigger. What the parent does next depends on the child's type.
 
-A pattern we like for *Price lookup* and *Process order*: keep the part the customer waits for stateless and fast, and hand anything that must not be lost to a stateful workflow, for example through a queue.
+Take one order. *Price lookup* (stateless) answers the shop in milliseconds. When the customer places the order, it calls *Process order* (stateful):
+
+- *Process order* immediately returns **202 Accepted**.
+- *Price lookup* doesn't wait for its results: it carries on and answers the shop. Learn calls this the **synchronous ("fire and forget")** pattern.
+- *Process order* runs on its own, with full run history in Azure Storage, so you can inspect and resubmit it.
+
+The other way round, a parent that calls a **stateless** child waits for the child's response (Learn's **trigger and wait**), whatever the parent's type.
+
+Our preference: put a **queue** between them, as in the diagram, so the order is kept even if *Process order* is busy or failing.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

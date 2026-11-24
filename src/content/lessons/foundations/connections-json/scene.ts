@@ -49,9 +49,9 @@ export const scene: Scene = {
     },
     managed: {
       visible: [...core, ...kinds, 'api', 'mg-api'],
-      highlight: ['mg', 'api', 'mg-api'],
+      highlight: ['mg', 'api', 'mg-api', 'wf-cj'],
       tokens: [{ id: 'm1', edge: 'mg-api', tone: 'info' }],
-      chips: [{ label: 'connection', value: 'separate Azure resource' }, { label: 'type', value: 'Microsoft.Web/connections' }],
+      chips: [{ label: 'connection', value: 'separate Azure resource' }, { label: 'type', value: 'Microsoft.Web/connections' }, { label: 'action uses', value: 'referenceName' }],
     },
     local: {
       visible: [...core, ...kinds, 'api', 'mg-api', 'appset', 'local', 'appset-cj', 'local-appset'],
@@ -61,7 +61,7 @@ export const scene: Scene = {
     },
     identity: {
       visible: [...core, ...kinds, 'api', 'mg-api'],
-      highlight: ['mg', 'api', 'mg-api'],
+      highlight: ['mg', 'api', 'mg-api', 'wf-cj'],
       tokens: [{ id: 'i1', edge: 'mg-api', tone: 'ok' }],
       chips: [{ label: 'auth', value: 'ManagedServiceIdentity', tone: 'ok' }, { label: 'system-assigned', value: 'on by default' }],
     },

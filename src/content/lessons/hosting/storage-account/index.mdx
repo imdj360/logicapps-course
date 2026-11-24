@@ -29,7 +29,7 @@ Often it's the one resource nobody looks at: the **storage account** behind the 
 Stateful workflows use Azure Storage for everything they keep:
 
 - **Tables** for persistent data while runs execute.
-- **Blobs** for run history.
+- **Blobs** for run history. In practice that means the **inputs and outputs of each action**: the action rows in Tables link to them (author's observation, from Daniel's storage article).
 - **Queues** for scheduling, such as trigger operations.
 
 Every action in a stateful run reads and writes here. Stateless workflows keep their state in memory instead.
@@ -68,7 +68,7 @@ Storage isn't included in your plan. Storage transactions follow **Azure Storage
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Stateful workflows use **tables** (run state), **blobs** (run history) and **queues** (scheduling).
+- Stateful workflows use **tables** (run state), **blobs** (run history: each action's inputs and outputs) and **queues** (scheduling).
 - `AzureWebJobsStorage` is required.
 - One account throttles above **20,000 requests per second**: spread work across workflows and storage accounts.
 - Up to **32 storage accounts** with `Runtime.ScaleUnitsCount`, set up **before** you create the app.

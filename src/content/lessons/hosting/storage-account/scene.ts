@@ -8,7 +8,7 @@ export const scene: Scene = {
   nodes: [
     { id: 'app', kind: 'hosting-plan', label: 'Logic app', sublabel: 'stateful', x: 110, y: 240 },
     { id: 'tables', kind: 'storage', label: 'Tables', sublabel: 'run state', x: 360, y: 100 },
-    { id: 'blobs', kind: 'storage', label: 'Blobs', sublabel: 'run history', x: 360, y: 240 },
+    { id: 'blobs', kind: 'storage', label: 'Blobs', sublabel: 'action payloads', x: 360, y: 240 },
     { id: 'queues', kind: 'servicebus', label: 'Queues', sublabel: 'scheduling', x: 360, y: 380 },
     { id: 'cu00', kind: 'storage', label: 'Storage CU00', sublabel: 'primary', x: 620, y: 170 },
     { id: 'cu01', kind: 'storage', label: 'Storage CU01', sublabel: 'scale unit', x: 620, y: 360 },
@@ -34,7 +34,7 @@ export const scene: Scene = {
       visible: [...parts, ...account],
       highlight: ['tables', 'blobs', 'queues'],
       tokens: [{ id: 'w1', edge: 'app-tables', tone: 'info' }, { id: 'w2', edge: 'app-blobs', tone: 'info' }, { id: 'w3', edge: 'app-queues', tone: 'info' }],
-      chips: [{ label: 'tables', value: 'run state' }, { label: 'blobs', value: 'run history' }, { label: 'queues', value: 'scheduling' }],
+      chips: [{ label: 'tables', value: 'run state' }, { label: 'blobs', value: 'action inputs · outputs' }, { label: 'queues', value: 'scheduling' }],
     },
     setting: {
       visible: [...parts, ...account],
