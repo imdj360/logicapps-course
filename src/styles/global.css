@@ -3,6 +3,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body { margin: 0; }
+/* Stop iOS/Android from enlarging text on their own (it inflated the step text on phones). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 body {
   background: var(--bg);
@@ -247,6 +249,12 @@ kbd { font: 500 10.5px/1 var(--font-mono); border: 1px solid var(--border-strong
 @media (max-width: 700px) {
   /* Keep diagram labels legible; the diagram scrolls inside its panel instead. */
   .stage__svg { min-width: 620px; }
+  .step-panel { padding: 0.9rem 0.95rem; gap: 0.6rem; }
+  .step-panel h2 { font-size: 1.1rem; }
+  .step-body { font-size: 14px; line-height: 1.55; }
+  .step-nav .btn { font-size: 13.5px; }
+  .lesson-head h1 { font-size: 1.45rem; }
+  .lesson-head__summary { font-size: 14px; }
 }
 
 @media (max-width: 900px) {
