@@ -4,76 +4,117 @@ module: advanced
 order: 6
 minutes: 9
 level: Advanced
-summary: A backlog of thousands of messages, and some of them urgent. Let many workers share one queue, and make sure the urgent work doesn't wait behind the rest.
+summary: Every night 50,000 invoices land on one queue, and a few are urgent. Let several workers share the queue, and let the urgent ones skip ahead.
 youWillLearn:
-  - How competing consumers spread work across workers
-  - Why ordering and duplicates need design attention
-  - How poison messages are kept out of the way
-  - How to give some messages priority with Service Bus
+  - What competing consumers are, in one sentence
+  - How to build them with the Service Bus peek-lock trigger in Standard
+  - Why order and duplicates need care, and what happens to poison messages
+  - How to give urgent messages their own lane
+reviewStatus: approved
+lastVerified: '2026-11-24'
 learnLinks:
   - title: "Competing Consumers Pattern"
     url: https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers
   - title: "Priority Queue Pattern"
     url: https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue
-reviewStatus: approved
-lastVerified: '2026-11-24'
+  - title: "Connect to Azure Service Bus from Workflows"
+    url: https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+  - title: "Limits and Configuration Reference Guide"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 ---
 
-<Step id="problem" name="A growing backlog" tag="PROBLEM">
-Every night, 50,000 invoice messages land on a queue. One worker would take until noon. And among them are a few dozen **urgent** credit notes that shouldn't wait.
+<Step id="problem" name="One worker is too slow" tag="PROBLEM">
+Every night, **50,000 invoices** land on a queue. One workflow handles one invoice at a time, so it would finish around noon.
+
+And a few dozen of them are **urgent credit notes** that shouldn't wait in line.
 </Step>
 
-<Step id="pattern" name="Competing consumers">
-Microsoft's **Competing Consumers** pattern: several consumer instances read from the **same queue**, and each message goes to **only one** of them. Add consumers when the backlog grows.
+<Step id="pattern" name="The idea">
+**Several workers read the same queue. Each message goes to only one of them.**
 
-Our contrast: with publish-subscribe, **every** subscriber gets every message.
+Like checkout lanes at a supermarket: one line of shoppers, many tills, and each shopper is served once. Microsoft calls this the **Competing Consumers** pattern.
 </Step>
 
-<Step id="logicapps" name="In Logic Apps">
-In Logic Apps, our mapping: a workflow with the built-in **peek-lock** Service Bus trigger is the consumer. As a Workflow Service Plan scales out, we expect more instances to read from the queue at once (our expectation).
-
-Microsoft's Functions example shows that peek-lock **hides** a message from other consumers while one is working on it; on success it's completed, on failure it can be abandoned.
+<Step id="sequence" name="How it flows">
+1. Invoices wait in **one queue**.
+2. Each worker **takes the next message**. The queue hides it from the other workers.
+3. When the worker **finishes**, the message is removed.
+4. If the worker **fails**, the message goes back and another worker tries.
 </Step>
 
-<Step id="idempotent" name="Order and duplicates" tag="PROBLEM">
-Two consequences of many workers:
+<Step id="build" name="Build it in Logic Apps">
+Our build in Standard, with built-in Service Bus actions:
 
-- **Order isn't guaranteed** across consumers. If order matters, Service Bus sessions can give FIFO ordering (our note: the sequential convoy lesson shows how).
-- A queue delivers each message **at least once**, so a message can be processed twice. Microsoft's advice: process messages **idempotently**.
+1. Trigger: **When messages are available in a queue (peek-lock)**.
+2. Process the invoice.
+3. On success: **Complete the message in a queue**.
+4. On failure: **Abandon the message in a queue**, so another worker can try.
+
+Each workflow instance is one consumer.
 </Step>
 
-<Step id="poison" name="Poison messages">
-A malformed message can fail on every worker that tries it. Service Bus moves a message to the **dead-letter queue** once its delivery count passes **MaxDeliveryCount**, so it can't cycle forever. Our suggestion: a separate workflow on the dead-letter queue to alert and repair.
+<Step id="scale" name="Add more workers">
+Two ways to get more workers:
+
+- **Trigger concurrency**: off by default, which means unlimited runs. Turn it on and pick **1 to 100** runs in parallel (Standard default when on: 100). It **can't be turned off again**.
+- **More instances** of your Standard app. We expect each instance to compete for the queue too (ours; Learn doesn't say).
 </Step>
 
-<Step id="priority" name="Priority queues">
-Microsoft's **Priority Queue** pattern gives urgent work its own path. Its Service Bus example: send to a **topic** with a **Priority** property, and use **SQL filters** to route high and low priority to separate **subscriptions**, each with its own consumers, more of them for high priority.
+<Step id="order" name="Order and duplicates" tag="PROBLEM">
+Many workers means two surprises:
 
-Priority queues can also be a single queue ordered by priority, or separate queues per priority.
+- **Order isn't guaranteed.** Invoice 7 may finish before invoice 3. If order matters, Service Bus **sessions** can give first-in-first-out.
+- A queue delivers **at least once**, so one invoice can arrive twice. Make processing **idempotent**: doing it twice gives the same result as once.
+</Step>
+
+<Step id="poison" name="Poison messages" tag="PROBLEM">
+One malformed invoice can fail on every worker that tries it.
+
+Service Bus counts deliveries. When the count passes **MaxDeliveryCount**, it moves the message to the **dead-letter queue**. Or end the run yourself with **Dead-letter the message in a queue**.
+
+Then a separate workflow (ours) can alert someone and repair it.
+</Step>
+
+<Step id="priority" name="Give urgent work its own lane">
+Microsoft's **Priority Queue** example uses a Service Bus **topic**:
+
+1. The sender sets a **Priority** property on each message.
+2. **SQL filters** route urgent and normal messages to separate **subscriptions**.
+3. Each subscription has its own workers, more of them for urgent.
+
+In Logic Apps (ours): one workflow per subscription, using **When messages are available in a topic subscription (peek-lock)**.
 </Step>
 
 <Step id="starvation" name="Don't starve the rest" tag="TIP">
-With one consumer pool favouring the high-priority queue, low-priority messages can be continually delayed and potentially never processed. Microsoft says to consider **dynamically raising the priority** of old messages, if possible; it also describes dedicated consumer pools per priority as an option.
+If one pool favours urgent work, normal messages can be **delayed for a long time, or never processed**.
+
+Two fixes from Microsoft: **raise the priority of old messages** over time, or give each priority its own pool of workers.
 </Step>
 
-<Step id="when" name="When to use them">
-Competing consumers fit work that's **independent**, can run **asynchronously** and comes in **variable volumes**. They don't fit tasks that must run in sequence or depend heavily on each other.
+<Step id="when" name="When to use it">
+**Use it** when work items are independent, can run in the background, and come in variable volumes.
 
-Priority queues fit different service levels, such as premium and standard customers, but not work where strict first-in-first-out matters more.
+**Skip it** when tasks must run in strict order or depend heavily on each other.
+
+Priority lanes fit different service levels, such as premium and standard customers.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- **Competing consumers**: many workers, one queue, each message to one worker.
-- In Logic Apps: peek-lock trigger, scaled out by the plan.
-- No ordering guarantee and at-least-once delivery: design **idempotently**.
-- **MaxDeliveryCount** sends poison messages to the dead-letter queue.
-- **Priority**: topic plus SQL filters, with dedicated consumers per level.
+- **Many workers, one queue**, each message to one worker.
+- Build: peek-lock trigger, then **Complete** or **Abandon** the message.
+- Scale with trigger concurrency (1 to 100) or more instances.
+- No ordering, at-least-once delivery: be **idempotent**. Poison messages go to the dead-letter queue.
+- Urgent lane: topic, **Priority** property, SQL filters.
 </Step>
 
 {/*
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 Fact-checked verbatim 2026-11-24.
-Neither page mentions Logic Apps; the peek-lock-trigger-as-consumer mapping is ours. The invoice scenario is ours.
+Trigger and action names from the built-in Service Bus reference (When messages are available in a queue (peek-lock), When messages are available in a topic subscription (peek-lock), Complete/Abandon/Dead-letter the message in a queue). Concurrency off = unlimited, on = 1 to 100 and irreversible, Standard default 100: limits page.
+Ours / not claimed by Learn: scaling out Standard instances competing on a queue, one workflow per subscription, the dead-letter repair workflow, the Complete/Abandon wiring as the consumer mapping, the supermarket analogy, the invoice scenario. The pattern pages don't mention Logic Apps.
 */}

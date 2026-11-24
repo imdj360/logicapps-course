@@ -4,12 +4,12 @@ module: advanced
 order: 8
 minutes: 10
 level: Advanced
-summary: A credit approval takes three days. Learn how long a Logic Apps run can wait, how webhooks pause a run until a callback, and how to keep track of which reply belongs to which order.
+summary: A credit check takes three days. Pause the order run with an HTTP Webhook, match the answer to the right order, and know when to split the wait in two.
 youWillLearn:
-  - How long stateful and stateless runs, and webhook waits, can last
-  - How the HTTP Webhook action pauses a run until a callback
-  - How tracking IDs correlate runs, callbacks and logs
-  - When to split a long wait across two workflows
+  - How a workflow can wait days for an answer without polling
+  - How long a run and a webhook can wait
+  - How to match an answer to the right order
+  - When to split the wait across two workflows
 learnLinks:
   - title: "Run Workflows or Actions with HTTP Webhooks"
     url: https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook
@@ -26,63 +26,98 @@ lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="Three days for a yes" tag="PROBLEM">
-Large orders need a credit check from the finance team. Someone has to look, decide and answer, and that can take **three days**. Meanwhile the order workflow must wait, without polling, and pick up exactly where it left off.
+Large orders need a **credit check** from the finance team. They take **three days** to answer.
+
+Meanwhile the order workflow must wait, without polling, and continue exactly where it stopped. And with many orders waiting, each answer must reach the right order.
 </Step>
 
-<Step id="limits" name="How long a run can live">
-- A **stateful** run can last **90 days** by default; `Runtime.Backend.FlowRunTimeout` changes it, with a minimum of 7 days, and it must stay within run history retention.
-- A **stateless** run lasts **5 minutes** by default: no place for long waits.
+<Step id="pattern" name="The idea">
+**Pause the run, give the other side a way to wake it up.**
 
-So long waits belong in **stateful** workflows.
+Like leaving your number at a busy restaurant: you don't stand at the door, they call you when your table is ready.
 </Step>
 
-<Step id="webhook" name="Pause with a webhook">
-The **HTTP Webhook** action calls a service's **subscribe** endpoint with a **callback URL**, then the run **pauses** until the service posts to that URL. Then it unsubscribes and continues.
-
-In Standard, a webhook waits up to **30 days** in a stateful workflow and **5 minutes** in a stateless one. Set a shorter limit with `limit.timeout`.
+<Step id="sequence" name="How it flows">
+1. The order workflow **asks finance** and hands over a **callback URL**.
+2. The run **pauses**. Nothing is polled.
+3. Finance **posts the answer** to the callback URL.
+4. The run **wakes up** and continues with the answer.
 </Step>
 
-<Step id="callback" name="The callback URL">
-By default, the callback URL's SAS token has no time-based expiry, and the URL stays valid for the workflow run duration. It stops working if the run is **cancelled** or **times out**, the workflow or logic app is **disabled or deleted**, or its access keys are **rotated**.
+<Step id="build" name="Build it in Logic Apps">
+Our build in Standard, with a **stateful** workflow:
 
-Our advice: treat it like a password, and send it only to the service that needs it.
+1. Any trigger starts the order workflow.
+2. The **HTTP Webhook** action calls finance's **subscribe** endpoint and sends the callback URL, taken from the `listCallbackUrl()` function in **Subscribe Body**.
+3. The run pauses until finance sends an HTTP POST to that URL.
+4. The action then unsubscribes, and the workflow continues.
+
+The Office 365 Outlook action **Send approval email** follows the same webhook pattern, for human decisions by email.
 </Step>
 
-<Step id="approval" name="Approvals">
-For human decisions, the Office 365 Outlook connector's **Send approval email** action sends an email with options and **waits for the response**. Learn doesn't state how long it can wait, so give the action a timeout you choose, and handle the timeout.
+<Step id="limits" name="How long can it wait?">
+- **Stateful** run: **90 days** by default. Change it with `Runtime.Backend.FlowRunTimeout` (minimum 7 days).
+- **Stateless** run: **5 minutes** by default.
+- **HTTP Webhook** action in Standard: up to **30 days** stateful, **5 minutes** stateless.
+
+Set a shorter wait with `limit.timeout` on the action. Long waits belong in **stateful** workflows.
 </Step>
 
-<Step id="correlation" name="Which reply is which?">
-With many orders waiting, you need to match replies and logs to the right order. Most triggers have a **Custom Tracking Id** property; for Request, HTTP and webhook-based triggers you can also pass an `x-ms-client-tracking-id` header. It correlates the run's events and appears as **ClientTrackingId** in Log Analytics.
+<Step id="callback" name="Guard the callback URL" tag="PROBLEM">
+The callback URL stays valid for the run duration. It stops working if you:
+- **cancel** the workflow,
+- **delete or disable** the workflow or logic app,
+- **rotate** the workflow's access keys, or
+- the workflow **times out**.
 
-The HTTP Webhook action also sends `x-ms-client-tracking-id` and `x-ms-workflow-operation-name` headers, which the target service can use to identify the subscriber.
+Treat it like a password (ours): send it only to the service that needs it.
 </Step>
 
-<Step id="split" name="Or split the wait" tag="TIP">
-Our alternative for very long or uncertain waits: end the first workflow after it sends the request and saves the order's state, keyed by an ID. When the answer arrives, as an HTTP call or a queue message carrying the same ID, a **second workflow** loads the state and continues.
+<Step id="correlation" name="Which answer is which?">
+Give every order a **tracking ID**, for example the order number.
 
-No run waits for days, and a lost callback doesn't leave a run hanging.
+- Most triggers have a **Custom Tracking Id** property.
+- For a Request, HTTP or webhook-based trigger, you can also pass an `x-ms-client-tracking-id` header.
+
+It shows up as **ClientTrackingId** in Log Analytics. The HTTP Webhook action also sends `x-ms-client-tracking-id` and `x-ms-workflow-operation-name`, so finance can tell which subscriber is calling.
+</Step>
+
+<Step id="split" name="Or split the wait (option)" tag="TIP">
+For very long or uncertain waits, don't pause at all (ours).
+
+1. Workflow one sends the request, **saves the order's state** under its order ID, and ends.
+2. The answer arrives as an HTTP call or a queue message with the same ID.
+3. **Workflow two** loads the state and continues.
+
+No run sits waiting for days, and a lost callback leaves nothing hanging.
 </Step>
 
 <Step id="timeout" name="Plan for silence" tag="TIP">
-Whichever approach you choose, decide what happens when **nobody answers**: a timeout, a reminder, an escalation, a cancellation. Our suggestion: catch it with a run after of **Has timed out**.
+Whatever you pick, decide what happens when **nobody answers**: remind, escalate or cancel. In the pausing design, a run after set to **Has timed out** can catch it (ours).
+</Step>
+
+<Step id="when" name="When to use it">
+**Pause with a webhook** when the answer comes within days and the service can call you back.
+
+**Split in two** (ours) when the wait is very long, the answer may never come, or you want no run left open.
+
+**Skip both** when the answer arrives in seconds: a normal call is enough.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Stateful runs: **90 days** by default; stateless: **5 minutes**.
-- **HTTP Webhook** pauses a run until a callback: up to **30 days** in Standard stateful.
-- The callback URL dies with the run, a disable or a key rotation.
-- Correlate with a **custom tracking ID** / `x-ms-client-tracking-id`.
-- For very long waits, **split** across two workflows, and always plan for no answer.
+- **HTTP Webhook** pauses a run until a callback.
+- Stateful runs last **90 days** by default, webhooks **30 days** in Standard stateful. Stateless: **5 minutes**.
+- The callback URL dies with a cancel, a disable or delete, a key rotation or a timeout.
+- Match answers to orders with a **tracking ID**.
+- For very long waits, split in two. Always plan for no answer.
 </Step>
 
 {/*
 Sources (checked 2026-11-24, raw page text):
-- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
-- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
-- https://learn.microsoft.com/en-us/connectors/office365/ (Send approval email)
-- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook (HTTP Webhook action, subscribe/unsubscribe, listCallbackUrl(), Subscribe Body, 30 days Standard stateful, 5 minutes stateless, limit.timeout, four ways the callback URL becomes invalid, SAS token, x-ms-client-tracking-id and x-ms-workflow-operation-name headers, Send approval email follows the webhook pattern)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (run duration: stateful 90 days, stateless 5 min)
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings (Runtime.Backend.FlowRunTimeout, 90 days default, minimum 7 days)
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data (Custom Tracking Id, x-ms-client-tracking-id, ClientTrackingId)
 Fact-checked verbatim 2026-11-24.
-Not claimed: how long Send approval email waits (not on Learn). The split-workflow design and the credit-check scenario are ours.
+Ours / not claimed: the credit-check scenario, the split-workflow design, treating the callback URL like a password, the Has timed out run after advice. How long Send approval email waits is not on Learn and is not claimed.
 */}

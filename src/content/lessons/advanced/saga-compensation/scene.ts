@@ -6,7 +6,7 @@ const comp = ['refund', 'release', 'orch-refund', 'orch-release'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'orch', kind: 'scope', label: 'Orchestrator', sublabel: 'stateful flow', x: 120, y: 240 },
+    { id: 'orch', kind: 'scope', label: 'Order workflow', sublabel: 'in charge', x: 120, y: 240 },
     { id: 'stock', kind: 'action', label: 'Reserve stock', sublabel: 'compensable', x: 440, y: 80 },
     { id: 'pay', kind: 'action', label: 'Charge card', sublabel: 'compensable', x: 440, y: 200 },
     { id: 'courier', kind: 'action', label: 'Book courier', sublabel: 'fails', x: 440, y: 320 },
@@ -26,36 +26,47 @@ export const scene: Scene = {
     problem: {
       visible: [...fwd],
       failed: ['courier'],
-      chips: [{ label: 'committed', value: 'stock · payment' }, { label: 'rollback', value: 'not possible', tone: 'fail' }],
+      chips: [{ label: 'committed', value: 'stock, payment' }, { label: 'rollback', value: 'not possible', tone: 'fail' }],
     },
-    saga: {
+    idea: {
       visible: [...fwd, ...comp],
       failed: ['courier'],
       tokens: [{ id: 's1', edge: 'orch-refund', tone: 'ok' }, { id: 's2', edge: 'orch-release', tone: 'ok' }],
-      chips: [{ label: 'undo with', value: 'compensating steps' }],
+      chips: [{ label: 'undo with', value: 'the opposite step' }],
     },
-    types: {
+    kinds: {
       visible: [...fwd],
       highlight: ['stock', 'pay'],
-      chips: [{ label: 'kinds', value: 'compensable · pivot · retryable' }],
+      chips: [{ label: 'before pivot', value: 'compensable' }, { label: 'after pivot', value: 'retryable' }],
+    },
+    flow: {
+      visible: [...fwd, ...comp],
+      failed: ['courier'],
+      tokens: [{ id: 'f1', edge: 'orch-stock', tone: 'ok' }, { id: 'f2', edge: 'orch-pay', tone: 'ok' }, { id: 'f3', edge: 'orch-courier', tone: 'fail' }],
+      chips: [{ label: '1-2', value: 'stock, card done' }, { label: '3', value: 'courier fails', tone: 'fail' }, { label: '4', value: 'refund, release' }],
+    },
+    build: {
+      visible: [...fwd, ...comp],
+      failed: ['courier'],
+      highlight: ['orch', 'refund', 'release'],
+      tokens: [{ id: 'c1', edge: 'orch-refund', tone: 'ok' }, { id: 'c2', edge: 'orch-release', tone: 'ok' }],
+      chips: [{ label: 'Try scope', value: 'the 3 steps' }, { label: 'Catch scope', value: 'Has failed, Has timed out' }],
     },
     orchestration: {
       visible: [...fwd],
       highlight: ['orch'],
-      chips: [{ label: 'our design', value: 'Logic Apps orchestrates' }, { label: 'alternative', value: 'choreography' }],
-    },
-    compensate: {
-      visible: [...fwd, ...comp],
-      failed: ['courier'],
-      highlight: ['refund', 'release'],
-      tokens: [{ id: 'c1', edge: 'orch-refund', tone: 'ok' }, { id: 'c2', edge: 'orch-release', tone: 'ok' }],
-      chips: [{ label: 'Catch scope', value: 'compensate completed steps' }],
+      chips: [{ label: 'orchestration', value: 'one boss' }, { label: 'choreography', value: 'events, no boss' }],
     },
     fails: {
       visible: [...fwd, ...comp, 'human', 'orch-human'],
       failed: ['refund'],
       highlight: ['human'],
-      chips: [{ label: 'compensations', value: 'idempotent · resumable' }, { label: 'last resort', value: 'alert a person', tone: 'warn' }],
+      chips: [{ label: 'compensations', value: 'idempotent, resumable' }, { label: 'last resort', value: 'alert a person', tone: 'warn' }],
+    },
+    gap: {
+      visible: [...fwd, ...comp],
+      failed: ['courier'],
+      chips: [{ label: 'meanwhile', value: 'data briefly wrong', tone: 'warn' }],
     },
     when: {
       visible: [...fwd, ...comp],

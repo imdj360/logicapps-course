@@ -12,6 +12,7 @@ export const scene: Scene = {
     { id: 'park', kind: 'servicebus', label: 'Parked work', sublabel: 'retry later', x: 420, y: 410 },
   ],
   edges: [
+    { id: 'wf-api', from: 'wf', to: 'api' },
     { id: 'wf-breaker', from: 'wf', to: 'breaker' },
     { id: 'breaker-api', from: 'breaker', to: 'api' },
     { id: 'state-breaker', from: 'state', to: 'breaker', style: 'dashed' },
@@ -19,14 +20,15 @@ export const scene: Scene = {
   ],
   steps: {
     problem: {
-      visible: ['wf', 'api'],
+      visible: ['wf', 'api', 'wf-api'],
       failed: ['api'],
-      chips: [{ label: 'every run', value: 'retries 4 times', tone: 'warn' }],
+      tokens: [{ id: 'c1', edge: 'wf-api', tone: 'fail' }, { id: 'c2', edge: 'wf-api', tone: 'fail' }],
+      chips: [{ label: 'partner API', value: 'down 2 h', tone: 'fail' }, { label: 'every order', value: 'retries 4 times', tone: 'warn' }],
     },
     pattern: {
       visible: [...core],
       highlight: ['breaker'],
-      chips: [{ label: 'breaker', value: 'decides: call or not' }],
+      chips: [{ label: 'breaker', value: 'call, or fail fast' }],
     },
     states: {
       visible: [...core],
@@ -34,23 +36,33 @@ export const scene: Scene = {
       highlight: ['breaker'],
       chips: [{ label: 'Closed', value: 'count failures' }, { label: 'Open', value: 'fail fast', tone: 'warn' }, { label: 'Half-Open', value: 'test a few' }],
     },
-    retry: {
+    sequence: {
       visible: [...core],
-      chips: [{ label: 'retry', value: 'will succeed soon' }, { label: 'breaker', value: 'likely to fail' }],
+      highlight: ['breaker'],
+      tokens: [{ id: 's1', edge: 'wf-breaker', tone: 'info' }, { id: 's2', edge: 'breaker-api', tone: 'ok' }],
+      chips: [{ label: '1', value: 'ask the breaker' }, { label: '3', value: 'too many failures: open', tone: 'warn' }, { label: '4', value: 'test calls, then close' }],
     },
-    logicapps: {
+    build: {
       visible: [...core, 'state', 'park', 'state-breaker', 'breaker-park'],
       highlight: ['state', 'breaker-park'],
       tokens: [{ id: 'l1', edge: 'state-breaker', tone: 'info' }, { id: 'l2', edge: 'breaker-park', tone: 'ok' }],
-      chips: [{ label: 'our design', value: 'shared state, checked first' }],
+      chips: [{ label: 'our design', value: 'state in a table' }, { label: 'Condition', value: 'open: skip and park' }],
+    },
+    retry: {
+      visible: [...core],
+      chips: [{ label: 'retry', value: 'short glitches' }, { label: 'breaker', value: 'long outages' }],
     },
     notneeded: {
       visible: [...core, 'park', 'breaker-park'],
-      chips: [{ label: 'behind a queue', value: 'might not be suitable' }],
+      chips: [{ label: 'behind a queue', value: 'might not be suitable' }, { label: 'already has', value: 'dead-letter + retries' }],
     },
     fallback: {
       visible: [...core],
-      chips: [{ label: 'open state', value: 'useful default' }, { label: 'operators', value: 'manual reset' }],
+      chips: [{ label: 'open state', value: 'useful default' }, { label: 'admin', value: 'manual reset' }],
+    },
+    when: {
+      visible: [...core],
+      chips: [{ label: 'use', value: 'long remote outages' }, { label: 'skip', value: 'queue-backed calls' }],
     },
     recap: {
       visible: [...core, 'state', 'park', 'state-breaker', 'breaker-park'],

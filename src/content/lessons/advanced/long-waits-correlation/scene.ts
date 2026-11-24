@@ -1,6 +1,7 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 const core = ['order', 'hook', 'finance', 'order-hook', 'hook-finance', 'finance-hook'];
+const split = ['order', 'finance', 'state', 'second', 'order-state', 'finance-second', 'second-state'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -12,6 +13,7 @@ export const scene: Scene = {
     { id: 'second', kind: 'trigger', label: 'Second flow', sublabel: 'on reply', x: 740, y: 410 },
   ],
   edges: [
+    { id: 'order-finance', from: 'order', to: 'finance', style: 'dashed' },
     { id: 'order-hook', from: 'order', to: 'hook' },
     { id: 'hook-finance', from: 'hook', to: 'finance' },
     { id: 'finance-hook', from: 'finance', to: 'hook', style: 'dashed' },
@@ -21,29 +23,35 @@ export const scene: Scene = {
   ],
   steps: {
     problem: {
-      visible: ['order', 'finance'],
-      chips: [{ label: 'decision takes', value: '3 days' }],
+      visible: ['order', 'finance', 'order-finance'],
+      tokens: [{ id: 'w1', edge: 'order-finance', tone: 'info' }],
+      chips: [{ label: 'decision takes', value: '3 days' }, { label: 'order', value: 'must wait', tone: 'warn' }],
+    },
+    pattern: {
+      visible: [...core],
+      highlight: ['hook'],
+      chips: [{ label: 'run', value: 'pauses' }, { label: 'callback', value: 'wakes it up', tone: 'ok' }],
+    },
+    sequence: {
+      visible: [...core],
+      tokens: [{ id: 's1', edge: 'hook-finance', tone: 'info' }, { id: 's2', edge: 'finance-hook', tone: 'ok' }],
+      chips: [{ label: '1', value: 'ask + callback URL' }, { label: '2', value: 'run pauses' }, { label: '3', value: 'answer posted' }, { label: '4', value: 'run continues' }],
+    },
+    build: {
+      visible: [...core],
+      highlight: ['hook'],
+      tokens: [{ id: 'b1', edge: 'hook-finance', tone: 'info' }, { id: 'b2', edge: 'finance-hook', tone: 'ok' }],
+      chips: [{ label: 'action', value: 'HTTP Webhook' }, { label: 'URL from', value: 'listCallbackUrl()' }],
     },
     limits: {
       visible: [...core],
-      highlight: ['order'],
-      chips: [{ label: 'stateful run', value: '90 days default' }, { label: 'stateless run', value: '5 min', tone: 'warn' }],
-    },
-    webhook: {
-      visible: [...core],
-      highlight: ['hook'],
-      tokens: [{ id: 'w1', edge: 'hook-finance', tone: 'info' }, { id: 'w2', edge: 'finance-hook', tone: 'ok' }],
-      chips: [{ label: 'Standard stateful', value: 'up to 30 days' }, { label: 'stateless', value: '5 min' }],
+      highlight: ['order', 'hook'],
+      chips: [{ label: 'stateful run', value: '90 days' }, { label: 'webhook, stateful', value: '30 days' }, { label: 'stateless', value: '5 min', tone: 'warn' }],
     },
     callback: {
       visible: [...core],
       highlight: ['finance-hook'],
-      chips: [{ label: 'callback URL dies on', value: 'cancel · delete/disable · keys · timeout' }],
-    },
-    approval: {
-      visible: [...core],
-      highlight: ['finance'],
-      chips: [{ label: 'action', value: 'Send approval email' }, { label: 'wait limit', value: 'not on Learn', tone: 'warn' }],
+      chips: [{ label: 'URL dies on', value: 'cancel · delete or disable · key rotation · timeout', tone: 'warn' }],
     },
     correlation: {
       visible: [...core],
@@ -51,14 +59,19 @@ export const scene: Scene = {
       chips: [{ label: 'header', value: 'x-ms-client-tracking-id' }, { label: 'logs', value: 'ClientTrackingId' }],
     },
     split: {
-      visible: ['order', 'finance', 'state', 'second', 'order-state', 'finance-second', 'second-state'],
+      visible: [...split],
       highlight: ['state', 'second'],
-      tokens: [{ id: 's1', edge: 'finance-second', tone: 'ok' }, { id: 's2', edge: 'second-state', tone: 'info' }],
-      chips: [{ label: 'our design', value: 'two flows, shared state' }],
+      tokens: [{ id: 'p1', edge: 'finance-second', tone: 'ok' }, { id: 'p2', edge: 'second-state', tone: 'info' }],
+      chips: [{ label: 'design (ours)', value: 'two flows, shared state' }],
     },
     timeout: {
       visible: [...core],
-      chips: [{ label: 'no answer', value: 'Has timed out', tone: 'warn' }],
+      highlight: ['finance'],
+      chips: [{ label: 'no answer', value: 'Has timed out (ours)', tone: 'warn' }],
+    },
+    when: {
+      visible: [...core, 'state', 'second', 'order-state', 'finance-second', 'second-state'],
+      chips: [{ label: 'days', value: 'webhook' }, { label: 'very long', value: 'split' }],
     },
     recap: {
       visible: [...core, 'state', 'second', 'order-state', 'finance-second', 'second-state'],

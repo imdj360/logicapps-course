@@ -4,12 +4,13 @@ module: advanced
 order: 2
 minutes: 10
 level: Advanced
-summary: The answer takes minutes, longer than any HTTP call should wait. Send the request as a message and get the reply on a queue, matched by correlation or session IDs.
+summary: A price quote takes minutes, longer than an HTTP call can wait. Send the request as a message and read the reply from a queue.
 youWillLearn:
-  - How messaging request-reply differs from HTTP 202 polling
-  - How ReplyTo and CorrelationId route a reply back
+  - What request-reply over a queue is, in one sentence
+  - How ReplyTo and CorrelationId bring the right reply back
   - How sessions let many requesters share one reply queue
-  - What the Logic Apps Service Bus connector exposes for this
+  - Which Service Bus actions to use in Standard
+  - What to do when no reply comes
 learnLinks:
   - title: "Azure Service Bus Messages, Payloads, and Serialization"
     url: https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads
@@ -27,77 +28,100 @@ reviewStatus: approved
 lastVerified: '2026-11-24'
 ---
 
-<Step id="problem" name="An answer that takes minutes" tag="PROBLEM">
-The pricing engine calculates a quote in three to ten minutes. The ordering workflow needs that quote. An HTTP call would time out: by default, an outbound request in Standard times out after 225 seconds.
+<Step id="problem" name="A quote that takes minutes" tag="PROBLEM">
+An order workflow needs a **price quote** from the pricing engine. The engine takes **3 to 10 minutes**.
 
-Instead, send the request as a **message**, and get the reply as a **message**.
+An HTTP call won't wait that long: an outbound request in Standard times out after **225 seconds** by default.
 </Step>
 
-<Step id="two" name="Two kinds of request-reply">
-- **HTTP request-reply**: Microsoft's *Asynchronous Request-Reply* pattern, with **202 Accepted** and a status URL to poll. Microsoft notes Logic Apps supports it natively; the async polling lesson covers it.
-- **Messaging request-reply**: the request goes on a queue, and the reply comes back on another queue. That's this lesson.
+<Step id="pattern" name="The idea">
+**Send the question as a message, and read the answer from another queue.**
+
+Like posting a letter with a return address on it (ours): you don't stand at the door waiting. The reply finds its way back.
 </Step>
 
-<Step id="simple" name="ReplyTo and CorrelationId">
-Service Bus messages carry routing properties for exactly this:
+<Step id="two" name="Not the same as HTTP 202">
+Two patterns, same goal:
 
-- The requester sets **ReplyTo** to the queue it wants the reply on, and a **MessageId**.
-- The responder copies that MessageId into the reply's **CorrelationId**, and sends the reply to the ReplyTo queue.
+- **HTTP request-reply**: the server answers **202 Accepted** with a status URL, and you poll. Microsoft's *Asynchronous Request-Reply* pattern, covered in the async polling lesson.
+- **Messaging request-reply**: the request goes on one queue, the reply comes back on another. This lesson.
+</Step>
 
-The requester matches replies to requests by CorrelationId.
+<Step id="sequence" name="How it flows">
+1. The order workflow **sends the request** with a **MessageId** and a **ReplyTo**: the queue for the answer.
+2. The pricing engine calculates the quote.
+3. It **copies the MessageId** into the reply's **CorrelationId**, and sends the reply to the ReplyTo queue.
+4. The order workflow reads the reply and **matches CorrelationId** to its request.
 </Step>
 
 <Step id="sessions" name="Many requesters, one reply queue">
-If many workflow runs wait for replies on the same queue, each must get its own. Service Bus **sessions** solve this, which Microsoft calls **multiplexed** request-reply:
+Many orders wait at once on one reply queue. Each must get only its own reply. Use **sessions**. Microsoft calls this *multiplexed* request-reply:
 
-- The requester sets **ReplyToSessionId** to a unique ID, such as a GUID.
-- The responder copies it into the reply's **SessionId**.
-- The requester waits on its own session in the session-enabled reply queue.
+1. The requester sets **ReplyToSessionId** to a unique ID, such as a GUID.
+2. The responder copies it into the reply's **SessionId**.
+3. The requester reads only that session.
 
-Sessions need the **Standard or Premium** tier.
+Sessions need Service Bus **Standard or Premium**.
 </Step>
 
-<Step id="logicapps" name="In Logic Apps">
-The built-in Service Bus connector in Standard can **send** messages, with more properties under **Advanced parameters** (Learn's managed connector Send message lists **Reply To**, **Reply To Session Id** and **Session Id**; the built-in reference lists only the message, so check which properties your built-in Send exposes, or use the managed connector, which is capped at 1 MB), and **receive** from sessions, for example with **Get messages from a queue session**. Received messages expose **Reply to**, **Reply to session** and **Correlation ID**.
+<Step id="build" name="Build it in Logic Apps">
+Our build in Standard:
 
-Learn's connector reference doesn't list every property you can set on send, so check what your connector version exposes before you design around it.
+**Requester workflow**
+1. **Send message**, from the **managed** Service Bus connector. It has **Message Id**, **Reply To**, **Reply To Session Id** and **Correlation Id**. Limit: **1 MB**.
+2. **Get messages from a queue session** (built-in), with **Session Id** set to your GUID.
+
+**Responder workflow** (ours)
+1. Trigger: **When messages are available in a queue (peek-lock)**.
+2. **Send message**, with **Session Id** set to the request's Reply To Session Id.
+
+The built-in **Send message** lists only the queue name and the message.
 </Step>
 
-<Step id="design" name="A workflow design">
-Our design for the ordering workflow:
+<Step id="wait" name="Wait, with a deadline">
+Our design for waiting: put **Get messages from a queue session** inside an **Until** loop, with a **Delay** between tries.
 
-1. Generate a GUID and **send** the request with ReplyTo set to the reply queue and ReplyToSessionId set to the GUID.
-2. **Wait** for the reply with an action that reads from that session, inside an **Until** loop with a timeout.
-3. Handle **no reply**: run after *Has timed out*, alert, or compensate.
-
-The pricing engine, or a workflow in front of it, copies the session ID into the reply.
+Until stops after **60 iterations** or **PT1H**, whichever comes first. Both are defaults. Set limits that match your longest expected quote (ours).
 </Step>
 
-<Step id="multicast" name="Several answers" tag="TIP">
-Service Bus also describes **multicast** request-reply: send the request to a **topic**, and several subscribers may each reply. Microsoft mentions discovery and roll-call scenarios. The scatter-gather lesson builds on this.
+<Step id="multicast" name="Several answers (option)" tag="TIP">
+Send the request to a **topic** instead, and every subscriber may reply. Microsoft calls this **multicast** request-reply, used for discovery or roll-call scenarios.
+
+The scatter-gather lesson builds on this.
 </Step>
 
-<Step id="cautions" name="Things to plan for" tag="TIP">
-- Session locks: only one receiver holds a session at a time.
-- Our cautions: decide what happens to replies that arrive **after** the requester gave up, and keep requests **idempotent**, since a retried request may produce two replies.
+<Step id="watch" name="When no reply comes" tag="PROBLEM">
+Plan for the quote that never arrives, or arrives late (ours):
+
+- After the Until loop ends, check whether a reply came. If not, **alert or compensate**.
+- Decide what happens to a reply that arrives **after** you gave up.
+- Keep requests **idempotent**: a retried request may produce two replies.
+</Step>
+
+<Step id="when" name="When to use it">
+**Use it** when the answer takes longer than an HTTP call can wait, or when the responder may be busy or offline.
+
+**Skip it** when the answer comes back in seconds: a plain HTTP call is simpler.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Use messaging request-reply when an answer takes longer than an HTTP call can wait.
-- **ReplyTo** says where to reply; **CorrelationId** links the reply to the request.
+- Send the **request** as a message. Read the **reply** from a queue.
+- **ReplyTo** says where to answer. **CorrelationId** links reply to request.
 - **ReplyToSessionId** plus sessions let many requesters share one reply queue.
-- The built-in connector reads sessions; check which properties its Send message exposes.
+- Standard: managed **Send message** sets the properties. Built-in **Get messages from a queue session** reads the reply.
 - Always design for a reply that never comes.
 </Step>
 
 {/*
 Sources (checked 2026-11-24, raw page text):
-- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads
-- https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sessions
-- https://learn.microsoft.com/en-us/azure/architecture/patterns/async-request-reply
-- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
-- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (225 s)
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads (ReplyTo, CorrelationId, ReplyToSessionId, multicast, multiplexed request/reply)
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sessions (Standard and Premium support sessions)
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/async-request-reply (HTTP 202; Logic Apps supports it natively)
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/ (built-in Send message: entityName and message only; Get messages from a queue session: Session Id required; When messages are available in a queue (peek-lock))
+- https://learn.microsoft.com/en-us/connectors/servicebus/ (managed Send message: Message Id, Reply To, Reply To Session Id, Session Id, Correlation Id)
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus (managed connector 1 MB)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (outbound request 225 sec default, single-tenant)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops (Until defaults count 60, timeout PT1H)
 Fact-checked verbatim 2026-11-24.
-Not claimed: that the built-in Send message action exposes Session Id (Learn lists it only for the managed connector), ReplyTo, ReplyToSessionId or CorrelationId as named inputs (Learn's reference doesn't list them). The workflow design and the pricing-engine scenario are ours.
+Ours, not on Learn: the pricing-engine scenario, the responder workflow, the Until + Delay wait design, late-reply and idempotency advice, the return-address analogy. Not claimed: that built-in Send message exposes ReplyTo, ReplyToSessionId, SessionId or CorrelationId (the built-in reference doesn't list them). Learn gives no end-to-end Logic Apps request-reply recipe.
 */}

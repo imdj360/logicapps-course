@@ -4,65 +4,86 @@ module: advanced
 order: 7
 minutes: 9
 level: Advanced
-summary: The partner API has been down for two hours, and every run still retries it four times. A circuit breaker stops calling a service that's failing, then tests whether it's back.
+summary: The partner API is down for two hours and every order still retries it. A circuit breaker stops calling a service that is failing, then checks whether it is back.
 youWillLearn:
-  - The circuit breaker's three states
-  - How it differs from, and works with, retries
-  - One way to build a breaker around Logic Apps, and when you don't need one
+  - What a circuit breaker does, in one sentence
+  - The three states, Closed, Open and Half-Open
+  - How it differs from retries
+  - One way to build it around a Logic Apps call, and when you can skip it
 learnLinks:
   - title: "Circuit Breaker Pattern"
     url: https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
   - title: "Retry Pattern"
     url: https://learn.microsoft.com/en-us/azure/architecture/patterns/retry
+  - title: "Handle errors and exceptions in Azure Logic Apps"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
 reviewStatus: approved
 lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="Retrying into a wall" tag="PROBLEM">
-A partner API goes down for two hours. Every order run still calls it, retries four times, waits, and fails. Thousands of runs pile up, each holding resources, each making the same doomed calls.
+Each order calls a partner shipping API. Today it's **down for two hours**.
 
-Microsoft's point: an application **shouldn't keep retrying** an operation that's unlikely to succeed. It should recognise the failure quickly.
+Every order still calls it, retries **4 times** (the Standard default), waits, and fails. Hundreds of runs pile up, all making the same doomed calls.
 </Step>
 
-<Step id="pattern" name="The pattern">
-A **circuit breaker** acts as a proxy in front of an operation that might fail. It's a small **state machine** that decides whether a call should even be attempted.
+<Step id="pattern" name="The idea">
+**Stop calling a service that keeps failing. Fail fast instead, and check now and then whether it's back.**
+
+Like the circuit breaker in your fuse box: when something is wrong, it cuts the line instead of letting things burn. Microsoft calls this the **Circuit Breaker** pattern.
 </Step>
 
 <Step id="states" name="Three states">
-- **Closed**: calls go through, and the breaker counts recent failures. Too many within a period, and it **opens**.
-- **Open**: calls **fail immediately**, without touching the service. After a timeout, it goes half-open.
-- **Half-Open**: a **limited number** of calls go through. If they succeed, it closes; if any fails, it opens again.
-
-Half-open stops a recovering service from being flooded the moment it comes back.
+- **Closed**: calls go through. The breaker counts recent failures, and **opens** when there are too many in a period.
+- **Open**: calls **fail immediately**, without touching the service. After a time-out, it goes half-open.
+- **Half-Open**: a **limited number** of calls go through. If they succeed, it closes. If one fails, it opens again.
 </Step>
 
-<Step id="retry" name="Breaker vs retry">
-Microsoft separates the two: **retry** expects an operation to succeed eventually; a **circuit breaker** prevents an operation that's likely to fail. They combine well: retry through a breaker, and **stop retrying** when the breaker says the fault isn't transient.
-
-Our caution: stacking retries inside retries multiplies the attempts and the waiting.
+<Step id="sequence" name="How it flows">
+1. An order is about to call the partner. It **asks the breaker** first.
+2. **Closed**: the call goes through. A failure adds to the count.
+3. Too many failures: the breaker **opens**. New orders skip the call and fail fast.
+4. After the time-out, a **few test calls** go through. Success closes the breaker.
 </Step>
 
-<Step id="logicapps" name="Around Logic Apps">
-Learn has no circuit-breaker guidance for Logic Apps, so this is our design. Keep the breaker's **state** somewhere shared, such as a storage table: closed or open, failure count, time opened.
+<Step id="build" name="Build it in Logic Apps">
+Logic Apps has **no built-in circuit breaker action**, so this is our design:
 
-Before calling the partner, a workflow reads the state. If it's **open**, skip the call and park the work, for example back on a queue for later. After each call, update the count, and open the breaker when failures cross your threshold.
+1. Keep the **state** in a shared place, such as a storage table: Closed or Open, failure count, time opened.
+2. Before the partner call, **read the state**. A **Condition** checks it.
+3. If **Open**: skip the call and park the order, for example on a queue to retry later.
+4. If the call fails, **update the count**. Past your threshold, set the state to Open.
 </Step>
 
-<Step id="notneeded" name="When you don't need one" tag="TIP">
-Microsoft lists **message-driven and event-driven** architectures as cases where a circuit breaker **might not be suitable**: they often dead-letter failed messages, and built-in isolation and retries are often sufficient.
+<Step id="retry" name="Breaker or retry?">
+They do different jobs. **Retry** expects the call to succeed soon. A **breaker** blocks a call that's likely to fail.
 
-So if the partner call already sits behind a queue, with sensible retries and dead-lettering, start there. Our rule of thumb: add a breaker when calls are synchronous, expensive, or hurting the partner while they're down.
+Use both: the built-in retry policy handles short glitches, the breaker handles long outages. Don't stack retries inside retries (ours): the attempts and the waiting multiply.
+</Step>
+
+<Step id="notneeded" name="When you may not need one" tag="TIP">
+Microsoft says a circuit breaker **might not be suitable** in a message-driven or event-driven architecture. Failed messages often go to a dead-letter queue, and built-in isolation and retries are often enough.
+
+So if the partner call already sits behind a queue, start there. Add a breaker (ours) when calls are synchronous and the partner suffers while it's down.
 </Step>
 
 <Step id="fallback" name="Fail with something useful" tag="TIP">
-Microsoft notes the open state can return a **default value** that's meaningful to the caller, for example (ours) "price on request" instead of an error. If recovery time is very variable, it suggests a **manual reset** option for administrators.
+An open breaker can return a **default value** that makes sense to the caller, such as "shipping quote on request" (ours) instead of an error.
+
+If recovery time varies a lot, Microsoft suggests a **manual reset** so an administrator can close the breaker.
+</Step>
+
+<Step id="when" name="When to use it">
+**Use it** when a remote call can fail for a long time, and every extra attempt wastes time or hurts the partner.
+
+**Skip it** when the call is behind a queue with retries and dead-lettering, or when it touches only local resources.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - A **circuit breaker** stops calls to a service that's failing.
 - **Closed** counts failures, **Open** fails fast, **Half-Open** tests recovery.
-- Combine it with **retries**; don't retry through an open breaker.
-- In Logic Apps it's your design: shared state, checked before each call.
+- It works **with** retries: retries for glitches, the breaker for outages.
+- In Logic Apps it's **our design**: shared state, a Condition before the call.
 - Behind a queue with dead-lettering, you may not need one.
 </Step>
 
@@ -70,6 +91,7 @@ Microsoft notes the open state can return a **default value** that's meaningful 
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/retry
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
 Fact-checked verbatim 2026-11-24.
-Neither page mentions Logic Apps; the storage-table breaker design is ours. "Retries four times" refers to the default retry policy from the Retry policies lesson. The partner scenario is ours.
+Default retry in Standard: exponential interval, up to 4 retries (error-exception-handling page). The pattern pages don't mention Logic Apps. Ours / not claimed by Learn: the whole Logic Apps build (state in a table, Condition before the call, parking on a queue, counting failures), the do-not-stack-retries advice, the "add a breaker when synchronous" rule, the fuse-box analogy, the shipping scenario and the default-value example.
 */}

@@ -4,12 +4,13 @@ module: advanced
 order: 4
 minutes: 9
 level: Advanced
-summary: Ask three suppliers for a price at once, collect what comes back in time, and pick the best. Build scatter-gather from parallel branches or Service Bus topics.
+summary: Ask three suppliers for a price at the same time, wait only as long as you must, and pick the cheapest answer.
 youWillLearn:
-  - What scatter-gather is, and what Learn does and doesn't document
-  - How to scatter with parallel branches, and with a topic
-  - How to gather replies with a deadline
-  - When to choose each approach
+  - What scatter-gather is, in one sentence
+  - How to build it with parallel branches and a join
+  - How to build it with a Service Bus topic when answers are slow
+  - How to stop waiting for a supplier who never answers
+  - When to use it, and when not to
 learnLinks:
   - title: "Create or Join Parallel Branches in Workflows"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-branches
@@ -29,61 +30,91 @@ reviewStatus: approved
 lastVerified: '2026-11-24'
 ---
 
-<Step id="problem" name="Best price, fast" tag="PROBLEM">
-For each large order, purchasing wants quotes from three suppliers and picks the cheapest that can deliver. Asking one after another takes too long; some suppliers answer slowly, and one may not answer at all.
+<Step id="problem" name="Three quotes, fast" tag="PROBLEM">
+For every big order, purchasing wants a price from **three suppliers** and takes the cheapest.
 
-**Scatter-gather** sends the request to all of them at once, then **gathers** the replies and combines them.
+Asking them one after another is slow. And if Supplier C never answers, the whole order waits.
 </Step>
 
-<Step id="honest" name="What Learn covers">
-Scatter-gather is a classic enterprise integration pattern, but the Azure Architecture Center has **no pattern page** for it; there, the name appears only as another name for concurrent orchestration of AI agents. Learn's BizTalk Server ESB Toolkit docs describe a scatter-gather pattern, but for a different product.
+<Step id="idea" name="The idea">
+**Ask everyone at once. Collect the answers. Choose.**
 
-So this lesson builds it from pieces Learn **does** document: parallel branches, Service Bus topics, multicast request-reply and timeouts. The combination is our design.
+Like asking three plumbers for a quote on the same day, then calling the cheapest one back. This is **scatter-gather**: scatter the request, gather the replies. It's a classic integration pattern with no Architecture Center page, so we build it from documented pieces (ours).
 </Step>
 
-<Step id="branches" name="Scatter with branches">
-When the suppliers have **APIs you call directly**, use **parallel branches**: one branch per supplier, each with an HTTP or connector action.
-
-A **join** action after the branches waits for all branches at the same level to finish. Set its **run after** to include *Has failed* and *Has timed out*, so one failing supplier doesn't stop the gather.
+<Step id="flow" name="How it flows">
+1. An order arrives and needs quotes.
+2. **Scatter**: the same request goes to Suppliers A, B and C at once.
+3. **Gather**: replies come back, each at its own speed.
+4. A deadline passes. We use the replies that arrived and **pick the cheapest**.
 </Step>
 
-<Step id="deadline" name="Give each call a deadline">
-A slow supplier shouldn't hold up the rest. Set the HTTP action's **Timeout** under Settings > Request options; Learn says the action then fails if the server doesn't respond in time (by default, after 225 seconds in Standard). Connector actions may not offer the setting. Then the join compares whatever came back.
+<Step id="branches" name="Build it with branches">
+Use this when you call the suppliers' **APIs directly** and they answer in seconds.
+
+1. Trigger: whatever receives the order (ours).
+2. Add **parallel branches**, one per supplier, each with an **HTTP** action.
+3. Under all the branches, add a **join** action. It runs only after **all** branches finish.
+4. Pick the cheapest of the replies that came back (ours).
 </Step>
 
-<Step id="topics" name="Scatter with a topic">
-When suppliers are **decoupled** and answer later, publish one request to a Service Bus **topic**, with a subscription per supplier. Each supplier replies to a reply queue, with a **CorrelationId** that matches the request.
+<Step id="deadline" name="Don't wait forever" tag="PROBLEM">
+Supplier C is down. Without care, one failed branch stops the join.
 
-Service Bus calls this **multicast** request-reply: one request, potentially several replies.
+- On the join, open its **run after** settings and also select **Has failed** and **Has timed out**. The join then runs anyway.
+- On each **HTTP** action, set a shorter timeout under **Settings > Request options > Timeout**. In Standard an outbound request waits up to **225 seconds**, which is the default and also the maximum. You can only lower it.
+</Step>
+
+<Step id="topic" name="Build it with a topic (option)">
+Use this when suppliers answer **minutes later**, or come and go.
+
+**Scatter workflow**
+1. **Send message** (Service Bus) to a **topic**, with a message ID.
+2. Each supplier has its own **subscription** and replies to a **reply queue**, copying the request ID into the reply's **CorrelationId**.
+
+One request, several replies: Service Bus calls this **multicast request/reply**. Adding a supplier is a new subscription, not a workflow change (ours).
 </Step>
 
 <Step id="gather" name="Gather the replies">
-To gather, our design: an **Until** loop reads replies for this request, by correlation or session ID, and adds them to an array variable. It stops when all suppliers have answered **or** the deadline passes, then picks the best quote.
+Our design for the topic version, in a second workflow or a later stage:
 
-Keep the loop's own timeout in mind: one hour by default in a stateful workflow.
+1. An **Until** loop runs **Get messages from a queue** on the reply queue.
+2. Keep replies whose CorrelationId matches this order, in an array variable.
+3. Stop when all three have answered **or** the deadline passes.
+4. Pick the cheapest quote.
+
+An **Until** loop stops after **60 iterations** or **PT1H** (one hour) by default in a stateful workflow. Set your own limits.
 </Step>
 
-<Step id="choose" name="Branches or topic?" tag="TIP">
-Our rule of thumb: **branches** when the suppliers are known APIs that answer within seconds; a **topic** when suppliers come and go, or answer minutes later. Topics make adding a supplier a configuration change, not a workflow change.
+<Step id="watch" name="Decide what good enough means" tag="TIP">
+Only two of three answered? Decide **before** go-live (ours): is two enough, or must you wait for all three?
+
+Also log which supplier was late, so you can see who is slow.
+</Step>
+
+<Step id="when" name="When to use it">
+**Use it** when you need the best of several answers, and the answers are independent of each other.
+
+**Skip it** when one supplier is enough, or when each call depends on the result of the one before.
+
+**Branches** for known, fast APIs. **A topic** for slow or changing suppliers (ours).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **Scatter-gather**: ask many at once, combine the answers.
-- Learn has no pattern page for it; build it from documented pieces.
-- **Branches** plus a **join** for direct API calls; give each call a timeout.
-- A **topic** plus a reply queue and **CorrelationId** for decoupled suppliers.
-- Gather with a deadline, and decide what "good enough" means.
+- Direct APIs: parallel branches, then a join with run after set to include Has failed and Has timed out.
+- Slow suppliers: Send message to a topic, replies matched by CorrelationId.
+- Set a deadline, so one slow supplier can't block the order.
+- Decide up front what a partial answer is worth.
 </Step>
 
 {/*
 Sources (checked 2026-11-24, raw page text):
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-branches
-- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads (multicast request/reply)
-- https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber
-- https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns (only mention of "scatter-gather")
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
-- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling (run after statuses)
-- https://learn.microsoft.com/en-us/biztalk/esb-toolkit/message-routing-patterns (BizTalk ESB scatter-gather)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-branches (parallel branches, join waits for all)
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling (run after: Has failed, Is skipped, Has timed out)
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (outbound request 225 sec single-tenant default; Until 60 iterations, PT1H stateful)
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/ (Send message, Get messages from a queue)
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads (multicast request/reply, CorrelationId)
 Fact-checked verbatim 2026-11-24.
-https://learn.microsoft.com/en-us/azure/architecture/patterns/scatter-gather returns 404. The whole design, the supplier scenario and the rule of thumb are ours.
+There is no Architecture Center scatter-gather page (404); the pattern is classic and built here from documented pieces. Ours, not claimed by Learn: the supplier scenario, the choice between branches and a topic, the Until-based gather, picking the cheapest, the partial-answer advice. The 225 s only-lower-it note and the Settings > Request options > Timeout path come from the limits page and HTTP action settings.
 */}
