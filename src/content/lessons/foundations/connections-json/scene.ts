@@ -33,7 +33,7 @@ export const scene: Scene = {
     what: {
       visible: [...core],
       highlight: ['cj'],
-      chips: [{ label: 'holds', value: 'metadata · endpoints · keys' }, { label: 'written by', value: 'the designer' }],
+      chips: [{ label: 'holds', value: 'connection metadata · endpoints' }, { label: 'written by', value: 'the designer' }],
     },
     kinds: {
       visible: [...core, ...kinds],

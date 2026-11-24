@@ -20,7 +20,7 @@ The answer is in one file you may never have opened: **connections.json**.
 </Step>
 
 <Step id="what" name="One file for connections">
-`connections.json` is part of your Standard project, next to `host.json` and your workflow folders. It holds the **metadata, endpoints and keys** for the connections your workflows use.
+`connections.json` is part of your Standard project, next to `host.json` and your workflow folders. It holds the **metadata, endpoints and keys** for the managed connections and Azure Functions your workflows use, plus the settings for built-in connections.
 
 You rarely write it by hand: when you use the designer in VS Code, the runtime **generates the connection metadata** in this file for you.
 </Step>
@@ -54,7 +54,7 @@ A workflow action uses it by name: its `serviceProviderConfiguration` has `"conn
 </Step>
 
 <Step id="managed" name="A managed connection">
-A managed connection is different: the connection itself is a **separate Azure resource**, an API connection of type `Microsoft.Web/connections`, deployed with your infrastructure, for example in an ARM template. `connections.json` points at it:
+A managed connection is different: the connection itself is a **separate Azure resource**, an API connection of type `Microsoft.Web/connections`, deployed with your infrastructure, for example in an ARM template. `connections.json` points at it. This example is adapted from Learn's Service Bus and SQL examples:
 
 ```json
 "managedApiConnections": {
@@ -71,13 +71,13 @@ A managed connection is different: the connection itself is a **separate Azure r
 <Step id="local" name="Local isn't Azure" tag="PROBLEM">
 When VS Code creates a managed connection, it's **for local use**. Its authentication is a **raw key** stored in `local.settings.json`, and Microsoft says these keys are for development only: they **expire after seven days**.
 
-So before you release to Azure, change the connection's authentication to the Azure format, a **managed identity**. And every managed API connection needs an **access policy** that gives your logic app's identity permission to use it. That's the usual cause of "it worked on my laptop".
+So before you release to Azure, change the connection's authentication to the Azure format, a **managed identity**. And every managed API connection needs an **access policy** that gives your logic app's identity permission to use it. A missing access policy, or leftover local authentication, is a likely cause of "it worked on my laptop".
 </Step>
 
 <Step id="identity" name="Managed identity" tag="FIX">
 In Azure, a **managed identity** is the default and recommended way to authenticate managed connections: `"type": "ManagedServiceIdentity"`.
 
-Each Standard logic app has a **system-assigned identity** enabled by default, and uses it to authenticate its connections. If you disable it, connections stop working. To use a user-assigned identity instead, set its resource ID on the connection.
+Each Standard logic app has a **system-assigned identity** enabled by default, and uses it to authenticate its connections. If you disable it, connections stop working. To use a user-assigned identity instead, add an `identity` property with its resource ID to the connection's `authentication` object.
 </Step>
 
 <Step id="params" name="Parameterize per environment">
@@ -93,7 +93,7 @@ Locally, those values live in `local.settings.json`, which can contain secrets, 
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- `connections.json` holds the metadata, endpoints and keys for your workflows' connections.
+- `connections.json` holds managed and function connection metadata, plus the settings for built-in connections.
 - Three sections: **service provider** (built-in), **managed API** and **function** connections.
 - Built-in connections live in the file; managed ones point at a separate **API connection** resource.
 - Local raw keys expire after 7 days: switch to **managed identity** and add **access policies** for Azure.
@@ -111,5 +111,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
 - https://learn.microsoft.com/en-us/azure/connectors/introduction
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-custom-built-in-connector-standard (serviceProviderConfiguration.connectionName)
+Fact-checked verbatim 2026-11-24.
 Not claimed: how managed-connection actions reference the connection in workflow.json (Learn's pages don't show it), agentConnections, an explicit "never put secrets in connections.json" rule (we describe Learn's pattern instead). The Office 365 example is adapted from Learn's Service Bus examples; "it worked on my laptop" is our framing.
 */}

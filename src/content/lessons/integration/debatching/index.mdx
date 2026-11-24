@@ -1,0 +1,76 @@
+---
+title: Splitting arrays into separate runs
+module: integration
+order: 5
+minutes: 8
+level: Intermediate
+summary: A partner posts 500 orders in one request. Split the array on the trigger so each order gets its own run, and know what that changes.
+youWillLearn:
+  - What Split on does and where you set it
+  - Which triggers support it
+  - How it interacts with the Response action and trigger concurrency
+  - When to split and when to loop
+reviewStatus: draft
+---
+
+<Step id="problem" name="500 orders, one request" tag="PROBLEM">
+A partner sends a single request with an array of 500 orders. A **For each** loop would process them all in **one run**: one long run history to read, and one run that ends up Failed if a single order fails.
+
+There's another option: give **each order its own run**.
+</Step>
+
+<Step id="spliton" name="Split on: one run per item">
+On a trigger that returns an array, turn on **Split on**: in the trigger's **Settings**, under **General**. In code view it's the `splitOn` property, an expression that points at the array:
+
+```json
+"splitOn": "@triggerBody()?['orders']"
+```
+
+The trigger then **splits the array** and starts a separate workflow instance for each item.
+</Step>
+
+<Step id="which" name="Which triggers support it">
+Only triggers that **accept and return arrays** support Split on, such as **Request**, **HTTP**, **Azure Service Bus** and **Office 365 Outlook**.
+
+If a trigger's Swagger describes an array payload, `splitOn` is added automatically. Some triggers handle arrays but don't show the setting in the designer; for those, add `splitOn` in code view.
+</Step>
+
+<Step id="scope" name="Only the item is in scope" tag="PROBLEM">
+In each split run, the trigger output is **one item**. You can't directly reference properties that sit **outside the array**, such as a batch header next to `orders`.
+
+To avoid failures when a property may be missing, use the `?` operator.
+</Step>
+
+<Step id="response" name="No synchronous reply">
+Split on doesn't work with the **synchronous response** pattern. If the workflow has a **Response** action and Split on is on, it runs asynchronously and **immediately returns 202 Accepted**.
+
+So the partner gets one 202 for the whole request, not a result per order.
+</Step>
+
+<Step id="limits" name="Limits">
+Split on handles up to **100,000 items** per request. If you turn on **trigger concurrency**, that limit drops to **100 items**, and beyond it Split on isn't available.
+
+Remember that turning trigger concurrency on can't be undone for that trigger.
+</Step>
+
+<Step id="vs" name="Split on or For each?" tag="TIP">
+Microsoft notes that a For each loop can take too long, and suggests splitting on the trigger, or parallel branches, to speed things up.
+
+Our rule of thumb: **split** when each item stands on its own and you want one run per item; **loop** when you need the items together, for example to build one total or one file.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Split on** starts one workflow run per array item; set it on the trigger.
+- Only triggers that accept and return arrays support it.
+- Each run sees one item: reference outside properties with care, using `?`.
+- With a **Response** action, the caller immediately gets **202 Accepted**.
+- Up to 100,000 items, or **100** with trigger concurrency on.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops
+Not claimed: per-split-run failure isolation or run history wording (Learn says only "a separate workflow instance for each array item"), any performance numbers. The orders example and the split-vs-loop rule of thumb are ours.
+*/}

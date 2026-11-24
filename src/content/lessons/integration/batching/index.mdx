@@ -1,0 +1,78 @@
+---
+title: Batching
+module: integration
+order: 4
+minutes: 9
+level: Intermediate
+summary: The ERP wants one file an hour, not 500 single orders. Collect messages from several workflows into a batch, and release it on your terms.
+youWillLearn:
+  - How batch receivers and batch senders work together
+  - The three ways to release a batch, and their limits
+  - How partitions split a batch into subsets
+  - How the receiver processes the released messages
+reviewStatus: draft
+---
+
+<Step id="problem" name="Too many small messages" tag="PROBLEM">
+Orders arrive all day from the shop, the app and EDI partners: hundreds of single messages. The ERP team asks for something else: **one file per hour**, with all the orders in it.
+
+Logic Apps has a pattern for collecting messages and releasing them together: **batching**.
+</Step>
+
+<Step id="pattern" name="Receiver and senders">
+A batch needs two kinds of workflow:
+
+- A **batch receiver** collects messages until your release criteria are met. It starts with the **Batch Operations** trigger, **Batch Trigger**.
+- One or more **batch senders** send messages to it with the **Send to batch** action.
+
+The receiver doesn't need to know anything about the senders, but each sender must know its receiver. Create the receiver first, in the **same subscription and region** as the senders.
+</Step>
+
+<Step id="release" name="When a batch is released">
+The receiver releases a batch based on one or more criteria:
+
+- **Message count**: after a number of messages.
+- **Size**: after a total size in bytes.
+- **Schedule**: on a recurrence, at least every **60 seconds**.
+
+Select several to use them all. A batch holds at most **8,000 messages** and **80 MB**.
+</Step>
+
+<Step id="sender" name="The sender's side">
+In a Standard workflow, **Send to batch** takes the **batch name**, the **message content**, and the receiver's **workflow name** and **trigger name**.
+
+The batch name is checked at run time and must match the receiver's. Change it on one side only, and the sender fails.
+</Step>
+
+<Step id="partitions" name="Partitions">
+A sender can set an optional **partition name**, which splits the batch into logical subsets: for example one per warehouse, so each warehouse gets its own file. It can also set a **message ID**; if empty, a GUID is generated.
+
+A partition holds at most **5,000 messages or 80 MB**. When it reaches either, the batch might be released even if your release criteria aren't met yet.
+</Step>
+
+<Step id="receive" name="Processing the batch">
+When a batch is released, the receiver's run gets the messages as a collection called **Batched Items**. Process them with a **For each** loop; the designer adds one for you when an action works on single messages.
+
+Each item also carries its **partition name** and **message ID**, so you can group or trace them.
+</Step>
+
+<Step id="limits" name="What to know" tag="TIP">
+- You can only see what's in a batch **after** it's released.
+- The only way to release a batch early is to **change its release criteria** while it still holds messages. The new criteria then apply to the unsent messages.
+- In Consumption, release criteria can also come from an integration account; in Standard you set them on the trigger.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A **batch receiver** (Batch Trigger) collects; **batch senders** (Send to batch) send to it.
+- Release by **message count**, **size** or **schedule** (min. 60 s); max 8,000 messages or 80 MB.
+- The batch name must match on both sides, or the sender fails.
+- **Partitions** split a batch into subsets of up to 5,000 messages or 80 MB.
+- The receiver processes **Batched Items**, usually in a For each loop.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-batch-process-send-receive-messages
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Not claimed: whether stateless workflows can host batch operations, whether the Standard batch operations are built-in or managed. "One file per hour" and "one per warehouse" are our illustrations.
+*/}
