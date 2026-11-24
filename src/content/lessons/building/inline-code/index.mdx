@@ -30,7 +30,7 @@ The first three are **Inline Code** actions: the code lives inside your workflow
 </Step>
 
 <Step id="js" name="Inline JavaScript">
-**Execute JavaScript Code** works in Consumption and Standard; in Standard it needs **no integration account** and runs on **Node.js 16.x.x**. Your code reads a read-only `workflowContext` object, for example `workflowContext.trigger` and `workflowContext.actions`. Use `return` to pass results on.
+**Execute JavaScript Code** works in Consumption and Standard; in Standard it needs **no integration account** and runs on **Node.js 16.x.x**. Your code reads a read-only `workflowContext` object, for example `workflowContext.trigger` and `workflowContext.actions`. A `return` statement isn't required, but it's how later actions reference the result, through the **Outputs** token.
 
 It's meant for small jobs: Learn's JavaScript page says it should finish in **5 seconds or fewer** and handle data up to **50 MB**, and it doesn't support `require()`.
 </Step>
@@ -52,19 +52,19 @@ Whatever `Run` returns becomes the action's output body. A script can run for up
 <Step id="powershell" name="PowerShell">
 **Execute PowerShell Code** is also **Standard only**, saved as a `.ps1` file next to `workflow.json`. Read data with `Get-TriggerOutput` and `Get-ActionOutput`.
 
-The catch: to return anything, you **must** use `Push-WorkflowOutput`. `return`, `Write-Output` and `Write-Host` don't return values to the workflow. You can use up to **10 public modules**, declared in `requirements.psd1`, and sign in with the app's managed identity using `Connect-AzAccount -Identity`.
+The catch: to return anything, you **must** use `Push-WorkflowOutput`. `return`, `Write-Output` and `Write-Host` don't return values to the workflow. You can use up to **10 public modules**, listed in `requirements.psd1` (managed dependencies are enabled by default), and sign in with the app's managed identity using `Connect-AzAccount -Identity`.
 </Step>
 
 <Step id="local" name="Local .NET functions">
-For real .NET code, a **local function** is custom code that you write, debug and deploy **in the same Standard project** as your workflows. VS Code creates a workspace with two projects: one for your code, one for your workflows.
+For real .NET code, a **local function** is custom code that you write, debug and deploy **together with** your workflows. VS Code creates a workspace with two projects: one for your code, one for your workflows.
 
-You can target **.NET Framework or .NET 8**, and call it with the built-in action **Call a local function in this logic app**. The build places it under `lib/custom`, and it deploys with the logic app. You author local functions only in **VS Code on Windows**.
+You can target **.NET Framework or .NET 8**, and call it with the built-in action **Call a local function in this logic app**. The build places it under `lib/custom`, and it deploys with the logic app. You author local functions only in **VS Code on Windows**. They're supported on the Workflow Service Plan, ASE v3 and hybrid.
 </Step>
 
 <Step id="azfn" name="Azure Functions">
-**Call an Azure function** calls code in a separate function app. The function must use the **HTTP trigger** template, be written in C# or JavaScript, and be in the same subscription.
+The **Azure Functions** action calls code in a separate function app. The function must use the **HTTP trigger** template, be written in C# or JavaScript, and be in the same subscription.
 
-Microsoft says Azure Functions works best when the code must expose an **independent endpoint**, be **shared across apps**, follow its **own deployment lifecycle**, or **scale independently**.
+Microsoft says Azure Functions works best when the code must expose an **independent endpoint**, be **shared across apps**, follow its **own deployment and versioning lifecycle**, or **scale independently**. In Standard, this call doesn't support managed identity authentication.
 </Step>
 
 <Step id="choose" name="Which one?" tag="TIP">
@@ -77,8 +77,8 @@ Our summary of Microsoft's guidance:
 </Step>
 
 <Step id="limits" name="Limits to know" tag="TIP">
-- Inline code in Standard can be up to **100,000 characters**.
-- C# and PowerShell scripts run for up to **10 minutes** with up to **100 MB** of output.
+- Inline Code actions in Standard: up to **100,000 characters**, per the limits page. That page lists **15 seconds** of run time, while the JavaScript page says 5 seconds or fewer.
+- The C# and PowerShell pages give **10 minutes** of run time, with output generally up to **100 MB**.
 - Local functions aren't suitable for processes that might run longer than **10 minutes**.
 - JavaScript can't use `require()` or the Variables actions.
 </Step>
@@ -100,5 +100,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/call-azure-functions-from-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 Learn conflicts: the JavaScript page says 5 seconds or fewer, while the limits page lists 15 sec for Standard inline code; we quote the JavaScript page and attribute it. The JavaScript page lists two different Consumption Node.js versions; we only state Standard's.
+Fact-checked verbatim 2026-11-24.
 Not claimed: preview/GA status of C# and PowerShell actions (Learn doesn't say), the default PowerShell version, JScript (not mentioned on Learn). The "Which one?" ordering is our summary.
 */}

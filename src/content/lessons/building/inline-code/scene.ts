@@ -42,13 +42,13 @@ export const scene: Scene = {
       visible: [...inline],
       highlight: ['cs', 'trig-cs'],
       tokens: [{ id: 'c1', edge: 'trig-cs', tone: 'info' }],
-      chips: [{ label: 'available', value: 'Standard only' }, { label: 'entry', value: 'Run(WorkflowContext, ILogger)' }, { label: 'runs up to', value: '10 min' }],
+      chips: [{ label: 'available', value: 'Standard only' }, { label: 'entry', value: 'Run(WorkflowContext context)' }, { label: 'runs up to', value: '10 min' }],
     },
     powershell: {
       visible: [...inline],
       highlight: ['ps', 'trig-ps'],
       tokens: [{ id: 'p1', edge: 'trig-ps', tone: 'info' }],
-      chips: [{ label: 'return values', value: 'Push-WorkflowOutput', tone: 'ok' }, { label: 'return / Write-Output', value: "don't return", tone: 'fail' }],
+      chips: [{ label: 'return values', value: 'Push-WorkflowOutput', tone: 'ok' }, { label: 'return · Write-Output · Write-Host', value: "don't return", tone: 'fail' }],
     },
     local: {
       visible: [...inline, 'local', 'lib', 'trig-local', 'local-lib'],
@@ -60,15 +60,15 @@ export const scene: Scene = {
       visible: [...inline, 'local', 'azfn', 'trig-local', 'trig-azfn'],
       highlight: ['azfn', 'trig-azfn'],
       tokens: [{ id: 'a1', edge: 'trig-azfn', tone: 'info' }],
-      chips: [{ label: 'template', value: 'HTTP trigger' }, { label: 'best for', value: 'own endpoint · lifecycle · scale' }],
+      chips: [{ label: 'template', value: 'HTTP trigger' }, { label: 'best for', value: 'own endpoint · shared · own lifecycle · scale' }],
     },
     choose: {
       visible: [...inline, 'local', 'lib', 'azfn', 'trig-local', 'local-lib', 'trig-azfn'],
-      chips: [{ label: 'first', value: 'expressions' }, { label: 'then', value: 'inline → local → Azure Function' }],
+      chips: [{ label: 'our order', value: 'expressions → inline → local → Azure Function' }],
     },
     limits: {
       visible: [...inline, 'local', 'trig-local'],
-      chips: [{ label: 'inline code', value: '≤ 100,000 chars' }, { label: 'C# · PowerShell', value: '10 min · 100 MB' }],
+      chips: [{ label: 'Standard inline code', value: '≤ 100,000 chars' }, { label: 'C# · PowerShell', value: '10 min · 100 MB' }],
     },
     recap: {
       visible: [...inline, 'local', 'lib', 'azfn', 'trig-local', 'local-lib', 'trig-azfn'],
