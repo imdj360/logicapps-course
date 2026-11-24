@@ -235,7 +235,8 @@ kbd { font: 500 10.5px/1 var(--font-mono); border: 1px solid var(--border-strong
     background: var(--surface); transform: translateX(-100%); transition: transform 0.2s; box-shadow: var(--shadow);
   }
   .sidebar[data-open='true'] { transform: none; }
-  .tabs, .credit { display: none; }
+  .tabs, .credit, .brand small { display: none; }
+  .topbar { gap: 0.6rem; padding: 0 0.75rem; }
   .main { padding: 1rem; }
   .hero { grid-template-columns: minmax(0, 1fr); }
   .meta { margin-left: 0; }

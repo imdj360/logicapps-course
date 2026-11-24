@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import TopBar from '../components/TopBar.astro';
+import Footer from '../components/Footer.astro';
+import Analytics from '../components/Analytics.astro';
+import { Sidebar } from '../components/Sidebar';
+import { loadCatalog } from '../lib/load-catalog';
+import { siteConfig } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  activeSlug?: string;
+}
+
+const { title, description, ogImage = '/og-default.png', activeSlug } = Astro.props;
+const catalog = await loadCatalog();
+const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl).href;
+const ogUrl = new URL(ogImage, siteConfig.siteUrl).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('lac:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch {}
+    </script>
+    <Analytics />
+  </head>
+  <body>
+    <TopBar />
+    <div class="shell">
+      <aside id="sidebar" class="sidebar" aria-label="Course">
+        <Sidebar client:load catalog={catalog} activeSlug={activeSlug} />
+      </aside>
+      <div>
+        <main class="main"><slot /></main>
+        <Footer />
+      </div>
+    </div>
+    <script>
+      import { track } from '../lib/analytics';
+      document.addEventListener('click', (e) => {
+        const el = (e.target as HTMLElement).closest('[data-track]');
+        if (el) track(el.getAttribute('data-track') as 'devto_click');
+      });
+    </script>
+  </body>
+</html>
