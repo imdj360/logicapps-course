@@ -9,6 +9,9 @@ export const scene: Scene = {
     { id: 'outputs', kind: 'storage', label: 'MockOutputs', sublabel: 'typed classes', x: 680, y: 100 },
     { id: 'cls', kind: 'action', label: 'Test class', sublabel: 'TestExecutor', x: 680, y: 240 },
     { id: 'mock', kind: 'storage', label: 'Mock JSON', sublabel: '*-mock.json', x: 680, y: 380 },
+    { id: 'q', kind: 'servicebus', label: 'Orders queue', sublabel: 'real messages', x: 110, y: 240 },
+    { id: 'wf', kind: 'trigger', label: 'Order intake', sublabel: 'workflow', x: 380, y: 240 },
+    { id: 'api', kind: 'connector-managed', label: 'Pricing API', sublabel: 'real calls', x: 680, y: 240 },
     { id: 'ext', kind: 'connector-managed', label: 'External APIs', sublabel: 'not called', x: 380, y: 430 },
   ],
   edges: [
@@ -18,11 +21,15 @@ export const scene: Scene = {
     { id: 'gen-cls', from: 'gen', to: 'cls' },
     { id: 'gen-mock', from: 'gen', to: 'mock' },
     { id: 'cls-ext', from: 'cls', to: 'ext', style: 'dashed' },
+    { id: 'q-wf', from: 'q', to: 'wf' },
+    { id: 'wf-api', from: 'wf', to: 'api' },
   ],
   steps: {
     problem: {
-      visible: ['cls', 'ext', 'cls-ext'],
-      chips: [{ label: 'today', value: 'run it and hope', tone: 'warn' }],
+      visible: ['q', 'wf', 'api', 'q-wf', 'wf-api'],
+      highlight: ['q', 'api'],
+      tokens: [{ id: 'u1', edge: 'q-wf', tone: 'info' }, { id: 'u2', edge: 'wf-api', tone: 'info' }],
+      chips: [{ label: 'to test a change', value: 'real queue, real API', tone: 'warn' }, { label: 'today', value: 'run it and hope', tone: 'warn' }],
     },
     offline: {
       visible: ['cls', 'ext', 'cls-ext'],
