@@ -6,7 +6,8 @@ const tools = ['t1', 't2', 'agent-t1', 'agent-t2'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'trigger', kind: 'trigger', label: 'Complaint in', sublabel: 'any trigger', x: 110, y: 240 },
+    { id: 'trigger', kind: 'trigger', label: 'Complaint email', sublabel: 'free text', x: 110, y: 240 },
+    { id: 'paid', kind: 'trigger', label: 'Order paid', sublabel: 'same steps', x: 110, y: 420 },
     { id: 'agent', kind: 'llm-agent', label: 'Agent', sublabel: 'think · act', x: 380, y: 240 },
     { id: 'model', kind: 'llm-agent', label: 'Model', sublabel: 'Azure OpenAI', x: 380, y: 80 },
     { id: 't1', kind: 'action', label: 'Look up order', sublabel: 'tool', x: 680, y: 160 },
@@ -18,16 +19,17 @@ export const scene: Scene = {
     { id: 'agent-model', from: 'agent', to: 'model' },
     { id: 'agent-t1', from: 'agent', to: 't1' },
     { id: 'agent-t2', from: 'agent', to: 't2' },
-    { id: 'trig-fixed', from: 'trigger', to: 'fixed', style: 'dashed' },
+    { id: 'paid-fixed', from: 'paid', to: 'fixed' },
   ],
   steps: {
     problem: {
-      visible: ['trigger', 'fixed', 'trig-fixed', 'agent', 'trig-agent'],
-      highlight: ['agent'],
-      chips: [{ label: 'rules', value: 'fixed workflow' }, { label: 'judgement', value: 'agent workflow' }],
+      visible: ['paid', 'fixed', 'paid-fixed', 'trigger', 'agent', 'trig-agent'],
+      highlight: ['fixed', 'agent'],
+      tokens: [{ id: 'p1', edge: 'paid-fixed', tone: 'ok' }, { id: 'p2', edge: 'trig-agent', tone: 'info' }],
+      chips: [{ label: 'order paid', value: 'fixed workflow' }, { label: 'complaint', value: 'agent workflow' }],
     },
     compare: {
-      visible: [...core, 'fixed', 'trig-fixed'],
+      visible: [...core, 'paid', 'fixed', 'paid-fixed'],
       highlight: ['agent', 'fixed'],
       chips: [{ label: 'fixed', value: 'stable · predictable' }, { label: 'agent', value: 'adapts · unstructured' }],
     },
@@ -68,7 +70,7 @@ export const scene: Scene = {
       chips: [{ label: 'Standard', value: 'pay for model usage' }, { label: 'save tokens', value: 'trim tool results' }],
     },
     recap: {
-      visible: [...core, ...tools, 'fixed', 'trig-fixed'],
+      visible: [...core, ...tools, 'paid', 'fixed', 'paid-fixed'],
       chips: [{ label: 'agent', value: 'model + instructions + tools' }],
     },
   },

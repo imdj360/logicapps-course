@@ -29,9 +29,12 @@ lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="Rules or judgement?" tag="PROBLEM">
-Most of this course builds **fixed** workflows: a trigger, then a known sequence of actions. That's ideal when the rules are clear.
+Two kinds of work arrive at the same shop:
 
-But some work needs judgement: reading a free-text complaint, deciding what it's about, and picking the right next step. Logic Apps can put a **large language model** in charge of those decisions, in an **agent workflow**.
+- **Order paid**: always the same steps, such as reserve stock, create the invoice and book the courier. A **fixed** workflow handles it, like most of this course.
+- **Complaint email**: free text. Someone has to read it, decide what it's about and pick the next step. That needs judgement.
+
+For the second kind, Logic Apps can put a **large language model** in charge of the decisions, in an **agent workflow**. The two examples are ours.
 </Step>
 
 <Step id="compare" name="Two kinds of workflow">
