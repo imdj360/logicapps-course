@@ -38,6 +38,12 @@ export const scene: Scene = {
       tokens: [{ id: 'd1', edge: 'jar-jdbc', tone: 'info' }],
       chips: [{ label: 'artifact', value: 'Client or SDK Assembly (Java)' }, { label: 'folder', value: 'lib/builtinOperationSdks/JAR' }],
     },
+    package: {
+      visible: [...core, 'jar', 'jar-jdbc'],
+      highlight: ['jar', 'jar-jdbc'],
+      tokens: [{ id: 'pk1', edge: 'jar-jdbc', tone: 'ok' }],
+      chips: [{ label: 'project folder', value: 'lib/builtinOperationSdks/JAR' }, { label: 'deploy', value: 'zip, project at root' }],
+    },
     connect: {
       visible: [...core, 'jar', 'jar-jdbc'],
       highlight: ['jdbc-db'],

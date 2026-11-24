@@ -33,6 +33,31 @@ The driver JARs are a **Client or SDK Assembly (Java)** artifact. Add them in on
 - **Kudu**: upload them to `site/wwwroot/lib/builtinOperationSdks/JAR/`.
 </Step>
 
+<Step id="package" name="Package the JAR with your project">
+In a VS Code project, the driver travels with your code. The `lib` folder sits at the project root, next to your workflow folders:
+
+```text
+MyLogicApp/
+├── lib/
+│   └── builtinOperationSdks/
+│       └── JAR/
+│           └── ojdbc11.jar
+├── StockSync/
+│   └── workflow.json
+├── connections.json
+└── host.json
+```
+
+To deploy, zip the project **contents** so the workflow folders, `lib` and `host.json` sit at the root of the zip, with no extra wrapper folder, then deploy the zip, for example:
+
+```bash
+az logicapp deployment source config-zip --name MyLogicApp \
+  --resource-group MyResourceGroup --src MyBuildArtifact.zip
+```
+
+Put **every** JAR the driver needs in the `JAR` folder.
+</Step>
+
 <Step id="connect" name="The connection">
 A JDBC connection takes three values: the database **URL**, a **user identifier** and a **password**.
 
@@ -82,7 +107,7 @@ The JDBC reference is short. Learn doesn't state a required Java version, URL ex
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **JDBC** is a Standard-only built-in connector: bring your database's JDBC driver.
-- Add the JARs as **Client or SDK Assembly (Java)**, or to `lib/builtinOperationSdks/JAR`.
+- Add the JARs as **Client or SDK Assembly (Java)**, or package them in `lib/builtinOperationSdks/JAR` and zip-deploy the project.
 - Connect with a **URL**, **user** and **password**; actions are **Execute query**, **Get tables** and **Get schema**.
 - **Oracle** works over JDBC too, with Oracle's driver and `jdbc:oracle:thin:` URL; compare it with the Oracle Database built-in (preview).
 - Pass values as **query parameters**, and test what Learn doesn't document.
@@ -98,6 +123,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-oracledatabase
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/oracledb/
 Fact-checked verbatim 2026-11-24.
+Packaging: lib/builtinOperationSdks/JAR from the project structure on create-single-tenant-workflows-visual-studio-code; zip rules and the az logicapp deployment source config-zip command from set-up-devops-deployment-single-tenant-azure-logic-apps. ojdbc11.jar and the folder names MyLogicApp/StockSync are illustrative.
 Oracle over JDBC: covered by Learn's "any JDBC-supported relational database", not documented as an Oracle example; the author has connected Oracle this way. The ojdbc driver and jdbc:oracle:thin URL format are from Oracle's JDBC documentation, not Learn.
 Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
 */}

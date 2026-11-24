@@ -109,6 +109,8 @@ a.credit:hover { color: var(--fg); }
 .meta span { font: 500 12px/1 var(--font-mono); padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 
 .player { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1rem; align-items: start; }
+/* Grid and flex items default to min-width: auto, so a wide code block would stretch the step panel and scroll the page. */
+.player > *, .step-panel, .step-body { min-width: 0; }
 .player__side { display: grid; gap: 1rem; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
 .stage-wrap { padding: 0.85rem; }
