@@ -2,14 +2,14 @@
 title: Databases over JDBC
 module: building
 order: 2
-minutes: 10
+minutes: 7
 level: Intermediate
 summary: Bring a database's JDBC driver to a Standard logic app and query it directly, from MySQL to Oracle, and know when a dedicated connector is the better choice.
 youWillLearn:
-  - What the built-in JDBC connector does, and where it's available
-  - How to add a JDBC driver JAR to a Standard logic app
-  - The connection settings and the three JDBC actions
-  - When to use the SQL Server or Oracle built-in connectors instead
+  - What the built-in JDBC connector is for
+  - How to add the driver JAR and deploy it with your project
+  - How to connect, with MySQL and Oracle as examples
+  - When a dedicated SQL Server or Oracle connector is the better choice
 learnLinks:
   - title: "JDBC (built-in connector reference)"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/jdbc/
@@ -29,103 +29,64 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="A database with no connector" tag="PROBLEM">
-Your stock levels live in a **MySQL** database, for example Azure Database for MySQL or one on your own servers. There's no dedicated Logic Apps connector for it, and you don't want to build an API in front of it just to read a table.
+Your stock levels live in a **MySQL** database. There's no dedicated Logic Apps connector for it, and you don't want to build an API in front of it just to read a table.
 
 If the database has a **JDBC driver**, a Standard logic app can talk to it directly.
 </Step>
 
-<Step id="what" name="The JDBC built-in connector">
-**JDBC** is a **built-in** connector, available **only in Standard**. You bring the JDBC driver, a set of JAR libraries, for any JDBC-supported relational database, and the connector uses it. Microsoft's examples include SQL Server and MySQL.
-
-Like other built-in connectors, it doesn't need the **on-premises data gateway**.
+<Step id="what" name="The JDBC connector">
+**JDBC** is a **built-in** connector, available **only in Standard**. You bring the database's JDBC driver (a set of JAR files) and the connector uses it, for any JDBC-supported relational database. It doesn't need the on-premises data gateway.
 </Step>
 
-<Step id="driver" name="Bring your own driver">
-The driver JARs are a **Client or SDK Assembly (Java)** artifact. Add them in one of three ways:
-
-- **Portal**: on the logic app, under **Artifacts** > **Assemblies**, add them with that assembly type.
-- **VS Code**: put them in your project's `lib/builtinOperationSdks/JAR` folder.
-- **Kudu**: upload them to `site/wwwroot/lib/builtinOperationSdks/JAR/`.
-</Step>
-
-<Step id="package" name="Package the JAR with your project">
-In a VS Code project, the driver travels with your code. The `lib` folder sits at the project root, next to your workflow folders:
+<Step id="package" name="Add the driver">
+Put the driver JARs in your project's `lib/builtinOperationSdks/JAR` folder, so they deploy with your workflows:
 
 ```text
 MyLogicApp/
-├── lib/
-│   └── builtinOperationSdks/
-│       └── JAR/
-│           └── ojdbc11.jar
-├── StockSync/
-│   └── workflow.json
+├── lib/builtinOperationSdks/JAR/
+│   └── (driver .jar files)
+├── StockSync/workflow.json
 ├── connections.json
 └── host.json
 ```
 
-To deploy, zip the project **contents** so the workflow folders, `lib` and `host.json` sit at the root of the zip, with no extra wrapper folder, then deploy the zip, for example:
-
-```bash
-az logicapp deployment source config-zip --name MyLogicApp \
-  --resource-group MyResourceGroup --src MyBuildArtifact.zip
-```
-
-Put **every** JAR the driver needs in the `JAR` folder.
+Zip the project **contents** (no extra wrapper folder) and deploy, for example with `az logicapp deployment source config-zip`. In the portal you can instead upload them under **Artifacts** > **Assemblies** as **Client or SDK Assembly (Java)**.
 </Step>
 
-<Step id="connect" name="The connection">
-A JDBC connection takes three values: the database **URL**, a **user identifier** and a **password**.
+<Step id="connect" name="Connect">
+A connection needs three values: the database **URL**, a **user** and a **password**. The URL format comes from your driver's documentation, not from Learn:
 
-Learn doesn't give URL examples. The JDBC URL format, typically starting with `jdbc:`, comes from **your driver's documentation**. Our advice: store the password as a secret in app settings, not in the workflow.
-</Step>
+- **MySQL**: `jdbc:mysql://db-host:3306/stock`
+- **Oracle**: `jdbc:oracle:thin:@//db-host:1521/ORDERS`, with Oracle's `ojdbc` driver
 
-<Step id="oracle" name="Example: Oracle over JDBC">
-Oracle works the same way. Learn's JDBC page doesn't use Oracle as its example, but "any JDBC-supported relational database" includes it.
-
-- **Driver**: Oracle's JDBC driver JAR (the `ojdbc` family), downloaded from Oracle and added like any other driver JAR.
-- **URL**: Oracle's thin-driver format, for example `jdbc:oracle:thin:@//db-host:1521/ORDERS`.
-- **User and password**: a database account with only the rights the workflow needs.
-
-The driver name and URL format come from Oracle's JDBC documentation, not from Learn; check the driver version against Oracle's compatibility notes.
+Keep the password in an app setting, not in the workflow (ours).
 </Step>
 
 <Step id="actions" name="Three actions">
-The connector has **actions only**, no triggers:
+The connector has **actions only**, so the workflow starts with another trigger, such as a schedule:
 
-- **Execute query**: runs a raw query, with optional **query parameters** to inject.
-- **Get tables**: lists the tables in the database.
-- **Get schema**: returns the schema of a table.
-
-So a workflow starts with another trigger, such as a schedule or a queue message, and queries the database from there.
-</Step>
-
-<Step id="params" name="Use query parameters" tag="TIP">
-Don't build SQL by concatenating values from the trigger into the query text. Pass them through the action's **query parameters** input instead. That's our advice, the same as for any database code: it keeps data from being read as SQL.
+- **Execute query**: runs a query. Pass values through its **query parameters**, not by building the SQL text (ours).
+- **Get tables**: lists the tables.
+- **Get schema**: returns a table's schema.
 </Step>
 
 <Step id="alternatives" name="JDBC or a dedicated connector?">
-JDBC is the generic option. Two databases also have their own built-in connectors in Standard:
+Two databases also have their own built-in connector in Standard:
 
-- **SQL Server**: actions to insert, update and run stored procedures, **triggers** on inserted, updated or deleted rows (with change tracking), and managed identity authentication.
-- **Oracle Database**: a built-in connector, in **public preview**, for Oracle 11 and later. No data gateway, and Learn lists no driver-upload step; it connects with `host:port/service-name`. It has actions only, and a default query timeout of 30 seconds.
-
-So for Oracle you have two built-in routes. The **Oracle Database** connector gives you ready-made operations such as Get rows, Insert row and stored procedures, but it's in preview. **JDBC** gives you raw queries through a driver you control. For SQL Server, the dedicated connector adds triggers and managed identity, which JDBC doesn't offer.
+- **SQL Server**: adds **triggers** on changed rows and **managed identity**. Prefer it over JDBC (ours).
+- **Oracle Database**: ready-made operations such as Get rows and Insert row, but in **public preview**. JDBC is the alternative if you want raw queries through a driver you control.
 </Step>
 
-<Step id="network" name="Reaching the database">
-Built-in connectors run inside your logic app, so the database must be **reachable from the runtime**. For Oracle, Microsoft describes using **VNet integration** for private endpoints, or the **hybrid** model for databases on your own infrastructure. Learn's JDBC page doesn't cover networking; our reasoning is that any built-in connector still needs a network path from the runtime.
-</Step>
-
-<Step id="gaps" name="What Learn doesn't cover" tag="TIP">
-The JDBC reference is short. Learn doesn't state a required Java version, URL examples, which SQL statements are supported, or whether the connector is preview or generally available. Test with your driver and database before you rely on it.
+<Step id="watch" name="Watch out" tag="TIP">
+- The database must be **reachable from the logic app's runtime**: for a private database, use VNet integration or the hybrid model (ours, from Microsoft's Oracle guidance).
+- Learn's JDBC page is short: no Java version, no URL examples, no preview/GA status. **Test** with your driver and database first.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- **JDBC** is a Standard-only built-in connector: bring your database's JDBC driver.
-- Add the JARs as **Client or SDK Assembly (Java)**, or package them in `lib/builtinOperationSdks/JAR` and zip-deploy the project.
-- Connect with a **URL**, **user** and **password**; actions are **Execute query**, **Get tables** and **Get schema**.
-- **Oracle** works over JDBC too, with Oracle's driver and `jdbc:oracle:thin:` URL; compare it with the Oracle Database built-in (preview).
-- Pass values as **query parameters**, and test what Learn doesn't document.
+- **JDBC**: a Standard-only built-in connector for any database with a JDBC driver.
+- Driver JARs go in `lib/builtinOperationSdks/JAR` and deploy with the project.
+- Connect with **URL**, **user** and **password**; use **query parameters**.
+- Prefer the **SQL Server** connector for SQL Server; Oracle can go either way.
 </Step>
 
 {/*
@@ -140,5 +101,5 @@ Sources (checked 2026-11-24, raw page text):
 Fact-checked verbatim 2026-11-24.
 Packaging: lib/builtinOperationSdks/JAR from the project structure on create-single-tenant-workflows-visual-studio-code; zip rules and the az logicapp deployment source config-zip command from set-up-devops-deployment-single-tenant-azure-logic-apps. ojdbc11.jar and the folder names MyLogicApp/StockSync are illustrative.
 Oracle over JDBC: covered by Learn's "any JDBC-supported relational database", not documented as an Oracle example; the author has connected Oracle this way. The ojdbc driver and jdbc:oracle:thin URL format are from Oracle's JDBC documentation, not Learn.
-Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL scenario, the query-parameters advice and "store the password in app settings" are ours.
+Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL scenario, the MySQL URL (from MySQL Connector/J docs), the query-parameters advice and "store the password in app settings" are ours.
 */}
