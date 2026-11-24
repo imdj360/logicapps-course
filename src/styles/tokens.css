@@ -1,0 +1,118 @@
+:root {
+  color-scheme: light;
+  --bg: oklch(97.5% 0.006 230);
+  --grid-dot: oklch(86% 0.012 235);
+  --surface: oklch(99.5% 0.003 230);
+  --surface-2: oklch(95.5% 0.008 232);
+  --fg: oklch(23% 0.035 255);
+  --muted: oklch(48% 0.025 250);
+  --border: oklch(87% 0.012 240);
+  --border-strong: oklch(76% 0.02 240);
+
+  --accent: oklch(58% 0.12 195);
+  --accent-fg: oklch(99% 0.01 195);
+  --accent-soft: oklch(94% 0.04 195);
+
+  --info: oklch(52% 0.16 262);
+  --info-bg: oklch(95% 0.035 262);
+  --info-border: oklch(80% 0.08 262);
+
+  --ok: oklch(52% 0.13 158);
+  --ok-bg: oklch(95% 0.04 158);
+  --ok-border: oklch(80% 0.08 158);
+
+  --warn: oklch(62% 0.15 70);
+  --warn-bg: oklch(96% 0.05 80);
+  --warn-border: oklch(84% 0.09 75);
+
+  --fail: oklch(55% 0.19 25);
+  --fail-bg: oklch(95.5% 0.03 25);
+  --fail-border: oklch(80% 0.1 25);
+
+  --agent: oklch(52% 0.17 300);
+  --agent-bg: oklch(95% 0.04 300);
+  --agent-border: oklch(80% 0.09 300);
+
+  --neutral: oklch(46% 0.02 250);
+  --neutral-bg: oklch(94% 0.008 250);
+  --neutral-border: oklch(80% 0.012 250);
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 0 oklch(0% 0 0 / 0.04), 0 8px 24px oklch(30% 0.04 250 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: oklch(19% 0.02 255);
+    --grid-dot: oklch(30% 0.02 255);
+    --surface: oklch(23% 0.022 255);
+    --surface-2: oklch(27% 0.024 255);
+    --fg: oklch(93% 0.01 240);
+    --muted: oklch(72% 0.02 245);
+    --border: oklch(33% 0.022 255);
+    --border-strong: oklch(42% 0.025 255);
+    --accent: oklch(74% 0.12 195);
+    --accent-fg: oklch(20% 0.03 220);
+    --accent-soft: oklch(30% 0.05 200);
+    --info: oklch(75% 0.12 262);
+    --info-bg: oklch(28% 0.05 262);
+    --info-border: oklch(45% 0.09 262);
+    --ok: oklch(76% 0.13 158);
+    --ok-bg: oklch(28% 0.05 158);
+    --ok-border: oklch(45% 0.08 158);
+    --warn: oklch(82% 0.13 80);
+    --warn-bg: oklch(30% 0.05 75);
+    --warn-border: oklch(50% 0.09 75);
+    --fail: oklch(72% 0.16 25);
+    --fail-bg: oklch(29% 0.06 25);
+    --fail-border: oklch(48% 0.11 25);
+    --agent: oklch(76% 0.14 300);
+    --agent-bg: oklch(29% 0.06 300);
+    --agent-border: oklch(47% 0.1 300);
+    --neutral: oklch(76% 0.02 250);
+    --neutral-bg: oklch(28% 0.015 250);
+    --neutral-border: oklch(43% 0.02 250);
+    --shadow: 0 1px 0 oklch(0% 0 0 / 0.2), 0 8px 24px oklch(0% 0 0 / 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: oklch(19% 0.02 255);
+  --grid-dot: oklch(30% 0.02 255);
+  --surface: oklch(23% 0.022 255);
+  --surface-2: oklch(27% 0.024 255);
+  --fg: oklch(93% 0.01 240);
+  --muted: oklch(72% 0.02 245);
+  --border: oklch(33% 0.022 255);
+  --border-strong: oklch(42% 0.025 255);
+  --accent: oklch(74% 0.12 195);
+  --accent-fg: oklch(20% 0.03 220);
+  --accent-soft: oklch(30% 0.05 200);
+  --info: oklch(75% 0.12 262);
+  --info-bg: oklch(28% 0.05 262);
+  --info-border: oklch(45% 0.09 262);
+  --ok: oklch(76% 0.13 158);
+  --ok-bg: oklch(28% 0.05 158);
+  --ok-border: oklch(45% 0.08 158);
+  --warn: oklch(82% 0.13 80);
+  --warn-bg: oklch(30% 0.05 75);
+  --warn-border: oklch(50% 0.09 75);
+  --fail: oklch(72% 0.16 25);
+  --fail-bg: oklch(29% 0.06 25);
+  --fail-border: oklch(48% 0.11 25);
+  --agent: oklch(76% 0.14 300);
+  --agent-bg: oklch(29% 0.06 300);
+  --agent-border: oklch(47% 0.1 300);
+  --neutral: oklch(76% 0.02 250);
+  --neutral-bg: oklch(28% 0.015 250);
+  --neutral-border: oklch(43% 0.02 250);
+  --shadow: 0 1px 0 oklch(0% 0 0 / 0.2), 0 8px 24px oklch(0% 0 0 / 0.35);
+}
