@@ -28,7 +28,7 @@ lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="Two workflows, two needs" tag="PROBLEM">
-The shop website needs two workflows. **Price lookup** answers the website while a customer waits, so it has to be fast. **Process order** must never lose an order: if something fails, you want to see what happened and run it again.
+The shop website needs two workflows. **Take order** answers the website while the customer waits, so it has to be fast. **Process order** must never lose an order: if something fails, you want to see what happened and run it again.
 
 In a Standard logic app you choose, per workflow, between **stateful** and **stateless**. Each of these workflows needs a different one.
 </Step>
@@ -42,13 +42,13 @@ Stateful workflows can also run much longer: the default maximum run duration is
 <Step id="stateless" name="Stateless: everything in memory">
 A **stateless** workflow keeps its inputs, outputs and state **in memory only**. Nothing is written to external storage.
 
-Microsoft describes the result as faster performance with quicker response times, higher throughput and reduced running costs, because the run details aren't saved. Stateless workflows run **only synchronously**. *Price lookup* is stateless.
+Microsoft describes the result as faster performance with quicker response times, higher throughput and reduced running costs, because the run details aren't saved. Stateless workflows run **only synchronously**. *Take order* is stateless.
 </Step>
 
 <Step id="choose" name="Choose at creation">
 You pick **stateful** or **stateless** when you create the workflow, and it stays that way. Microsoft warns that changing the workflow type after creation results in runtime errors.
 
-One Standard logic app can hold both kinds side by side, so *Price lookup* and *Process order* can live in the same app.
+One Standard logic app can hold both kinds side by side, so *Take order* and *Process order* can live in the same app.
 </Step>
 
 <Step id="limits" name="Stateless works best small and short">
@@ -76,17 +76,18 @@ To debug, switch on **Debug state** in the workflow's settings in the Azure port
 </Step>
 
 <Step id="mix" name="Can stateless call stateful?" tag="TIP">
-Yes. Workflows in the same Standard logic app can call each other, for example when the child starts with a **Request** trigger. What the parent does next depends on the child's type.
+Yes. Here's what happens when the customer clicks **Buy**:
 
-Take one order. *Price lookup* (stateless) answers the shop in milliseconds. When the customer places the order, it calls *Process order* (stateful):
+1. *Take order* (stateless) checks the order and **calls** *Process order* (stateful).
+2. *Process order* answers straight away with **202 Accepted**, which means "got it".
+3. *Take order* **doesn't wait** for the order to be processed. It tells the website "Order received" right away.
+4. *Process order* does the real work on its own. Its run is **saved**, so you can check it or resubmit it later.
 
-- *Process order* immediately returns **202 Accepted**.
-- *Price lookup* doesn't wait for its results: it carries on and answers the shop. Learn calls this the **synchronous ("fire and forget")** pattern.
-- *Process order* runs on its own, with full run history in Azure Storage, so you can inspect and resubmit it.
+Microsoft calls this the **synchronous ("fire and forget")** pattern.
 
-The other way round, a parent that calls a **stateless** child waits for the child's response (Learn's **trigger and wait**), whatever the parent's type.
+The opposite case: when a workflow calls a **stateless** one, it **waits** for the answer.
 
-Our preference: put a **queue** between them, as in the diagram, so the order is kept even if *Process order* is busy or failing.
+Our tip: put a **queue** between the two workflows, so the order is kept even if *Process order* is busy or failing.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

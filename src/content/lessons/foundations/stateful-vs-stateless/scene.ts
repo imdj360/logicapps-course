@@ -7,7 +7,7 @@ export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'shop', kind: 'user', label: 'Shop website', x: 110, y: 110 },
-    { id: 'price', kind: 'trigger', label: 'Price lookup', sublabel: 'stateless', x: 340, y: 110 },
+    { id: 'price', kind: 'trigger', label: 'Take order', sublabel: 'stateless', x: 340, y: 110 },
     { id: 'mem', kind: 'action', label: 'Memory only', sublabel: 'no history', x: 580, y: 110 },
     { id: 'api', kind: 'connector-managed', label: 'Partner API', sublabel: '202 Accepted', x: 800, y: 260 },
     { id: 'queue', kind: 'servicebus', label: 'Orders queue', x: 340, y: 260 },
@@ -21,6 +21,7 @@ export const scene: Scene = {
     { id: 'price-api', from: 'price', to: 'api' },
     { id: 'price-queue', from: 'price', to: 'queue' },
     { id: 'queue-order', from: 'queue', to: 'order' },
+    { id: 'price-order', from: 'price', to: 'order', style: 'dashed' },
     { id: 'order-storage', from: 'order', to: 'storage' },
     { id: 'you-storage', from: 'you', to: 'storage', style: 'dashed' },
   ],
@@ -29,7 +30,7 @@ export const scene: Scene = {
       visible: [...fast, ...safe],
       highlight: ['price', 'order'],
       tokens: [{ id: 'p1', edge: 'shop-price', tone: 'info' }],
-      chips: [{ label: 'Price lookup', value: 'must be fast' }, { label: 'Process order', value: 'must not be lost' }],
+      chips: [{ label: 'Take order', value: 'must be fast' }, { label: 'Process order', value: 'must not be lost' }],
     },
     stateful: {
       visible: [...safe, 'you', 'you-storage'],
@@ -71,10 +72,10 @@ export const scene: Scene = {
       chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not by default', tone: 'fail' }, { label: 'debug', value: 'Debug state (not prod)' }],
     },
     mix: {
-      visible: [...fast, ...safe, 'price-queue'],
-      highlight: ['price-queue', 'queue'],
-      tokens: [{ id: 'm1', edge: 'price-queue', tone: 'ok' }, { id: 'm2', edge: 'queue-order', tone: 'ok' }],
-      chips: [{ label: 'stateless calls stateful', value: '202, no wait' }, { label: 'calls a stateless child', value: 'parent waits' }, { label: 'ours', value: 'queue between', tone: 'ok' }],
+      visible: ['shop', 'price', 'order', 'storage', 'shop-price', 'price-order', 'order-storage'],
+      highlight: ['price', 'order'],
+      tokens: [{ id: 'm1', edge: 'price-order', tone: 'info' }, { id: 'm2', edge: 'order-storage', tone: 'ok' }],
+      chips: [{ label: '1 call', value: 'Take order → Process order' }, { label: '2 reply', value: '202 Accepted' }, { label: '3 no wait', value: 'shop told right away', tone: 'ok' }],
     },
     recap: {
       visible: [...fast, ...safe, 'price-queue', 'you', 'you-storage'],
