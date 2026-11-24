@@ -1,0 +1,91 @@
+---
+title: JSON with Liquid templates
+module: integration
+order: 2
+minutes: 9
+level: Intermediate
+summary: When Compose and expressions get messy, a Liquid template reshapes JSON in one readable file. Learn how Logic Apps runs Liquid, and where it differs from the Liquid you know.
+youWillLearn:
+  - When a Liquid template beats Compose and expressions
+  - Which Liquid actions exist and how they read their input
+  - Where Liquid templates live in Standard
+  - The DotLiquid differences that break templates
+reviewStatus: draft
+---
+
+<Step id="problem" name="Reshaping JSON" tag="PROBLEM">
+The shop sends a customer as flat JSON: first name, last name, a comma-separated list of devices. The CRM wants a full name, an upper-case first name and a proper JSON array of devices.
+
+For a field or two, **Compose** and expressions are enough. Once you need loops, conditions and variables, Microsoft points to **Liquid templates**.
+</Step>
+
+<Step id="actions" name="The Liquid actions">
+The built-in **Liquid Operations** connector transforms between four formats: **JSON to JSON**, **JSON to text**, **XML to JSON** and **XML to text**. There are no Liquid triggers; any trigger or action can supply the input.
+
+In a Standard workflow, the action takes **Content** (the input), a **Source** (**LogicApp** or **IntegrationAccount**) and the **Name** of the template.
+</Step>
+
+<Step id="template" name="A template">
+A template is a `.liquid` file. The input is available as `content`:
+
+```liquid
+{%- assign deviceList = content.devices | Split: ', ' -%}
+{
+  "fullName": "{{content.firstName | Append: ' ' | Append: content.lastName}}",
+  "firstNameUpperCase": "{{content.firstName | Upcase}}",
+  "devices": [
+    {%- for device in deviceList -%}
+      {%- if forloop.Last == true -%}"{{device}}"{%- else -%}"{{device}}",{%- endif -%}
+    {%- endfor -%}
+  ]
+}
+```
+
+This is Microsoft's own example, trimmed: it splits the device list and builds a JSON array without a trailing comma.
+</Step>
+
+<Step id="where" name="Where templates live">
+In Standard, you don't need an integration account: add the `.liquid` file to your project's `Artifacts/Maps` folder, or upload it in the portal under **Artifacts** > **Maps**. You can also link an integration account; the action picks a template from one source or the other, not both.
+</Step>
+
+<Step id="dotliquid" name="It's DotLiquid, not Shopify" tag="PROBLEM">
+Logic Apps uses **DotLiquid 2.0.361**, a .NET port of Shopify's Liquid that **differs in specific cases**. The one that breaks most templates: filter names use **sentence casing**, following DotLiquid and C# conventions.
+
+So it's `Upcase`, `Append` and `Replace`, not `upcase`, `append` and `replace`. With the wrong casing, the filters don't work.
+</Step>
+
+<Step id="differences" name="More differences">
+A few more DotLiquid behaviours to know:
+
+- The Shopify **`json` filter isn't implemented**. Use `Replace` instead.
+- **`Replace`** uses **regular expressions**, not simple string matching.
+- **`Sort`** sorts as text, case-insensitively, like Shopify's `sort_natural`.
+</Step>
+
+<Step id="escaping" name="Escape your JSON" tag="FIX">
+DotLiquid doesn't understand JSON; it just produces text. The action then parses that text back into JSON. So you must **escape the backslash** and other reserved JSON characters yourself.
+
+Because `Replace` uses regular expressions, escape a backslash with `| Replace: '\\', '\\'`, not `| Replace: '\', '\\'`. The wrong form fails with "Illegal \ at end of pattern".
+</Step>
+
+<Step id="xml" name="XML in, JSON out" tag="TIP">
+For XML input, Logic Apps adds a custom loop, **`JSONArrayFor`**, that builds a JSON array without a trailing comma. Its `where` condition compares the XML **element's name**, not its value as other Liquid filters do.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Use **Liquid** when a transform needs loops, conditions or variables; Compose for simple cases.
+- **Liquid Operations**: JSON to JSON or text, XML to JSON or text. Input is `content`.
+- In Standard, templates live in `Artifacts/Maps`; no integration account needed.
+- It's **DotLiquid 2.0.361**: sentence-case filters, no `json` filter, regex `Replace`.
+- Escape backslashes and reserved JSON characters yourself.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-liquid-transform
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-maps
+- https://learn.microsoft.com/en-us/azure/connectors/built-in
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-perform-data-operations
+Learn conflict: the maps page's list of Standard map types omits Liquid, while the Liquid page documents Liquid actions and .liquid uploads for Standard. We follow the Liquid page.
+Not claimed: designer display names other than Transform JSON to JSON, the date filter format, how XML input is converted before templating, map size limits for Standard beyond "no limits apply to map file sizes", a Liquid-vs-XSLT recommendation.
+*/}

@@ -1,0 +1,92 @@
+---
+title: "XML maps: XSLT and Data Mapper"
+module: integration
+order: 1
+minutes: 11
+level: Intermediate
+summary: A partner sends orders as XML in their format, and your ERP wants its own. Transform one into the other with XSLT maps, built by hand or visually with Data Mapper.
+youWillLearn:
+  - How the Transform XML action applies an XSLT map
+  - Where maps and schemas live in a Standard logic app
+  - How Data Mapper builds maps visually, and which action runs them
+  - How to call custom .NET code from a map
+reviewStatus: draft
+---
+
+<Step id="problem" name="Two XML formats" tag="PROBLEM">
+A partner sends purchase orders as XML in their own format. Your ERP expects XML in a different shape: other element names, other date formats, lines grouped differently.
+
+Something has to translate between them. In Logic Apps, that's a **map**: an XSLT file that describes how to turn one XML document into another.
+</Step>
+
+<Step id="transform" name="The Transform XML action">
+The **Transform XML** action, from the **XML Operations** connector, applies a map to XML content. In a Standard workflow you set:
+
+- **Content**: the XML to transform, for example the trigger body.
+- **Map Source**: **LogicApp** or **IntegrationAccount**, wherever you put the map.
+- **Map**: the map to apply.
+
+The content must be XML. If it arrives base64-encoded or as text, convert it first, for example with `xml()` or `base64ToBinary()`.
+</Step>
+
+<Step id="where" name="Where maps live">
+In Standard, you **don't need an integration account** for maps. Add them directly to the logic app: in VS Code, put the file in your project's `Artifacts/Maps` folder; in the portal, under **Artifacts**, select **Maps**.
+
+A map added to the logic app can be used by the workflows in that logic app. You still need an integration account for B2B artifacts such as partners, agreements and certificates, and for AS2, X12 and EDIFACT.
+</Step>
+
+<Step id="versions" name="XSLT versions and sizes">
+Standard workflows support **XSLT**, **XSLT 2.0** and **XSLT 3.0** maps, and **no limits apply to map file sizes**.
+
+That's different from Consumption, where maps live in an integration account with size limits, and large transformations can fail with out-of-memory errors. Microsoft points to Standard's dedicated compute for heavier transformations.
+</Step>
+
+<Step id="datamapper" name="Data Mapper: maps you draw">
+**Data Mapper** builds maps visually in VS Code: you load a **source** and a **target** schema, then drag lines between elements and add functions, such as Concat, Format DateTime, Sum or If, in between.
+
+Schemas can be **XSD** or **JSON** files, from `Artifacts/Schemas`. It currently runs only in VS Code on **Windows**, inside a Standard project, and you can test a map with sample data from the test panel.
+</Step>
+
+<Step id="files" name="What Data Mapper saves">
+When you save, Data Mapper writes two files:
+
+- `Artifacts/MapDefinitions/your-map.lml`: the map definition that Data Mapper edits.
+- `Artifacts/Maps/your-map.xslt`: the generated XSLT that actually runs.
+
+Commit both. The `.lml` is your source; the `.xslt` is what the workflow uses.
+</Step>
+
+<Step id="action" name="Run it with the right action" tag="PROBLEM">
+A common surprise: a Data Mapper map **doesn't** run in **Transform XML**. Microsoft says you can only call Data Mapper maps with the **Data Mapper Operations** action **Transform using Data Mapper XSLT**. Maps from any other tool use Transform XML.
+
+To use a Data Mapper map from a workflow in the portal, the map must be added to the Standard logic app itself.
+</Step>
+
+<Step id="code" name="Calling .NET code from a map" tag="TIP">
+Some logic is easier in code than in XSLT. Maps can call **custom .NET assemblies**: the map declares the assembly and namespace in an `msxsl:script` block, and calls its methods.
+
+In Standard, add the assembly under **Artifacts** > **Assemblies** in the portal, or to your project's `lib/custom` folder. Standard supports .NET Framework and .NET 8 custom assemblies.
+</Step>
+
+<Step id="validate" name="Validate before you transform" tag="TIP">
+A map assumes its input has the right shape. Check that first with the **Validate XML** action, against an `.xsd` schema stored in `Artifacts/Schemas` or an integration account. A bad message then fails at validation, with a clear error, instead of producing a wrong output.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Transform XML** applies an XSLT map: set Content, Map Source and Map.
+- In Standard, maps live in `Artifacts/Maps` or the portal's **Maps**; no integration account needed.
+- Standard supports XSLT 1.0, 2.0 and 3.0, with no map size limit.
+- **Data Mapper** saves an `.lml` and a generated `.xslt`; run it with **Transform using Data Mapper XSLT**.
+- Maps can call **.NET assemblies**; validate input with **Validate XML** first.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-transform
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-maps
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-maps-data-transformation-visual-studio-code
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-schemas
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-xml-validation
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Not claimed: the XSLT engine (Saxon or otherwise), Data Mapper version or GA status, the XSLT version Data Mapper generates, inline-only C# script support per hosting model, map caching or restart behaviour. "Commit both" and "validate first" are our advice.
+*/}

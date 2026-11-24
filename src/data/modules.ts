@@ -12,6 +12,7 @@ export const MODULES: ModuleDef[] = [
     l('where-logic-apps-run', 'Where Logic Apps run'),
     l('follow-an-order', 'Follow an order through a run'),
     l('stateful-vs-stateless', 'Stateful vs stateless'),
+    l('connections-json', 'Connections and connections.json'),
   ] },
   { id: 'hosting', number: '02', title: 'Hosting & runtime', lessons: [
     l('workflow-service-plans', 'Standard on Workflow Service Plans'),
@@ -23,10 +24,13 @@ export const MODULES: ModuleDef[] = [
   { id: 'building', number: '03', title: 'Building flows', lessons: [
     l('connectors', 'Connectors: built-in vs managed'),
     l('expressions', 'Expressions'),
+    l('inline-code', 'Inline code and .NET functions'),
     l('control-flow', 'Control flow'),
     l('parallel-branches', 'Parallel branches'),
   ] },
   { id: 'integration', number: '04', title: 'Integration patterns', lessons: [
+    l('xslt-maps', 'XML maps: XSLT and Data Mapper'),
+    l('liquid-templates', 'JSON with Liquid templates'),
     l('service-bus-queues', 'Service Bus & queues'),
     l('batching', 'Batching'),
     l('debatching', 'Splitting arrays into separate runs'),
