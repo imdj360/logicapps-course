@@ -56,7 +56,7 @@ export const scene: Scene = {
     triggers: {
       visible: [...fast, ...safe],
       highlight: ['price', 'order'],
-      chips: [{ label: 'stateless', value: 'push triggers only' }, { label: 'Recurrence', value: 'stateful only', tone: 'warn' }],
+      chips: [{ label: 'stateless', value: 'push triggers' }, { label: 'Recurrence', value: 'unavailable', tone: 'warn' }, { label: 'managed triggers', value: 'not offered', tone: 'warn' }],
     },
     async: {
       visible: [...fast, 'api', 'price-api'],
@@ -68,7 +68,7 @@ export const scene: Scene = {
       visible: [...fast, ...safe, 'you', 'you-storage'],
       highlight: ['mem'],
       failed: ['price'],
-      chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not possible', tone: 'fail' }, { label: 'debug', value: 'WithStatelessRunHistory' }],
+      chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not possible', tone: 'fail' }, { label: 'debug', value: 'Debug state (not prod)' }],
     },
     mix: {
       visible: [...fast, ...safe, 'price-queue'],

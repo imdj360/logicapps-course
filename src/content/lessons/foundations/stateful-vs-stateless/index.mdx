@@ -10,7 +10,8 @@ youWillLearn:
   - The limits that come with a stateless workflow
   - Which triggers and patterns a stateless workflow can't use
   - How to debug a stateless workflow without run history
-reviewStatus: draft
+reviewStatus: approved
+lastVerified: '2026-11-24'
 ---
 
 <Step id="problem" name="Two workflows, two needs" tag="PROBLEM">
@@ -43,10 +44,10 @@ Stateless workflows are best for runs **under 5 minutes** (the default maximum r
 Loops are smaller too. By default a *For each* handles **100 items** in a stateless workflow, compared with 100,000 in a stateful one, and an *Until* loop allows at most **100 iterations**.
 </Step>
 
-<Step id="triggers" name="Push triggers only">
-Stateless workflows can use **only push triggers**, with no schedule: for example *Request*, *Event Hubs* or *Service Bus*. The **Recurrence** trigger is stateful only, and the designer doesn't offer managed connector **polling** triggers for stateless workflows.
+<Step id="triggers" name="Start with a push trigger">
+Microsoft's guidance is that stateless workflows use **push triggers**, which wait for an event instead of running on a schedule: for example *Request*, *Event Hubs* or *Service Bus*.
 
-So "check this folder every minute" is a stateful job. "Answer this request" can be stateless.
+The **Recurrence** trigger is currently **unavailable** for stateless workflows. You can use managed connector **actions** in a stateless workflow, but the designer doesn't offer managed connector **triggers**. If a workflow has to run on a schedule, make it stateful.
 </Step>
 
 <Step id="async" name="No async, no chunking">
@@ -56,9 +57,9 @@ Stateless workflows also don't support **chunking** of large messages. For long-
 </Step>
 
 <Step id="history" name="No history, no resubmit" tag="PROBLEM">
-A stateless workflow **doesn't store run history** by default, so there's nothing to open when it fails and nothing to **resubmit**. If an outage interrupts it, the run **isn't restored automatically**: the caller has to send the request again.
+A stateless workflow **doesn't store run history** by default, so there's nothing to open when it fails, and only stateful workflows can be **rerun**. If an outage interrupts a stateless run, it **isn't restored automatically**: the caller has to resubmit it.
 
-For debugging you can turn run history on with the app setting `Workflows.<workflow-name>.OperationOptions` set to `WithStatelessRunHistory`. It costs some performance, so turn it off again when you're done.
+To debug, switch on **Debug state** in the workflow's settings in the Azure portal. That adds the app setting `Workflows.<workflow-name>.OperationOptions` with the value `WithStatelessRunHistory`; in VS Code you add it to `local.settings.json` yourself. It's meant for debugging only, isn't supported in production, and costs some performance, so turn it off when you're done.
 </Step>
 
 <Step id="mix" name="Use both together" tag="TIP">
@@ -71,8 +72,8 @@ A pattern we like for *Price lookup* and *Process order*: keep the part the cust
 - **Stateful** saves inputs, outputs and state to storage: run history, resubmit and long runs.
 - **Stateless** keeps everything in memory: faster and cheaper to run, synchronous only.
 - The choice is made **at creation**. One logic app can hold both.
-- Stateless works best **under 5 minutes and 64 KB**, uses **push triggers only**, and has no async polling or chunking.
-- No run history by default: enable `WithStatelessRunHistory` only while debugging.
+- Stateless works best **under 5 minutes and 64 KB**, starts from **push triggers** (no Recurrence, no managed connector triggers), and has no async polling or chunking.
+- No run history and no rerun by default: turn on **Debug state** (`WithStatelessRunHistory`) only while debugging.
 </Step>
 
 {/*
@@ -80,6 +81,9 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
-- https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal (Debug state)
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-visual-studio-code (WithStatelessRunHistory)
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-recurrence
+Triggers (verbatim on Learn): overview 'Stateless workflows can use only push triggers where you don't specify a schedule'; Recurrence page 'currently unavailable for Standard logic app stateless workflows'; VS Code page 'support only managed connector actions, not triggers'. Learn says nothing about built-in polling triggers (SFTP, File System, Blob) in stateless workflows, so we don't either.
 Not claimed: numbers for the speed or cost gain (Learn gives none); that payloads over 64 KB are rejected (Learn says they may slow down or crash); that a stateless run is "lost"; whether stateless keeps trigger history. The queue hand-off in the "mix" step is our advice.
 */}
