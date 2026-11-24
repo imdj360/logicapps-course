@@ -19,7 +19,6 @@ export const MODULES: ModuleDef[] = [
     l('app-service-environment', 'Standard on App Service Environment v3'),
     l('hybrid-on-premises', 'Hybrid & on-premises'),
     l('storage-account', 'The storage account behind Standard'),
-    l('built-on-functions', 'Built on Azure Functions'),
   ] },
   { id: 'building', number: '03', title: 'Building flows', lessons: [
     l('connectors', 'Connectors: built-in vs managed'),
