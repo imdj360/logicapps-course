@@ -66,3 +66,14 @@ test('discloses AI assistance and review on every lesson', async ({ page }) => {
   await expect(page.getByTestId('provenance')).toContainText('Written with AI assistance and fact-checked against Microsoft Learn documentation');
   await expect(page.locator('footer')).toContainText('written with AI assistance');
 });
+
+test('Microsoft Learn references open in a popup, not in the recap', async ({ page }) => {
+  await page.goto('/lessons/service-bus-queues/');
+  await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
+  const popup = page.getByTestId('refs-popup');
+  await expect(popup).toBeHidden();
+  await page.getByTestId('refs-button').click();
+  await expect(popup).toBeVisible();
+  await expect(popup.getByRole('link').first()).toHaveAttribute('href', /learn\.microsoft\.com/);
+  await expect(page.locator('.recap-links')).not.toContainText('On Microsoft Learn');
+});

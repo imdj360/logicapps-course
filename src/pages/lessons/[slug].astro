@@ -38,7 +38,7 @@ const d = entry.data;
       <p class="lesson-head__summary">{d.summary}</p>
       <p class="lesson-head__provenance" data-testid="provenance">
         {d.reviewStatus === 'approved' && d.lastVerified
-          ? `Written with AI assistance and fact-checked against Microsoft Learn documentation (${d.lastVerified}). Daniel Jonathan spot-checks lessons by hand. Facts come from the Microsoft Learn pages linked at the end; anything marked “ours” is our own advice.`
+          ? `Written with AI assistance and fact-checked against Microsoft Learn documentation (${d.lastVerified}). Daniel Jonathan spot-checks lessons by hand. Facts come from Microsoft Learn (see References); anything marked “ours” is our own advice.`
           : 'AI-assisted draft: not yet reviewed.'}
       </p>
     </div>
@@ -46,7 +46,23 @@ const d = entry.data;
       <span>{d.minutes} min</span>
       <span>{d.level}</span>
       <span>{stepCount} steps</span>
+      {d.learnLinks.length > 0 && (
+        <button type="button" class="refs-btn" popovertarget="learn-refs" data-testid="refs-button">
+          References ({d.learnLinks.length})
+        </button>
+      )}
     </div>
+    {d.learnLinks.length > 0 && (
+      <div id="learn-refs" popover class="refs-pop" data-testid="refs-popup">
+        <div class="refs-pop__head">
+          <strong>On Microsoft Learn</strong>
+          <button type="button" class="refs-pop__close" popovertarget="learn-refs" popovertargetaction="hide" aria-label="Close references">×</button>
+        </div>
+        <ul>
+          {d.learnLinks.map((l) => <li><a href={l.url} target="_blank" rel="noopener">{l.title}</a></li>)}
+        </ul>
+      </div>
+    )}
   </div>
 
   <LessonIsland
@@ -55,7 +71,6 @@ const d = entry.data;
     scene={scene}
     youWillLearn={d.youWillLearn}
     relatedArticles={d.relatedArticles}
-    learnLinks={d.learnLinks}
     devtoUrl={siteConfig.devtoUrl}
   />
 

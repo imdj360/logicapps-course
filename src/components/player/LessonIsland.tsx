@@ -8,7 +8,6 @@ interface Props {
   scene: Scene;
   youWillLearn: string[];
   relatedArticles: { title: string; url: string }[];
-  learnLinks?: { title: string; url: string }[];
   devtoUrl: string | null;
 }
 
@@ -30,7 +29,7 @@ function readSteps(root: Element): PlayerStep[] {
   });
 }
 
-export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, learnLinks = [], devtoUrl }: Props) {
+export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, devtoUrl }: Props) {
   const [steps, setSteps] = useState<PlayerStep[] | null>(null);
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, learn
       scene={scene}
       steps={steps}
       youWillLearn={youWillLearn}
-      recap={<RecapLinks relatedArticles={relatedArticles} learnLinks={learnLinks} devtoUrl={devtoUrl} />}
+      recap={<RecapLinks relatedArticles={relatedArticles} devtoUrl={devtoUrl} />}
     />
   );
 }

@@ -21,12 +21,6 @@ describe('RecapLinks', () => {
     expect(screen.getByRole('link', { name: /Follow Daniel on dev.to/ })).toHaveAttribute('href', 'https://dev.to/daniel');
   });
 
-  it('links the Microsoft Learn pages under their own heading', () => {
-    render(<RecapLinks relatedArticles={[]} learnLinks={[{ title: 'Retry policies', url: 'https://learn.microsoft.com/x' }]} devtoUrl={null} />);
-    expect(screen.getByRole('heading', { name: 'On Microsoft Learn' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Retry policies' })).toHaveAttribute('href', 'https://learn.microsoft.com/x');
-  });
-
   it('renders nothing with no articles and no dev.to url', () => {
     const { container } = render(<RecapLinks relatedArticles={[]} devtoUrl={null} />);
     expect(container).toBeEmptyDOMElement();
