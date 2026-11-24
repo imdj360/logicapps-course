@@ -20,7 +20,7 @@ When an action throws an error you didn't plan for, it's marked **Failed**, ever
 </Step>
 
 <Step id="statuses" name="Four outcomes">
-Every action finishes as **Succeeded**, **Failed**, **Skipped** or **TimedOut**. An action's **Run after** setting chooses which of those, for each predecessor, let it run. In the designer they're **Is successful**, **Has failed**, **Is skipped** and **Has timed out**.
+An action's status can be **Succeeded**, **Failed**, **Skipped** or **TimedOut**, among others such as Cancelled and Aborted. An action's **Run after** setting chooses which of those four, for each predecessor, let it run. In the designer they're **Is successful**, **Has failed**, **Is skipped** and **Has timed out**.
 
 The default is Is successful. You must keep at least one status selected, and the **first action** after the trigger has no run-after setting.
 </Step>
@@ -47,7 +47,7 @@ So one catch action can watch the whole scope. (Learn's error-handling page word
 <Step id="trycatch" name="Try and catch">
 Put the work in a **Try** scope. Add a **Catch** scope after it, with run after set to **Has failed** and **Has timed out** for Try.
 
-Catch runs only when Try didn't succeed. Inside it: alert the team, log the error, or compensate.
+Catch runs only when Try failed or timed out. Inside it: alert the team, log the error, or compensate.
 </Step>
 
 <Step id="result" name="What failed, exactly?">
@@ -85,7 +85,7 @@ To find related runs, pass an `x-ms-client-tracking-id` header to the trigger, o
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Run after reacts to **Succeeded**, **Failed**, **Skipped** and **TimedOut**, per predecessor.
+- Run after can react to **Succeeded**, **Failed**, **Skipped** and **TimedOut**, per predecessor.
 - A **Scope** gives a group of actions one status; **Catch** runs after it fails or times out.
 - `result('Try')` lists the top-level actions' results; filter for **Failed**.
 - Select all four statuses for **cleanup** that always runs.
@@ -99,5 +99,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Fact-checked verbatim 2026-11-24.
 Not claimed: a named "finally" construct (Learn doesn't use the word), Terminate restrictions beyond For each and Until. The Filter array example renames Learn's My_Scope to Try.
 */}

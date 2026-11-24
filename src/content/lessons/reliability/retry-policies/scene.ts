@@ -49,7 +49,7 @@ export const scene: Scene = {
     limits: {
       visible: [...core],
       highlight: ['call'],
-      chips: [{ label: 'count', value: '1–90' }, { label: 'stateful interval', value: '5 s – 1 day' }, { label: 'stateless interval', value: '1 s – 1 min' }],
+      chips: [{ label: 'count', value: '1–90 (default 4)' }, { label: 'stateful interval', value: '5 s – 1 day' }, { label: 'stateless interval', value: '1 s – 1 min' }],
     },
     retryafter: {
       visible: [...core],

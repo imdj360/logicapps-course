@@ -40,7 +40,7 @@ export const scene: Scene = {
     key: {
       visible: [...core],
       highlight: ['shop'],
-      chips: [{ label: 'key', value: 'order number', tone: 'ok' }, { label: 'not', value: 'a fresh GUID', tone: 'warn' }],
+      chips: [{ label: 'key', value: 'order number', tone: 'ok' }, { label: 'better than', value: 'a fresh GUID', tone: 'warn' }],
     },
     sbdedupe: {
       visible: [...core],
@@ -57,7 +57,7 @@ export const scene: Scene = {
     tracking: {
       visible: [...core],
       highlight: ['wf'],
-      chips: [{ label: 'tracking ID', value: 'correlates' }, { label: 'prevents duplicates', value: 'no', tone: 'warn' }],
+      chips: [{ label: 'tracking ID', value: 'correlates' }, { label: 'Learn says', value: 'correlation only', tone: 'warn' }],
     },
     unsafe: {
       visible: [...core, 'retry', 'retry-db'],

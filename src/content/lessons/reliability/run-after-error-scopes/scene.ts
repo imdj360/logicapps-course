@@ -31,7 +31,7 @@ export const scene: Scene = {
     statuses: {
       visible: [...core, 'next', 'try-next'],
       highlight: ['try-next'],
-      chips: [{ label: 'statuses', value: 'Succeeded · Failed · Skipped · TimedOut' }, { label: 'default', value: 'Is successful' }],
+      chips: [{ label: 'run after reacts to', value: 'Succeeded · Failed · Skipped · TimedOut' }, { label: 'default', value: 'Is successful' }],
     },
     json: {
       visible: [...core, 'next', 'try-next'],
@@ -73,7 +73,7 @@ export const scene: Scene = {
     },
     monitor: {
       visible: [...core, ...handling],
-      chips: [{ label: 'alert', value: '> 5 failed runs / hour' }, { label: 'correlate', value: 'x-ms-client-tracking-id' }],
+      chips: [{ label: 'alert, e.g.', value: '> 5 failed runs / hour' }, { label: 'correlate', value: 'x-ms-client-tracking-id' }],
     },
     recap: {
       visible: [...core, ...handling, 'next', 'cleanup', 'try-next', 'try-cleanup'],

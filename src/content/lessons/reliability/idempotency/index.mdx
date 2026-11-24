@@ -33,15 +33,15 @@ If your business can't handle duplicates, Microsoft says you need to implement *
 </Step>
 
 <Step id="key" name="Use a business key">
-To spot a repeat, you need something that stays the same across repeats: a **business key**, such as the order number, not a fresh GUID.
+To spot a repeat, you need something that stays the same across repeats: a **business key**, such as the order number.
 
-The Service Bus docs make the same point for message IDs: anchoring the identifier to the business process, for example the purchase order number, gives predictable repeatability.
+The Service Bus docs make the point for message IDs: a GUID is allowed, but anchoring the identifier to the business process "yields predictable repeatability". A fresh GUID for every attempt would defeat that.
 </Step>
 
 <Step id="sbdedupe" name="Service Bus duplicate detection">
 Service Bus can drop repeats for you. With **duplicate detection** on a queue or topic, it remembers each **MessageId** for a time window: **10 minutes** by default, from 20 seconds to 7 days. A second message with the same MessageId is accepted and then **silently dropped**.
 
-It needs the **Standard** or **Premium** tier. In Logic Apps, set the **MessageId** when you send, using your business key.
+It needs the **Standard** or **Premium** tier. In Logic Apps, the Service Bus **managed** connector's **Send message** action has a **Message Id** field for this; the built-in connector's Send message takes a `message` object, so check how your version sets the message ID.
 </Step>
 
 <Step id="writes" name="Make writes safe to repeat" tag="FIX">
@@ -54,7 +54,7 @@ Duplicate detection covers one queue. Everything else is up to your design. Lear
 </Step>
 
 <Step id="tracking" name="Tracking IDs are not dedupe" tag="TIP">
-The `x-ms-client-tracking-id` header, or a custom tracking ID on the trigger, **correlates** runs in your logs. It's very useful for spotting duplicates after the fact, but Logic Apps doesn't use it to **prevent** them.
+The `x-ms-client-tracking-id` header, or a custom tracking ID on the trigger, **correlates** runs in your logs. It's useful for spotting duplicates after the fact, but Learn describes it only for correlation, not deduplication, so don't rely on it to **prevent** them.
 </Step>
 
 <Step id="unsafe" name="When a call can't be made safe" tag="TIP">
@@ -64,7 +64,7 @@ Some calls can't be made safe to repeat. For those, consider a retry policy of *
 <Step id="recap" name="Recap" tag="RECAP">
 - Logic Apps delivers **at least once**: repeats are rare but possible.
 - Duplicates come from delivery, **resubmits**, **retries** and concurrency.
-- Use a **business key**, not a random ID, to recognise repeats.
+- Use a **business key**, not a fresh ID per attempt, to recognise repeats.
 - **Service Bus duplicate detection** drops repeated MessageIds within a window.
 - Make writes safe to repeat: **upsert**, check first, idempotency keys.
 </Step>
@@ -78,5 +78,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
 - https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Fact-checked verbatim 2026-11-24.
 Not claimed: that retries cause duplicates (Learn doesn't say so; flagged as our reasoning), that triggers fire twice, that tracking IDs deduplicate. The "Make writes safe" list and the "unsafe" advice are ours.
 */}

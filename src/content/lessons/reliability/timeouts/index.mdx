@@ -20,7 +20,7 @@ Logic Apps has timeouts at several levels. Knowing them tells you when a run wil
 
 <Step id="levels" name="Four levels of timeout">
 - **Request**: how long a single HTTP call waits for an answer.
-- **Action**: how long an action may run, including asynchronous polling.
+- **Action**: how long an action's asynchronous pattern may run.
 - **Until loop**: how long a loop may keep repeating.
 - **Run**: how long a whole workflow run may last.
 </Step>
@@ -32,7 +32,7 @@ The host setting `Runtime.Backend.HttpOperation.RequestTimeout` holds that value
 </Step>
 
 <Step id="action" name="Action timeout">
-You can limit how long an action may take, including while it polls an asynchronous API. Set **Timeout** in the action's **Settings**, in ISO 8601 format, or `limit.timeout` in code view:
+You can limit how long an action may run. In code view, `limit.timeout` caps the duration of the **asynchronous pattern**, in ISO 8601 format; in the designer it's the action's **Timeout** setting:
 
 ```json
 "limit": { "timeout": "PT10M" }
@@ -60,12 +60,12 @@ That way a partner that never answers leads to an alert or a fallback, not a run
 </Step>
 
 <Step id="deliberate" name="Set timeouts on purpose" tag="TIP">
-Microsoft's advice for runs that are held up: **add a timeout to any action that might hold up runs**. Choose a value from the business, such as "a confirmation after an hour is too late", not just the technical maximum.
+When runs are held up waiting, Microsoft's advice is to "add a timeout to any action that might hold up these runs". Choose a value from the business, such as "a confirmation after an hour is too late", not just the technical maximum.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **HTTP request**: 225 s in Standard, which is also the maximum; then the action fails.
-- **Action timeout**: `limit.timeout` in ISO 8601, including asynchronous polling.
+- **Action timeout**: `limit.timeout` in ISO 8601 caps the asynchronous pattern.
 - **Until**: 1 hour stateful, 5 minutes stateless, checked per cycle.
 - **Run**: 90 days stateful (`FlowRunTimeout`), 5 minutes stateless; keep it within retention.
 - Catch timeouts with **Has timed out** in run after.
@@ -78,6 +78,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
 - https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http
+Fact-checked verbatim 2026-11-24.
 Learn conflict: the action reference says a timed-out action is "Cancelled with the ActionTimedOut code", while the error-handling page lists TimedOut as an action status for run after. We quote the action reference and use the run-after label "Has timed out".
 Not claimed: the name of the setting for stateless run duration (Learn doesn't name one), any 230-second figure. "A confirmation after an hour is too late" is our example.
 */}

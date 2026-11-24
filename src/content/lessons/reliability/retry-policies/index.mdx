@@ -57,7 +57,7 @@ You can set `minimumInterval` and `maximumInterval`. The minimum defaults to **5
 </Step>
 
 <Step id="limits" name="Limits in Standard">
-- **Count**: 1 to **90** retries.
+- **Count**: the `count` property takes 1 to **90** retries; in Standard the default is 4.
 - **Interval**: 5 seconds to 1 day in a **stateful** workflow, 1 second to 1 minute in a **stateless** one.
 - The defaults themselves are **host settings** in Standard, for example `Runtime.Backend.HttpOperation.DefaultRetryCount` (4) and `DefaultRetryInterval` (7 seconds).
 </Step>
@@ -77,12 +77,13 @@ Retrying repeats the request. If a call **isn't safe to repeat**, such as a paym
 <Step id="recap" name="Recap" tag="RECAP">
 - The **Default** policy: exponential, up to **4 retries**, for **408, 429, 5xx** and connectivity errors.
 - Choose **None**, **Fixed** or **Exponential** under Settings > Networking, or set `retryPolicy`.
-- Standard allows 1–90 retries; intervals depend on stateful or stateless.
+- `count` takes 1–90 (default 4); intervals depend on stateful or stateless.
 - **Retry-After** sets the wait; run history shows **Succeeded with retries**.
 - Don't retry calls that aren't safe to repeat.
 </Step>
 
 {/*
+Fact-checked verbatim 2026-11-24.
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config

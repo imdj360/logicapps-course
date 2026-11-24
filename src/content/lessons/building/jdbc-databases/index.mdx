@@ -36,7 +36,7 @@ The driver JARs are a **Client or SDK Assembly (Java)** artifact. Add them in on
 <Step id="connect" name="The connection">
 A JDBC connection takes three values: the database **URL**, a **user identifier** and a **password**.
 
-Learn doesn't give URL examples. The JDBC URL format, usually starting with `jdbc:`, comes from **your driver's documentation**. Store the password as a secret in app settings, not in the workflow.
+Learn doesn't give URL examples. The JDBC URL format, typically starting with `jdbc:`, comes from **your driver's documentation**. Our advice: store the password as a secret in app settings, not in the workflow.
 </Step>
 
 <Step id="actions" name="Three actions">
@@ -57,13 +57,13 @@ Don't build SQL by concatenating values from the trigger into the query text. Pa
 JDBC is the generic option. Two databases have their own built-in connectors in Standard:
 
 - **SQL Server**: actions to insert, update and run stored procedures, **triggers** on inserted, updated or deleted rows (with change tracking), and managed identity authentication.
-- **Oracle Database**: a built-in connector, in **public preview**, for Oracle 11 and later. No data gateway and no driver upload; it connects with `host:port/service-name`. It has actions only, and a default query timeout of 30 seconds.
+- **Oracle Database**: a built-in connector, in **public preview**, for Oracle 11 and later. No data gateway, and Learn lists no driver-upload step; it connects with `host:port/service-name`. It has actions only, and a default query timeout of 30 seconds.
 
 Learn doesn't document using JDBC for Oracle, so for Oracle, start with its own connector.
 </Step>
 
 <Step id="network" name="Reaching the database">
-Built-in connectors run inside your logic app, so the database must be **reachable from the runtime**. For Oracle, Microsoft describes using **VNet integration** for private endpoints, or the **hybrid** model for databases on your own infrastructure. Learn's JDBC page doesn't cover networking, but the same network path applies.
+Built-in connectors run inside your logic app, so the database must be **reachable from the runtime**. For Oracle, Microsoft describes using **VNet integration** for private endpoints, or the **hybrid** model for databases on your own infrastructure. Learn's JDBC page doesn't cover networking; our reasoning is that any built-in connector still needs a network path from the runtime.
 </Step>
 
 <Step id="gaps" name="What Learn doesn't cover" tag="TIP">
@@ -87,5 +87,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-sqlazure
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-oracledatabase
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/oracledb/
+Fact-checked verbatim 2026-11-24.
 Not claimed: Oracle over JDBC (Learn doesn't document it), JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL/Aurora scenario, the query-parameters advice and "store the password in app settings" are ours.
 */}
