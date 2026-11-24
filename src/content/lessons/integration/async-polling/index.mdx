@@ -25,19 +25,19 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="Someone is waiting" tag="PROBLEM">
-The website calls your workflow to place an order and waits for an answer. Your workflow, in turn, calls a partner API that can take minutes to confirm.
+The website calls your **Place order** workflow and waits for an answer. The workflow runs three steps in order: **Request** (the order comes in), **HTTP** (call the partner to confirm) and **Response** (answer the website). The partner can take minutes.
 
 Two questions follow: how long can the website wait for you, and how long can you wait for the partner?
 </Step>
 
 <Step id="sync" name="Request and Response">
-A **Request** trigger with a **Response** action is the **request-response** pattern: the caller waits until your workflow sends the Response.
+A **Request** trigger with a **Response** action is the **request-response** pattern: the website waits until the workflow reaches the Response, so it waits for the partner call too.
 
 The workflow keeps the inbound request open only for a limited time: **225 seconds** in Standard (120 in Consumption). If no Response is sent by then, the caller gets **504 Gateway Timeout**. If every Response action is skipped, the caller gets **502 Bad Gateway**, even if the run succeeds.
 </Step>
 
 <Step id="asyncin" name="Answer now, work later">
-Turn on the Response action's **Asynchronous response** setting, or leave out the Response action, and the workflow immediately returns **202 Accepted**. It can then take as long as it needs, within a stateful workflow's run duration.
+Turn on the **Asynchronous response** setting on the **Response** action, or leave out the Response action, and the website immediately gets **202 Accepted**. The workflow carries on with the partner call, and can take as long as it needs, within a stateful workflow's run duration.
 
 The caller then needs another way to learn the outcome, for example a callback or a status it can check. Learn doesn't prescribe one.
 </Step>

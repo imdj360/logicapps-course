@@ -1,83 +1,87 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
-const inbound = ['site', 'req', 'resp', 'site-req', 'req-resp', 'resp-site'];
-const outbound = ['http', 'api', 'req-http', 'http-api'];
+// The workflow runs in order: Request → HTTP (partner) → Response. The website waits outside it.
+const flow = ['wfBox', 'site', 'req', 'http', 'resp', 'site-req', 'req-http', 'http-resp', 'resp-site'];
+const partner = ['api', 'http-api'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
+  groups: [
+    { id: 'wfBox', label: 'Place order · stateful', x: 216, y: 150, w: 640, h: 128 },
+  ],
   nodes: [
-    { id: 'site', kind: 'user', label: 'Website', sublabel: 'waits', x: 110, y: 240 },
-    { id: 'req', kind: 'trigger', label: 'Request', x: 340, y: 240 },
-    { id: 'resp', kind: 'action', label: 'Response', sublabel: '200 or 202', x: 340, y: 410 },
-    { id: 'http', kind: 'connector-builtin', label: 'HTTP', sublabel: 'async pattern', x: 590, y: 240 },
-    { id: 'api', kind: 'user', label: 'Partner API', sublabel: '202 + location', x: 810, y: 240 },
-    { id: 'hook', kind: 'action', label: 'HTTP Webhook', sublabel: 'callback URL', x: 590, y: 90 },
+    { id: 'site', kind: 'user', label: 'Website', sublabel: 'waits', x: 100, y: 410 },
+    { id: 'req', kind: 'trigger', label: 'Request', sublabel: 'order in', x: 310, y: 220 },
+    { id: 'http', kind: 'connector-builtin', label: 'HTTP', sublabel: 'call partner', x: 535, y: 220 },
+    { id: 'resp', kind: 'action', label: 'Response', sublabel: 'to the website', x: 760, y: 220 },
+    { id: 'api', kind: 'user', label: 'Partner API', sublabel: 'takes minutes', x: 535, y: 55 },
+    { id: 'hook', kind: 'action', label: 'HTTP Webhook', sublabel: 'instead of HTTP', x: 790, y: 55 },
   ],
   edges: [
-    { id: 'site-req', from: 'site', to: 'req' },
-    { id: 'req-resp', from: 'req', to: 'resp' },
-    { id: 'resp-site', from: 'resp', to: 'site', style: 'dashed' },
+    { id: 'site-req', from: 'site', to: 'req', label: 'order' },
     { id: 'req-http', from: 'req', to: 'http' },
-    { id: 'http-api', from: 'http', to: 'api' },
-    { id: 'hook-api', from: 'hook', to: 'api', style: 'dashed' },
+    { id: 'http-resp', from: 'http', to: 'resp' },
+    { id: 'resp-site', from: 'resp', to: 'site', style: 'dashed', label: 'answer' },
+    { id: 'http-api', from: 'http', to: 'api', label: 'poll' },
+    { id: 'hook-api', from: 'hook', to: 'api', style: 'dashed', label: 'callback' },
   ],
   steps: {
     problem: {
-      visible: [...inbound, ...outbound],
+      visible: [...flow, ...partner],
       highlight: ['site', 'api'],
-      tokens: [{ id: 'p1', edge: 'site-req', tone: 'info' }],
+      tokens: [{ id: 'p1', edge: 'site-req', tone: 'info' }, { id: 'p2', edge: 'http-api', tone: 'info' }],
       chips: [{ label: 'website', value: 'waiting' }, { label: 'partner', value: 'takes minutes', tone: 'warn' }],
     },
     sync: {
-      visible: [...inbound],
-      highlight: ['req', 'resp', 'resp-site'],
-      tokens: [{ id: 's1', edge: 'site-req', tone: 'info' }, { id: 's2', edge: 'resp-site', tone: 'ok' }],
-      chips: [{ label: 'Standard wait', value: '225 s' }, { label: 'too slow', value: '504', tone: 'fail' }, { label: 'all Responses skipped', value: '502', tone: 'fail' }],
+      visible: [...flow, ...partner],
+      highlight: ['site', 'resp', 'resp-site'],
+      tokens: [{ id: 's1', edge: 'site-req', tone: 'info' }, { id: 's2', edge: 'req-http', tone: 'info' }, { id: 's3', edge: 'http-resp', tone: 'info' }, { id: 's4', edge: 'resp-site', tone: 'ok' }],
+      chips: [{ label: 'website waits for', value: 'the Response action' }, { label: 'Standard limit', value: '225 s, then 504', tone: 'fail' }],
     },
     asyncin: {
-      visible: [...inbound],
+      visible: [...flow, ...partner],
       highlight: ['resp', 'resp-site'],
-      tokens: [{ id: 'a1', edge: 'resp-site', tone: 'ok' }],
-      chips: [{ label: 'Asynchronous response', value: 'on' }, { label: 'caller gets', value: '202 at once', tone: 'ok' }],
+      tokens: [{ id: 'a1', edge: 'site-req', tone: 'info' }, { id: 'a2', edge: 'resp-site', tone: 'ok' }],
+      chips: [{ label: 'Response setting', value: 'Asynchronous response: on' }, { label: 'website gets', value: '202 at once', tone: 'ok' }],
     },
     outbound: {
-      visible: [...inbound, ...outbound],
-      highlight: ['http', 'http-api'],
+      visible: [...flow, ...partner],
+      highlight: ['http', 'api', 'http-api'],
       tokens: [
         { id: 'o1', edge: 'http-api', tone: 'info' },
         { id: 'o2', edge: 'http-api', tone: 'info' },
         { id: 'o3', edge: 'http-api', tone: 'ok' },
       ],
-      chips: [{ label: 'API answers', value: '202 + location' }, { label: 'action', value: 'polls until non-202' }, { label: 'slow down', value: 'Retry-After' }],
+      chips: [{ label: 'partner answers', value: '202 + location' }, { label: 'HTTP action', value: 'polls until done' }, { label: 'slow down', value: 'Retry-After' }],
     },
     build: {
-      visible: [...outbound, 'req'],
+      visible: [...flow, ...partner],
       highlight: ['api'],
       chips: [{ label: 'while running', value: '202 + location' }, { label: 'done', value: '200 + result', tone: 'ok' }, { label: 'first poll', value: 'after 1 s' }],
     },
     nolocation: {
-      visible: [...outbound, 'req'],
+      visible: [...flow, ...partner],
       highlight: ['http'],
       chips: [{ label: '202, no location', value: 'turn async pattern off', tone: 'warn' }],
     },
     stateless: {
-      visible: [...outbound, 'req'],
+      visible: [...flow, ...partner],
       highlight: ['http'],
       tokens: [{ id: 'n1', edge: 'http-api', tone: 'info' }],
       chips: [{ label: 'stateless', value: 'returns 202 as-is', tone: 'warn' }, { label: 'polls location', value: 'no' }],
     },
     webhook: {
-      visible: [...inbound, ...outbound, 'hook', 'hook-api'],
-      highlight: ['hook', 'hook-api'],
+      visible: [...flow, ...partner, 'hook', 'hook-api'],
+      highlight: ['hook', 'hook-api', 'api'],
       tokens: [{ id: 'w1', edge: 'hook-api', tone: 'ok' }],
-      chips: [{ label: 'subscribe', value: 'callback URL' }, { label: 'workflow', value: 'pauses, no polling' }],
+      chips: [{ label: 'subscribe', value: 'callback URL' }, { label: 'workflow', value: 'pauses, no polling', tone: 'ok' }],
     },
     timeouts: {
-      visible: [...inbound, ...outbound],
-      chips: [{ label: 'HTTP request', value: '225 s default' }, { label: 'stateful run', value: '90 days' }, { label: 'stateless run', value: '5 min', tone: 'warn' }],
+      visible: [...flow, ...partner],
+      chips: [{ label: 'HTTP request', value: '225 s (also max)' }, { label: 'stateful run', value: '90 days' }, { label: 'stateless run', value: '5 min', tone: 'warn' }],
     },
     recap: {
-      visible: [...inbound, ...outbound, 'hook', 'hook-api'],
+      visible: [...flow, ...partner, 'hook', 'hook-api'],
       chips: [{ label: 'wait', value: 'Response' }, { label: 'poll', value: '202 + location' }, { label: 'callback', value: 'webhook' }],
     },
   },
