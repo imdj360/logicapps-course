@@ -5,7 +5,7 @@ const core = ['dev', 'proj', 'dev-proj'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'dev', kind: 'user', label: 'Developer', sublabel: 'VS Code', x: 110, y: 250 },
+    { id: 'dev', kind: 'user', label: 'Developer', sublabel: 'you', x: 110, y: 250 },
     { id: 'proj', kind: 'storage', label: 'Project', sublabel: 'workflow.json', x: 340, y: 250 },
     { id: 'host', kind: 'hosting-plan', label: 'Local runtime', sublabel: 'F5 · 7071', x: 600, y: 120 },
     { id: 'local', kind: 'keyvault', label: 'local.settings', sublabel: 'stays local', x: 340, y: 420 },
@@ -18,10 +18,13 @@ export const scene: Scene = {
     { id: 'caller-host', from: 'caller', to: 'host' },
     { id: 'local-proj', from: 'local', to: 'proj', style: 'dashed' },
     { id: 'proj-azure', from: 'proj', to: 'azure' },
+    { id: 'dev-azure', from: 'dev', to: 'azure', style: 'dashed', label: 'portal, live' },
   ],
   steps: {
     problem: {
-      visible: ['azure'],
+      visible: ['dev', 'azure', 'dev-azure'],
+      failed: ['azure'],
+      tokens: [{ id: 'pr1', edge: 'dev-azure', tone: 'fail' }],
       chips: [{ label: 'today', value: 'edit live in portal', tone: 'warn' }],
     },
     tools: {
