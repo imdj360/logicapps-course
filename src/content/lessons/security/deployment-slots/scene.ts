@@ -21,7 +21,7 @@ export const scene: Scene = {
     problem: {
       visible: ['prod', 'caller', 'caller-prod'],
       tokens: [{ id: 'o1', edge: 'caller-prod', tone: 'info' }],
-      chips: [{ label: 'deploy to production', value: 'risk of disruption', tone: 'warn' }],
+      chips: [{ label: 'deploy to prod (ours)', value: 'risk of disruption', tone: 'warn' }],
     },
     slot: {
       visible: [...core, 'stage-prod', 'caller', 'caller-prod'],
@@ -42,7 +42,7 @@ export const scene: Scene = {
       visible: core,
       highlight: ['zip-stage', 'stage'],
       tokens: [{ id: 'd1', edge: 'zip-stage', tone: 'ok' }],
-      chips: [{ label: 'portal deploy', value: 'unavailable', tone: 'warn' }, { label: 'VS Code or CLI', value: 'overwrites slot' }],
+      chips: [{ label: 'portal deploy', value: 'unavailable', tone: 'warn' }, { label: 'VS Code deploy', value: 'overwrites slot' }],
     },
     behavior: {
       visible: [...core, 'stage-prod', 'caller', 'caller-prod'],

@@ -14,7 +14,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="Deploying during the lunch rush" tag="PROBLEM">
-Orders arrive all day. Deploying a new version straight to production risks a disruption while the update lands, and a bad release is hard to undo.
+Orders arrive all day. Deploying a new version straight to production can disrupt orders while the update lands, and a bad release is hard to undo (our framing).
 
 Microsoft's answer for mission-critical Standard logic apps is **deployment slots**.
 </Step>
@@ -81,7 +81,7 @@ If the storage account is **private**, create the file share named in `WEBSITE_C
 - Create and deploy with VS Code or CLI; portal deploy to a slot is **unavailable**.
 - Nonproduction slots are **read-only** and **workflows only run in production**.
 - Not supported: **blue-green**, **verification testing before swap**, **A/B testing**.
-- Learn is silent on plan tiers and on preview status for this page.
+- The Logic Apps slots page lists no plan tier requirement or preview label; the Azure Functions slots article says slot counts depend on the hosting plan.
 </Step>
 
 {/*

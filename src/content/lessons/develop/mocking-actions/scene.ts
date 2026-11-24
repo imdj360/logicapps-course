@@ -10,7 +10,7 @@ export const scene: Scene = {
     { id: 'api', kind: 'connector-managed', label: 'Action mock', sublabel: 'external API', x: 580, y: 240 },
     { id: 'done', kind: 'action', label: 'CompleteMessage', sublabel: 'mocked', x: 780, y: 240 },
     { id: 'mockjson', kind: 'storage', label: 'Mock JSON', sublabel: '*-mock.json', x: 340, y: 90 },
-    { id: 'scope', kind: 'scope', label: 'Error handling', sublabel: 'runs after fail', x: 580, y: 400 },
+    { id: 'scope', kind: 'scope', label: 'Your error path', sublabel: 'example only', x: 580, y: 400 },
     { id: 'result', kind: 'human', label: 'Run status', sublabel: 'Assert', x: 110, y: 420 },
   ],
   edges: [

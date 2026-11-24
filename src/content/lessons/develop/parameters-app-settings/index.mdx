@@ -45,7 +45,7 @@ Reasons: app settings have **size limits** and can't be referenced from certain 
 
 <Step id="env" name="Values per environment">
 - **Parameters**: keep one `parameters.json` per environment and promote the matching file with your pipeline. Learn shows `az functionapp deploy ... --type static --target-path parameters.json`. Replacing the file isn't available in the portal or designer.
-- **App settings**: set in the portal under **Settings > Environment variables > App settings**, with `az logicapp config appsettings set`, or in the `appSettings` object of an ARM or Bicep file.
+- **App settings**: set in the portal under **Settings > Environment variables > App settings**, with `az logicapp config appsettings set`, or from your pipeline with the `appSettings` parameter of the Azure Function App Deploy task.
 </Step>
 
 <Step id="secrets" name="Where secrets go">
@@ -61,7 +61,7 @@ Without a version in the reference, the app picks up a newer secret version **wi
 </Step>
 
 <Step id="slots" name="Per-slot values and the designer" tag="TIP">
-When you add an app setting in the portal, you can select **Deployment slot setting**. App Service guidance on Key Vault references says most such settings should be marked as slot settings, since you should have separate vaults per environment.
+The Azure Functions slots article describes marking a setting as a **Deployment slot setting**. App Service guidance on Key Vault references says most such settings should be marked as slot settings, since you should have separate vaults per environment.
 
 If you parameterize `connections.json`, the designer becomes **restricted**, locally and in the portal. Learn suggests developing with a nonparameterized file and replacing it in your deployment pipeline.
 </Step>

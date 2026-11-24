@@ -68,7 +68,7 @@ export const scene: Scene = {
     slots: {
       visible: [...core, 'settings', 'wf-settings', 'params-settings', 'kv', 'settings-kv'],
       highlight: ['settings'],
-      chips: [{ label: 'portal option', value: 'Deployment slot setting' }, { label: 'parameterized connections', value: 'restricted designer', tone: 'warn' }],
+      chips: [{ label: 'slot option', value: 'Deployment slot setting' }, { label: 'parameterized connections', value: 'restricted designer', tone: 'warn' }],
     },
     recap: {
       visible: ['wf', 'params', 'settings', 'kv', 'dev', 'prod', 'wf-params', 'wf-settings', 'params-settings', 'settings-kv', 'params-dev', 'params-prod'],

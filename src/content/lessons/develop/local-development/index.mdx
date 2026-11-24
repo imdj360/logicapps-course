@@ -10,6 +10,15 @@ youWillLearn:
   - What each file and folder in a logic app project does
   - How to run a workflow and read its run history on your machine
   - Which local files stay local, and how deployment works
+relatedArticles:
+  - title: "Building Logic Apps Locally with VS Code: HTTP, Blob, Queue & More"
+    url: https://dev.to/imdj/building-logic-apps-locally-with-vs-code-http-blob-queue-more-1agj
+  - title: "Containerizing Your Logic Apps In Your DevBox"
+    url: https://dev.to/imdj/containerizing-your-logic-apps-in-your-devbox-24c0
+  - title: "Debug Logic Apps in Docker Without the Hassle"
+    url: https://dev.to/imdj/debug-logic-apps-in-docker-without-the-hassle-3763
+  - title: "Logic Apps Local Dev Tools: Visual Walkthrough"
+    url: https://dev.to/imdj/logic-apps-local-dev-tools-visual-walkthrough-5gph
 reviewStatus: draft
 ---
 
@@ -53,7 +62,7 @@ It can contain secrets, so Learn says to exclude it from source control. `host.j
 <Step id="run" name="Run and debug">
 Open `workflow.json`, choose **Open Designer** to build, then start a session with **Run > Start Debugging (F5)**. To find the trigger URL, open the `workflow.json` shortcut menu and select **Overview**.
 
-For a Request trigger, the callback URL starts with `http://localhost:7071/api/`. Call it with any HTTP tool. You can set **breakpoints** in the workflow, and the Variables pane shows values when one hits. If you change `workflow.json` after the run starts, restart the logic app to update the breakpoints.
+For a Request trigger, the callback URL starts with `http://localhost:7071/api/`. Call it with any HTTP tool. You can set **breakpoints** on actions (not triggers), and the Variables pane shows values when one hits. If you change `workflow.json` after the run starts, restart the logic app to update the breakpoints.
 </Step>
 
 <Step id="history" name="See the run history locally">
