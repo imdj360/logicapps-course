@@ -30,31 +30,31 @@ Every action in a stateful run reads and writes here. Stateless workflows keep t
 </Step>
 
 <Step id="setting" name="AzureWebJobsStorage">
-The connection to that account is the app setting `AzureWebJobsStorage`, and it's **required**. When you develop locally on Windows, it can point to the local storage emulator with `UseDevelopmentStorage=true`.
+The connection to that account is the app setting `AzureWebJobsStorage`, and it's **required**. In the `local.settings.json` that VS Code creates on Windows, it's set to `UseDevelopmentStorage=true`; on macOS and Linux, Learn's sample uses a real storage account connection string.
 
-When you deploy from VS Code, the required resources, including a storage account, are created for you.
+When you publish a new Standard logic app from VS Code, it creates the required resources, such as a storage account.
 </Step>
 
 <Step id="limits" name="Storage has limits" tag="PROBLEM">
-A single storage account handles up to **2,000 requests per partition** and **20,000 requests per second** at the account level. Beyond those, requests are **throttled**.
+A single storage account handles up to **2,000 requests per partition** and **20,000 requests per second** at the account level. Beyond those, requests are **subject to throttling**.
 
 A busy stateful logic app makes many storage requests for every run, so a burst of orders can hit those limits while CPU stays idle.
 </Step>
 
 <Step id="spread" name="Spread the load" tag="FIX">
-The first step is to **distribute work across multiple workflows**. When one account isn't enough, plan for about **100,000 action executions per minute per storage account**, and add more accounts.
+The first step is to **distribute work across multiple workflows**. When one account isn't enough, plan for about **100,000 action executions per minute per storage account** (fewer if your actions are compute-heavy), and add more accounts.
 </Step>
 
 <Step id="scaleunits" name="Up to 32 storage accounts">
 A Standard logic app can use up to **32 storage accounts**. Set `Runtime.ScaleUnitsCount` in `host.json` to the number of accounts, and add one connection string per account as an app setting: `CloudStorageAccount.Workflows.ScaleUnitsDataStorage.CU00.ConnectionString`, then `CU01`, `CU02` and so on. `AzureWebJobsStorage` uses the same connection string as `CU00`.
 
-<Callout title="Watch out">Set this up **before** you create the logic app. Microsoft warns that adding it later can cause data loss, or not give you the scale you need.</Callout>
+<Callout title="Watch out">Set this up **before** you create the logic app. Microsoft warns that if you change these settings later, you might lose data or not get the scale you need.</Callout>
 </Step>
 
 <Step id="retention" name="How long runs stay">
 Run history stays in storage for **90 days** by default. You can change that with the app setting `Workflows.RuntimeConfiguration.RetentionInDays`, from **7 to 365** days, or per workflow.
 
-Cleanup runs every **7 days** by default, so with the defaults you might see runs up to **97 days** old. Retention is counted from each run's **start time**.
+The cleanup job checks for old runs every **7 days** by default (host setting `Runtime.FlowMaintenanceJob.RetentionCooldownInterval`), so with the defaults you might see runs up to **97 days** old. Retention is counted from each run's **start time**.
 </Step>
 
 <Step id="billing" name="Its own bill" tag="TIP">
@@ -76,5 +76,6 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-visual-studio-code
+Fact-checked verbatim 2026-11-24 (raw page text).
 Not claimed: names of the individual tables, blobs and queues; whether a stateless-only app can run without a storage account (Learn lists AzureWebJobsStorage as required); the exact host.json path casing for Runtime.ScaleUnitsCount (Learn is inconsistent). The "slow, but not busy" scenario is illustrative.
 */}

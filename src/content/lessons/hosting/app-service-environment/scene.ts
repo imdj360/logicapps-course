@@ -37,7 +37,7 @@ export const scene: Scene = {
       visible: [...core, 'db', 'la1-db', 'la2-db'],
       highlight: ['ase', 'db', 'la1-db', 'la2-db'],
       tokens: [{ id: 'n1', edge: 'la1-db', tone: 'ok' }, { id: 'n2', edge: 'la2-db', tone: 'ok' }],
-      chips: [{ label: 'internal', value: 'your network only', tone: 'ok' }, { label: 'external', value: 'public address' }],
+      chips: [{ label: 'internal', value: 'address in your subnet', tone: 'ok' }, { label: 'external', value: 'public address' }],
     },
     history: {
       visible: [...core, 'ops', 'ops-ase'],
@@ -54,12 +54,12 @@ export const scene: Scene = {
     billing: {
       visible: [...core],
       highlight: ['plan'],
-      chips: [{ label: 'you pay for', value: 'plan instances' }, { label: 'logic apps', value: 'any number' }, { label: 'empty ASE', value: '1 × I1v2', tone: 'warn' }],
+      chips: [{ label: 'you pay for', value: 'plan instances' }, { label: 'logic apps', value: 'no per-app charge' }, { label: 'empty ASE', value: '1 × I1v2', tone: 'warn' }],
     },
     differences: {
       visible: [...core, 'db', 'la1-db', 'la2-db'],
       highlight: ['la1', 'la2'],
-      chips: [{ label: 'storage key access', value: 'can disable', tone: 'ok' }, { label: 'Scale Monitoring', value: 'not supported', tone: 'warn' }],
+      chips: [{ label: 'storage key access', value: 'can disable (with MI)', tone: 'ok' }, { label: 'Scale Monitoring', value: 'not supported', tone: 'warn' }],
     },
     when: {
       visible: [...core, 'db', 'la1-db', 'la2-db'],

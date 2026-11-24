@@ -52,7 +52,7 @@ export const scene: Scene = {
       visible: [...stack, 'bundle', 'bundle-wf'],
       highlight: ['bundle', 'bundle-wf'],
       tokens: [{ id: 'b1', edge: 'bundle-wf', tone: 'info' }],
-      chips: [{ label: 'bundle', value: 'ExtensionBundle.Workflows' }, { label: 'missing actions?', value: 'clear the cache', tone: 'warn' }],
+      chips: [{ label: 'bundle', value: 'ExtensionBundle.Workflows' }, { label: 'old bundle?', value: 'delete it, VS Code updates', tone: 'warn' }],
     },
     local: {
       visible: [...stack, 'dev', 'core', 'dev-core', 'core-func'],
@@ -70,12 +70,12 @@ export const scene: Scene = {
       visible: [...stack, 'builtin', 'custom', 'managed', 'wf-builtin', 'wf-custom', 'wf-managed'],
       highlight: ['custom', 'wf-custom'],
       tokens: [{ id: 'x1', edge: 'wf-custom', tone: 'ok' }],
-      chips: [{ label: 'custom built-in', value: '.NET, NuGet project' }, { label: 'custom managed', value: 'not supported', tone: 'warn' }],
+      chips: [{ label: 'custom built-in', value: '.NET, NuGet project' }, { label: 'custom managed', value: 'not currently supported', tone: 'warn' }],
     },
     code: {
       visible: [...stack, 'builtin', 'wf-builtin'],
       highlight: ['wf'],
-      chips: [{ label: 'Inline Code', value: 'C# script · PowerShell' }, { label: 'also', value: '.NET functions' }],
+      chips: [{ label: 'inline code', value: 'JavaScript · C# · PowerShell' }, { label: 'also', value: '.NET functions' }],
     },
     recap: {
       visible: [...stack, 'dev', 'core', 'hostjson', 'bundle', 'builtin', 'custom', 'managed', 'dev-core', 'core-func', 'hostjson-wf', 'bundle-wf', 'wf-builtin', 'wf-custom', 'wf-managed'],

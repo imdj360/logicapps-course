@@ -22,29 +22,29 @@ It looks like a function app because, under the hood, it almost is one.
 <Step id="runtime" name="An extension of Functions">
 The Standard runtime uses the **Azure Functions extensibility model** and is **hosted as an extension on the Azure Functions runtime**.
 
-A Standard logic app holds many workflows in the same way a function app holds many functions. That's why so much of the Functions tooling and configuration carries over.
+A Standard logic app holds many workflows in the same way a function app holds many functions, and it inherits capabilities from the Azure Functions platform. That's why you see `host.json` and Core Tools in your project.
 </Step>
 
 <Step id="project" name="What's in the project">
 A Standard project has:
 
 - One **folder per workflow**, each with a `workflow.json` that holds the workflow's JSON definition.
-- `connections.json`: metadata, endpoints and keys for managed connections, Azure Functions and built-in service provider connections.
+- `connections.json`: metadata, endpoints and keys for the managed connections and Azure functions your workflows use.
 - `host.json`: runtime settings for all workflows in the app.
 - `local.settings.json`: app settings and connection strings for local runs. It can hold secrets, so keep it out of source control.
 - `Artifacts`: maps, schemas and rules.
 </Step>
 
 <Step id="settings" name="App settings vs host settings">
-**App settings** are environment settings for all workflows, such as `AzureWebJobsStorage` or `Workflows.RuntimeConfiguration.RetentionInDays`. Locally they live in `local.settings.json`, which **isn't deployed**, so in Azure you set them on the logic app under **Environment variables**.
+**App settings** are environment settings for all workflows, such as `AzureWebJobsStorage` or `Workflows.RuntimeConfiguration.RetentionInDays`. Locally they live in `local.settings.json`, which **isn't deployed**, so in Azure you manage them on the logic app under **Environment variables**.
 
-**Host settings** live in `host.json` and apply **both locally and in Azure**, for example `Runtime.Backend.FlowRunTimeout`. Change them in the portal and the app restarts.
+**Host settings** live in `host.json` and apply **both locally and in Azure**, for example `Runtime.Backend.FlowRunTimeout`. In Azure you edit `host.json` through **Advanced Tools (Kudu)**, then restart the logic app yourself from its Overview page.
 </Step>
 
 <Step id="bundle" name="The extension bundle">
-The workflow runtime and its built-in operations come in an **extension bundle**, referenced in `host.json` as `Microsoft.Azure.Functions.ExtensionBundle.Workflows` with a version range such as `[1.*, 2.0.0)`.
+A Standard project references an **extension bundle** in `host.json`: `Microsoft.Azure.Functions.ExtensionBundle.Workflows`, with a version range such as `[1.*, 2.0.0)`.
 
-If actions you expect are missing locally, an outdated cached bundle is a known cause. Delete the cached bundle folder and VS Code downloads it again.
+If built-in actions such as Azure Functions, Liquid or XML operations are missing in an older project, an outdated bundle is a known cause. Close VS Code, delete the old version folder under the `ExtensionBundles` cache, and VS Code updates the bundle to the latest version.
 </Step>
 
 <Step id="local" name="Run and debug locally">
@@ -54,29 +54,29 @@ You can set **breakpoints** in `workflow.json`, on actions but not on triggers. 
 </Step>
 
 <Step id="builtin" name="Built-in runs in-process">
-**Built-in connectors** run **in the same process** as the Logic Apps runtime, on your own instances. Some are also known as **service provider** connectors. **Managed connectors** run separately, in Azure.
+**Built-in connectors** run **in the same process** as the Logic Apps runtime. Some are also known as **service provider** connectors. **Managed connectors** are created and run separately, as Azure resources.
 
-That's one reason Standard has many built-in versions of connectors, and why built-in operations are included in the plan while managed connector calls are billed per call.
+Learn notes that built-in operations perform better because they run close to your workflows. They also cost nothing extra in Standard, while managed connector calls are billed per call.
 </Step>
 
 <Step id="custom" name="Write your own built-in connector" tag="TIP">
-Because the runtime uses the Functions extensibility model, you can write **custom built-in connectors** in .NET: add the `Microsoft.Azure.Workflows.WebJobs.Extension` package, implement `IServiceOperationsProvider`, and register it like a Functions extension.
+With the single-tenant extensibility framework, you can write **custom built-in connectors** in .NET: add the `Microsoft.Azure.Workflows.WebJobs.Extension` package, implement `IServiceOperationsProvider` (and `IServiceOperationsTriggerProvider` for triggers), and register it as a Functions extension.
 
-This needs a **NuGet-based** project, and converting to one is a **one-way** step. Custom **managed** connectors aren't supported in Standard.
+This needs a **NuGet-based** project, and converting to one is a **one-way** step. Custom **managed** connectors aren't currently supported in Standard.
 </Step>
 
 <Step id="code" name="Code inside a workflow" tag="TIP">
-For small pieces of logic you don't need a connector at all. Standard workflows can use **Inline Code** actions that run C# scripts or PowerShell, and can call custom **.NET functions** you add to the project.
+For small pieces of logic you don't need a connector at all. Standard workflows can run **JavaScript**, **C# script** and **PowerShell** snippets inline, and can call custom **.NET functions** that you author in the same project.
 
-Inline Code Operations no longer need an integration account, and need the Functions runtime version `~4`.
+Inline JavaScript in Standard doesn't need an integration account. Standard logic apps run on Azure Functions runtime version 4 (`~4`).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - The Standard runtime is an **extension on the Azure Functions runtime**: one app, many workflows.
 - A project has a folder with `workflow.json` per workflow, plus `connections.json`, `host.json` and `local.settings.json`.
 - **App settings** are environment settings, not deployed from `local.settings.json`. **Host settings** in `host.json` apply everywhere.
-- Built-in operations come from the **Workflows extension bundle** and run **in-process**.
-- Extend it with **custom built-in connectors**, **Inline Code** or **.NET functions**.
+- The project references the **Workflows extension bundle**; built-in operations run **in-process**.
+- Extend it with **custom built-in connectors**, inline **JavaScript, C# or PowerShell**, or **.NET functions**.
 </Step>
 
 {/*
@@ -86,6 +86,8 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-visual-studio-code
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-custom-built-in-connector-standard
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview (Inline Code C#/PowerShell, custom .NET functions)
-Not claimed: Azurite by name, parameters.json, Inline Code size and duration limits, the bundle versioning policy, the "Call a local function" action name. The ngrok mention follows Learn's local webhook guidance.
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-run-custom-code-functions
+- https://learn.microsoft.com/en-us/azure/logic-apps/add-run-javascript
+Fact-checked verbatim 2026-11-24.
+Not claimed: Azurite by name, parameters.json, inline code size and duration limits, the bundle versioning policy, that connections.json holds built-in service provider connections, that C#/PowerShell inline code needs no integration account (stated only for JavaScript). The ngrok mention follows Learn's local webhook guidance.
 */}

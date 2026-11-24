@@ -21,7 +21,7 @@ What does the plan do on its own, and what can you change?
 </Step>
 
 <Step id="tiers" name="Tiers and billing">
-A Workflow Service Plan comes in three tiers, chosen per instance:
+A Workflow Service Plan comes in three tiers, each with a fixed size:
 - **WS1**: 1 vCPU, 3.5 GB memory
 - **WS2**: 2 vCPU, 7 GB memory
 - **WS3**: 4 vCPU, 14 GB memory
@@ -30,12 +30,12 @@ You're billed for **reserved capacity** whether or not you use it. **Built-in op
 </Step>
 
 <Step id="scaler" name="What the scaler watches">
-Standard scales **dynamically**, on the same scaling infrastructure as Azure Functions. The scaler looks at two things:
+On a Workflow Service Plan, Standard scales **dynamically**, on the same scaling infrastructure as Azure Functions. (In an App Service Environment v3 it doesn't; you set scaling rules yourself.) The scaler looks at two things:
 
 - **The trigger.** For a Service Bus trigger, if the queue length keeps growing, it adds instances. For a Request trigger, it watches the latency trend.
 - **Job execution delay.** If workflow jobs wait too long to run, it adds instances.
 
-It makes these decisions about every **15–30 seconds**, within the minimum and maximum instance counts you configure.
+It typically makes these decisions about every **15–30 seconds**, within the minimum and maximum instance counts you configure.
 </Step>
 
 <Step id="rampup" name="Scaling out takes time" tag="PROBLEM">
@@ -47,14 +47,14 @@ That's the 9am problem. By the time the plan has scaled out, the rush is half ov
 <Step id="prewarm" name="Get ahead of the peak" tag="FIX">
 Two documented ways to handle a burst:
 
-- **Prewarmed instances.** Keep instances ready before the load arrives. If your peaks are predictable, like 9am on weekdays, an automation task can adjust them on a schedule.
+- **Prewarmed instances.** Keep instances ready before the load arrives. If your peaks are predictable, like 9am on weekdays, an automation task (currently in preview) can adjust them on a schedule.
 - **Share the workload across logic apps.** Each logic app scales independently, so splitting work across several apps lets them scale out in parallel.
 </Step>
 
 <Step id="storage" name="When storage is the limit">
-Sometimes the instances are fine and the **storage account** is the bottleneck. A storage account handles up to **2,000 requests per partition** and **20,000 requests per second**, and beyond that requests are throttled.
+Sometimes the instances are fine and the **storage account** is the bottleneck. A storage account handles up to **2,000 requests per partition** and **20,000 requests per second**, and beyond that requests can be throttled.
 
-Microsoft's guideline is about **100,000 action executions per minute per storage account**. A Standard logic app can use up to **32 storage accounts**, but you have to set that up **before** you create it. The storage account lesson covers how.
+For stateful workflows, Microsoft's guideline is about **100,000 action executions per minute per storage account**, or fewer if your actions are compute-heavy. A Standard logic app can use up to **32 storage accounts**, but you have to set that up **before** you create it. The storage account lesson covers how.
 </Step>
 
 <Step id="coldstart" name="More workflows, slower starts" tag="TIP">
@@ -64,7 +64,7 @@ Each workflow you add to a logic app increases its **cold start** time. Microsof
 <Step id="slots" name="Deploy without downtime">
 **Deployment slots** let you deploy a new version to a staging slot, then **swap** it with production without interruption.
 
-Some rules for Standard: non-production slots are **read-only**, workflows **only run in the production slot**, and traffic distribution is disabled, so blue-green and A/B testing aren't supported.
+Some rules for Standard: non-production slots are **read-only**, workflows **only run in the production slot**, traffic distribution is disabled, and blue-green deployment and A/B testing aren't supported.
 </Step>
 
 <Step id="zones" name="Zone redundancy" tag="TIP">
@@ -75,7 +75,7 @@ For resilience within a region, you can enable **zone redundancy**. For Standard
 - **WS1–WS3**: 1, 2 or 4 vCPU; pay for reserved capacity, built-in operations included, managed connector calls per call.
 - The scaler watches the **trigger** and **job delay**, about every 15–30 seconds.
 - Scaling out can take **25–50 minutes** for 1 to 100 instances: use **prewarmed instances** or split work across logic apps.
-- **Storage** throttles at 20,000 requests per second per account: plan extra storage accounts before you create the app.
+- **Storage** can throttle beyond 20,000 requests per second per account: plan extra storage accounts before you create the app.
 - **Deployment slots** swap without downtime; workflows run only in production. **Zone redundancy** is set at creation.
 </Step>
 
@@ -86,5 +86,6 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
 - https://learn.microsoft.com/en-us/azure/logic-apps/set-up-zone-redundancy-availability-zones
+Fact-checked verbatim 2026-11-24.
 Not claimed: maximum burst instance count, numbers for prewarmed or minimum instances, scaling between WS tiers, a recommended number of workflows per app, zone-redundancy pricing. The 9am scenario is illustrative.
 */}

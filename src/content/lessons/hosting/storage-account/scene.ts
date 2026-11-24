@@ -12,7 +12,7 @@ export const scene: Scene = {
     { id: 'queues', kind: 'servicebus', label: 'Queues', sublabel: 'scheduling', x: 360, y: 380 },
     { id: 'cu00', kind: 'storage', label: 'Storage CU00', sublabel: 'primary', x: 620, y: 170 },
     { id: 'cu01', kind: 'storage', label: 'Storage CU01', sublabel: 'scale unit', x: 620, y: 360 },
-    { id: 'clean', kind: 'condition', label: 'Cleanup', sublabel: 'every 7 days', x: 810, y: 100 },
+    { id: 'clean', kind: 'condition', label: 'Cleanup', sublabel: 'checks weekly', x: 810, y: 100 },
   ],
   edges: [
     { id: 'app-tables', from: 'app', to: 'tables' },
@@ -45,7 +45,7 @@ export const scene: Scene = {
       visible: [...parts, ...account],
       failed: ['cu00'],
       tokens: [{ id: 'l1', edge: 'tables-cu00', tone: 'fail' }, { id: 'l2', edge: 'blobs-cu00', tone: 'fail' }, { id: 'l3', edge: 'queues-cu00', tone: 'fail' }],
-      chips: [{ label: 'per partition', value: '2,000 req/s' }, { label: 'per account', value: '20,000 req/s', tone: 'fail' }],
+      chips: [{ label: 'per partition', value: '2,000 requests' }, { label: 'per account', value: '20,000 req/s', tone: 'fail' }],
     },
     spread: {
       visible: [...parts, ...account],
@@ -62,7 +62,7 @@ export const scene: Scene = {
       visible: [...parts, ...account, 'clean', 'clean-cu00'],
       highlight: ['clean', 'blobs'],
       tokens: [{ id: 'r1', edge: 'clean-cu00', tone: 'info' }],
-      chips: [{ label: 'retention', value: '90 days default' }, { label: 'range', value: '7–365 days' }, { label: 'oldest seen', value: 'up to 97 days' }],
+      chips: [{ label: 'retention', value: '90 days default' }, { label: 'range', value: '7–365 days' }, { label: 'might see', value: 'up to 97 days' }],
     },
     billing: {
       visible: [...parts, ...account],

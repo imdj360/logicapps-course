@@ -27,7 +27,7 @@ A hybrid deployment needs three things in the **same network**:
 - A **SQL database**, which stores run history, inputs and outputs.
 - An **SMB file share**, which stores artifacts such as maps, schemas and assemblies.
 
-The SQL database can be SQL Server, Azure SQL Database or Azure SQL Managed Instance.
+The SQL database can be SQL Server, Azure SQL Database, Azure SQL Managed Instance or SQL Server enabled by Azure Arc.
 </Step>
 
 <Step id="where" name="Where it can run">
@@ -39,7 +39,7 @@ The Azure side is currently available in a limited set of regions, including **W
 <Step id="deploy" name="Deploying">
 In the Azure portal or VS Code, you choose the **Hybrid** hosting plan and point it at your connected environment, the SQL connection string and the SMB share.
 
-To deploy, Microsoft recommends **zip deployment** over SMB deployment, which is prone to 409 conflicts. Zip deployment needs a Microsoft Entra **app registration**. Both options depend on Azure management services.
+To deploy, **zip deployment** is the more stable and reliable option; Microsoft notes that SMB deployment is prone to 409 conflicts. Zip deployment needs a Microsoft Entra **app registration**. If you can't create one, SMB deployment still works. Both options depend on Azure management services.
 </Step>
 
 <Step id="scaling" name="Replicas, not instances">
@@ -53,7 +53,7 @@ You're responsible for your **Kubernetes infrastructure** and your **SQL Server 
 </Step>
 
 <Step id="auth" name="Connections need an app registration" tag="PROBLEM">
-Managed API connections in hybrid **don't support managed identity**. You create your own **Microsoft Entra app registration** and give the logic app its details through the `WORKFLOWAPP_AAD_CLIENTID`, `WORKFLOWAPP_AAD_OBJECTID`, `WORKFLOWAPP_AAD_TENANTID` and `WORKFLOWAPP_AAD_CLIENTSECRET` settings.
+Managed API connections in hybrid **don't support managed identity**. You create your own **Microsoft Entra app registration** and give the logic app its details through the `WORKFLOWAPP_AAD_CLIENTID`, `WORKFLOWAPP_AAD_OBJECTID` and `WORKFLOWAPP_AAD_TENANTID` environment variables, with the client secret stored as a secret and referenced from `WORKFLOWAPP_AAD_CLIENTSECRET`.
 
 This model needs connectivity to Microsoft Entra ID.
 </Step>
@@ -61,20 +61,20 @@ This model needs connectivity to Microsoft Entra ID.
 <Step id="offline" name="When the link to Azure drops">
 Hybrid isn't an air-gapped setup. It needs outbound connectivity for Azure Arc, Azure management and any managed connectors.
 
-When the connection drops, the local runtime and workflows that use **only local dependencies** keep running. Managed connectors stop, because they run in Azure. The runtime keeps logging data for up to **24 hours**; beyond that you might lose it.
+When the connection drops, the local runtime and workflows that use **only local dependencies** keep running. Managed connector operations need their Azure-hosted services, so they might be unavailable. The runtime can keep logging data for up to **24 hours**; beyond that you might lose it.
 </Step>
 
 <Step id="limits" name="What doesn't come along" tag="TIP">
 Some Standard features aren't available in hybrid: **deployment slots**, **business process tracking**, **resource health** in the portal, and **managed identity** for connector operations.
 
-And function-based triggers such as Blob, Cosmos DB or Event Hubs still need an `AzureWebJobsStorage` connection string to an Azure storage account.
+And some function-based triggers, such as Blob, Cosmos DB or Event Hubs, need an `AzureWebJobsStorage` app setting with the connection string of the logic app's Azure storage account.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Hybrid runs the Standard runtime in a **Container Apps extension** on **Arc-enabled Kubernetes**, with a **SQL database** and an **SMB share**.
 - It scales with **KEDA replicas** and bills **vCPU usage**; you run the cluster and SQL yourself.
 - Managed connections use an **Entra app registration**, not managed identity.
-- Local-only workflows keep running offline; logs are kept for **24 hours**.
+- Workflows with only local dependencies can keep running offline; logs can be kept for up to **24 hours**.
 - No deployment slots, business process tracking or managed identity for connectors.
 </Step>
 
@@ -84,6 +84,7 @@ Sources (checked 2026-11-24):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-hybrid-deployment
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+Fact-checked verbatim 2026-11-24 (raw page text).
 Full region list on Learn: Australia East, East Asia, East US, North Central US, Southeast Asia, Sweden Central, UK South, West Europe, West US.
 Not claimed: whether built-in operations are free in hybrid (Learn says so for Standard but not explicitly for hybrid), the hourly vCPU rate (Learn's $0.22 is an example only), hybrid GA date. The plant scenario is illustrative.
 */}

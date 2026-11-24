@@ -45,12 +45,12 @@ export const scene: Scene = {
       visible: [...local, 'dev', 'dev-rt'],
       highlight: ['dev', 'dev-rt'],
       tokens: [{ id: 'd1', edge: 'dev-rt', tone: 'ok' }],
-      chips: [{ label: 'hosting plan', value: 'Hybrid' }, { label: 'recommended', value: 'zip deploy', tone: 'ok' }, { label: 'needs', value: 'app registration' }],
+      chips: [{ label: 'hosting plan', value: 'Hybrid' }, { label: 'more stable', value: 'zip deploy', tone: 'ok' }, { label: 'zip deploy needs', value: 'app registration' }],
     },
     scaling: {
       visible: [...local],
       highlight: ['rt'],
-      chips: [{ label: 'scaler', value: 'KEDA' }, { label: 'replicas', value: '1–30 default' }, { label: 'per replica', value: '0.25–2 vCPU' }],
+      chips: [{ label: 'scaler', value: 'KEDA' }, { label: 'replicas (default)', value: 'min 1 · max 30' }, { label: 'per replica', value: '0.25–2 vCPU' }],
     },
     billing: {
       visible: [...local, 'conn', 'rt-conn'],
@@ -68,7 +68,7 @@ export const scene: Scene = {
       failed: ['conn', 'arc'],
       highlight: ['rt-plant'],
       tokens: [{ id: 'o1', edge: 'rt-plant', tone: 'ok' }, { id: 'o2', edge: 'rt-conn', tone: 'fail' }],
-      chips: [{ label: 'local workflows', value: 'keep running', tone: 'ok' }, { label: 'managed connectors', value: 'stop', tone: 'fail' }, { label: 'logs kept', value: '24 hours', tone: 'warn' }],
+      chips: [{ label: 'local-only workflows', value: 'keep running', tone: 'ok' }, { label: 'managed connectors', value: 'may be unavailable', tone: 'fail' }, { label: 'logs kept', value: 'up to 24 hours', tone: 'warn' }],
     },
     limits: {
       visible: [...local],

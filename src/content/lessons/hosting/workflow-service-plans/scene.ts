@@ -7,7 +7,7 @@ export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'queue', kind: 'servicebus', label: 'Orders queue', sublabel: 'length grows', x: 110, y: 110 },
-    { id: 'scaler', kind: 'condition', label: 'Scaler', sublabel: 'every 15–30 s', x: 110, y: 330 },
+    { id: 'scaler', kind: 'condition', label: 'Scaler', sublabel: '~15–30 s', x: 110, y: 330 },
     { id: 'w1', kind: 'hosting-plan', label: 'Instance 1', sublabel: 'WS2', x: 370, y: 110 },
     { id: 'w2', kind: 'hosting-plan', label: 'Instance 2', sublabel: 'added', x: 370, y: 240 },
     { id: 'w3', kind: 'hosting-plan', label: 'Instance 3', sublabel: 'prewarmed', x: 370, y: 370 },
@@ -45,13 +45,13 @@ export const scene: Scene = {
       visible: [...base, 'scaler', 'scaler-queue', 'scaler-w2', 'w2', 'queue-w2'],
       highlight: ['scaler', 'scaler-queue', 'w2'],
       tokens: [{ id: 's1', edge: 'scaler-queue', tone: 'info' }, { id: 's2', edge: 'scaler-w2', tone: 'ok' }],
-      chips: [{ label: 'watches', value: 'trigger · job delay' }, { label: 'decides', value: 'every 15–30 s' }],
+      chips: [{ label: 'watches', value: 'trigger · job delay' }, { label: 'decides', value: 'about every 15–30 s' }],
     },
     rampup: {
       visible: [...base, ...scaled, 'scaler', 'scaler-w2'],
       highlight: ['w2', 'w3'],
       tokens: [{ id: 'r1', edge: 'queue-w1', tone: 'info' }],
-      chips: [{ label: '1 → 100 instances', value: '25–50 min', tone: 'warn' }, { label: 'queue', value: 'still growing', tone: 'warn' }],
+      chips: [{ label: '1 → 100 instances', value: 'might take 25–50 min', tone: 'warn' }, { label: 'queue', value: 'still growing', tone: 'warn' }],
     },
     prewarm: {
       visible: [...base, ...scaled],
