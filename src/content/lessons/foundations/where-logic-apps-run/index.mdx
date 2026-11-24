@@ -12,6 +12,8 @@ youWillLearn:
   - What every Standard logic app depends on behind the scenes
   - Where Consumption still fits
 learnLinks:
+  - title: "Deploy Standard logic apps to Azure storage that use private endpoints"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account
   - title: "What is Azure Logic Apps?"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
   - title: "Differences between Standard and Consumption logic apps"
@@ -30,8 +32,7 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/set-up-devops-deployment-single-tenant-azure-logic-apps
   - title: "What are AI Agentic Workflows?"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
-reviewStatus: approved
-lastVerified: '2026-11-24'
+reviewStatus: draft
 ---
 
 <Step id="problem" name="Build once, choose where it runs" tag="PROBLEM">
@@ -74,13 +75,15 @@ That answers Security, without leaving the Workflow Service Plan.
 <Step id="ase" name="App Service Environment v3">
 When you need **full isolation**, Standard can run in an **App Service Environment v3** on an **Isolated v2** App Service plan (Windows only). The environment is dedicated to you and your logic apps inherit its network setup.
 
+The app still needs its **storage account**, but that can be closed to the internet too: with **private endpoints** (Private Link) on the storage account, only resources inside your virtual network can reach it. The ASE's subnet needs connectivity to the storage account's subnet.
+
 <Callout title="Watch out">There's no dynamic scaling here. You define autoscale rules on the App Service plan yourself. ASE v1 and v2 are no longer supported for Standard logic apps.</Callout>
 </Step>
 
 <Step id="hybrid" name="Hybrid: your own datacenter">
 For the plant manager: the **hybrid deployment model** runs the Standard runtime in an **Azure Container Apps extension** on an **Azure Arc-enabled Kubernetes** cluster, on-premises, in a private cloud or another public cloud.
 
-Instead of Azure Storage, run history, inputs and outputs go to a **SQL database** (SQL Server, Azure SQL Database or Azure SQL Managed Instance), and an **SMB file share** holds artifacts such as maps and schemas.
+Instead of Azure Storage, run history, inputs and outputs go to a **SQL database** (SQL Server, Azure SQL Database or Azure SQL Managed Instance), and an **SMB file share** holds artifacts such as maps and schemas. Both sit next to the cluster, so processing, data and network access stay local: Microsoft describes it for **partially connected environments**.
 
 <Callout title="Watch out">This is where "build once" has caveats. You run the Kubernetes cluster, SQL database and file share yourself. Some features aren't available, such as deployment slots, and managed API connections need an Entra app registration instead of a managed identity. Check the current limitations before you choose it.</Callout>
 </Step>
@@ -108,6 +111,7 @@ It's a different model from Standard, not another home for the same project. Sta
 
 {/*
 Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account (storage behind private endpoints; ASE subnet connectivity)
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
 - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing
