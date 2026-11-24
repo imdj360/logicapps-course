@@ -42,7 +42,7 @@ The workflow starts with the **peek-lock** trigger, initializes the session from
 </Step>
 
 <Step id="locks" name="Keep the lock alive">
-A session can take a while to process. In Learn's design, a **parallel branch** runs an **Until** loop that calls **Renew lock** with a delay shorter than the lock timeout; the minimum lock duration is **30 seconds**.
+A session can take a while to process. In Learn's design, a **parallel branch** runs an **Until** loop that calls **Renew lock** with a delay shorter than the lock timeout; Learn's convoy page gives a minimum lock duration of **30 seconds**; Service Bus itself defaults to **1 minute**. The action is **Renew lock on a message in a queue**.
 
 If processing fails, **Abandon** unlocks the message and puts it back for another attempt.
 </Step>

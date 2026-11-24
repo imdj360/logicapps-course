@@ -52,7 +52,7 @@ export const scene: Scene = {
     storage: {
       visible: [...core, 'storage', 'app-storage'],
       highlight: ['storage'],
-      chips: [{ label: 'storage', value: '20,000 req/s per account' }, { label: 'spread', value: 'workflows · logic apps' }],
+      chips: [{ label: 'storage', value: '20,000 req/s per account' }, { label: 'spread', value: 'workflows · accounts' }],
     },
     sizes: {
       visible: [...core],

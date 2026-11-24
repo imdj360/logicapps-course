@@ -17,7 +17,7 @@ export const scene: Scene = {
     { id: 'mcp-w1', from: 'mcp', to: 'w1' },
     { id: 'mcp-w2', from: 'mcp', to: 'w2' },
     { id: 'auth-mcp', from: 'auth', to: 'mcp', style: 'dashed' },
-    { id: 'foundry-mcp', from: 'foundry', to: 'mcp', style: 'dashed' },
+    { id: 'foundry-w2', from: 'foundry', to: 'w2', style: 'dashed' },
   ],
   steps: {
     problem: {
@@ -57,13 +57,13 @@ export const scene: Scene = {
       chips: [{ label: 'API Center', value: 'one managed connector' }, { label: 'status', value: 'preview', tone: 'warn' }],
     },
     foundry: {
-      visible: [...core, 'foundry', 'foundry-mcp'],
-      highlight: ['foundry', 'foundry-mcp'],
-      tokens: [{ id: 'f1', edge: 'foundry-mcp', tone: 'info' }],
+      visible: [...core, 'foundry', 'foundry-w2'],
+      highlight: ['foundry', 'foundry-w2'],
+      tokens: [{ id: 'f1', edge: 'foundry-w2', tone: 'info' }],
       chips: [{ label: 'Foundry', value: 'model · guardrails' }, { label: 'Logic Apps', value: 'automation layer' }],
     },
     recap: {
-      visible: [...core, 'auth', 'foundry', 'auth-mcp', 'foundry-mcp'],
+      visible: [...core, 'auth', 'foundry', 'auth-mcp', 'foundry-w2'],
       chips: [{ label: 'reuse', value: 'workflows as tools' }],
     },
   },

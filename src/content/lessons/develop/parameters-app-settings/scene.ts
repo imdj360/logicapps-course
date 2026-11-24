@@ -34,13 +34,13 @@ export const scene: Scene = {
       visible: core,
       highlight: ['params', 'wf-params'],
       tokens: [{ id: 'p1', edge: 'wf-params', tone: 'info' }],
-      chips: [{ label: 'syntax', value: '@parameters(name)' }, { label: 'entry', value: 'type + value' }],
+      chips: [{ label: 'syntax', value: "@parameters('name')" }, { label: 'entry', value: 'type + value' }],
     },
     appsetting: {
       visible: [...core, 'settings', 'wf-settings', 'params-settings'],
       highlight: ['params-settings', 'settings'],
       tokens: [{ id: 'a1', edge: 'params-settings', tone: 'info' }],
-      chips: [{ label: 'syntax', value: '@appsetting(name)' }, { label: 'in parameters.json', value: 'only valid type' }],
+      chips: [{ label: 'syntax', value: "@appsetting('name')" }, { label: 'in parameters.json', value: 'only valid type' }],
     },
     choose: {
       visible: [...core, 'settings', 'wf-settings', 'params-settings'],

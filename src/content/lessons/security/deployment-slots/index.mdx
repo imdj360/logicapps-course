@@ -74,7 +74,7 @@ Learn notes that **swap with preview** works only with logic apps that enabled d
 <Step id="settings" name="Settings and storage">
 Settings can be marked **Deployment slot setting**. The Azure Functions article says a sticky setting **doesn't swap** with the app instance.
 
-If the storage account is **private**, create the file share named in `WEBSITE_CONTENTSHARE` yourself, and add `WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS` with value `0` on each slot. For Terraform with a storage account secured by a firewall and private endpoints, Learn says to use a Bicep or ARM template to set up the slots and also set `AzureFunctionsWebHost_hostid` to a unique value.
+If the storage account is **private**, create the file share named in `WEBSITE_CONTENTSHARE` yourself, and add `WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS` with value `0` on each slot. For Terraform with a storage account secured by a firewall and private endpoints, Learn says to use a Bicep or ARM template to set up the slots and also set the host ID to a unique value. The Azure Functions settings reference names it `AzureFunctionsWebHost__hostid` (two underscores, the separator for nested settings); Learn's slots page shows it with one underscore.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

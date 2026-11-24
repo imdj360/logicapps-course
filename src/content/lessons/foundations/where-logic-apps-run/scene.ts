@@ -13,7 +13,7 @@ export const scene: Scene = {
     { id: 'storage', kind: 'storage', label: 'Azure Storage', sublabel: 'state · history', x: 110, y: 410 },
     { id: 'func', kind: 'hosting-plan', label: 'Functions host', sublabel: 'runtime', x: 300, y: 410 },
     { id: 'vnet', kind: 'keyvault', label: 'Private VNet', sublabel: 'private access', x: 530, y: 410 },
-    { id: 'sql', kind: 'storage', label: 'SQL Server', sublabel: 'state · history', x: 760, y: 410 },
+    { id: 'sql', kind: 'storage', label: 'SQL database', sublabel: 'state · history', x: 760, y: 410 },
   ],
   edges: [
     { id: 'p-ws', from: 'project', to: 'ws' },

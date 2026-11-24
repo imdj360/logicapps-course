@@ -75,7 +75,7 @@ To use a Data Mapper map from a workflow in the portal, the map must be added to
 <Step id="code" name="Calling .NET code from a map" tag="TIP">
 Some logic is easier in code than in XSLT. Maps can call **custom .NET assemblies**: the map declares the assembly and namespace in an `msxsl:script` block, and calls its methods.
 
-In Standard, add the assembly under **Artifacts** > **Assemblies** in the portal, or to your project's `lib/custom` folder. Standard supports .NET Framework and .NET 8 custom assemblies.
+In Standard, add the assembly under **Artifacts** > **Assemblies** in the portal, or to your project's `lib/custom` folder (Learn's custom code page uses a `net472` or `net8` subfolder there, by .NET version). Standard supports .NET Framework and .NET 8 custom assemblies.
 </Step>
 
 <Step id="validate" name="Validate before you transform" tag="TIP">
