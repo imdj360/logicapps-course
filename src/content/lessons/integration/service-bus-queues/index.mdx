@@ -1,0 +1,79 @@
+---
+title: Service Bus & queues
+module: integration
+order: 3
+minutes: 11
+level: Intermediate
+summary: Orders arrive in bursts and the ERP takes them at its own pace. Put a Service Bus queue in between, and learn how Standard reads, settles and orders its messages.
+youWillLearn:
+  - Why the built-in Service Bus connector is usually the better choice in Standard
+  - How auto-complete and peek-lock triggers settle messages
+  - How sessions keep related messages in order
+  - Where failed messages go, and how to read them
+reviewStatus: draft
+---
+
+<Step id="problem" name="Bursts in, steady out" tag="PROBLEM">
+Orders arrive in bursts: hundreds in a minute after a promotion, then nothing for an hour. The ERP can only take them at its own steady pace.
+
+A common answer, and the one this lesson uses, is a **Service Bus queue** between them: the shop puts orders on the queue, and a workflow takes them off as fast as the ERP allows.
+</Step>
+
+<Step id="connectors" name="Built-in or managed">
+Standard has two Service Bus connectors. The **built-in** one, under **Built-in**, is service provider based and available only in Standard. The **managed** one is under **Shared**.
+
+Microsoft says the built-in connector generally provides better performance, capabilities and pricing. It also handles **large messages**, while the managed connector is limited to **1 MB** per message, even on a premium namespace.
+</Step>
+
+<Step id="trigger" name="The queue trigger">
+The built-in trigger **When messages are available in a queue** can return **one or more** messages per run.
+
+By default it **auto-completes**: in a stateful workflow, once the trigger's output is saved, the message is completed and removed from the queue. If that fails, the message is abandoned and becomes available again. In a stateless workflow, the decision is made only after the run completes.
+</Step>
+
+<Step id="peeklock" name="Peek-lock: you decide">
+With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it with **Complete**, **Abandon** or **Dead-letter**, using the message's lock token.
+
+The lock doesn't last forever. Make sure runs don't take longer than the lock, or use **Renew lock on a message in queue**.
+</Step>
+
+<Step id="sessions" name="In order: sessions">
+When related messages must be processed **in order**, such as all updates for one order, give them the same **session ID** and use a session-enabled queue. Microsoft calls this the **sequential convoy** pattern.
+
+On the built-in trigger, set **IsSessionsEnabled** to **Yes**. Session actions let you get messages from a session, complete or abandon them, and renew or close the session. The connector caches up to **1,500 sessions** per queue or subscription.
+</Step>
+
+<Step id="deadletter" name="The dead-letter queue">
+Messages that can't be processed end up in the queue's **dead-letter queue**, either because your workflow used **Dead-letter** or because Service Bus moved them there.
+
+To read them, point a built-in queue trigger at `your-queue/$deadletterqueue`. That gives you a second workflow to alert, repair or resubmit.
+</Step>
+
+<Step id="concurrency" name="Concurrency and batches" tag="TIP">
+If the trigger returns batches and you set **trigger concurrency**, keep the concurrent runs **larger than the batch size**. With concurrency on, there's a **30-second** delay between batch reads by default.
+
+<Callout title="Watch out">On the older **(V1)** queue trigger, enabling concurrency and sending 100 or more messages sends **all** messages to the dead-letter queue.</Callout>
+</Step>
+
+<Step id="auth" name="Connecting">
+The built-in connector authenticates with a **connection string**, **Microsoft Entra ID (OAuth)** or a **managed identity**. Use a connection string for the **namespace**: if it contains `EntityPath`, it's for a single queue and isn't the right one.
+
+And avoid an infinite loop: a trigger and an action that use the **same queue** can feed each other forever.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Prefer the **built-in** Service Bus connector in Standard: better performance, and messages over 1 MB.
+- The default trigger **auto-completes**; **peek-lock** lets you Complete, Abandon or Dead-letter.
+- **Sessions** keep related messages in order (sequential convoy).
+- Read failures from `queue/$deadletterqueue`.
+- Keep concurrency above the batch size, and use a namespace-level connection.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+- https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Not claimed: why to use a queue (decoupling, load levelling): Learn's Logic Apps pages don't say it, so the problem step presents it as our choice. Not claimed: default lock duration, automatic lock renewal, receive-and-delete mode, retry or max delivery count, target-based scaling. Learn has two conflicting descriptions of how built-in non-session triggers poll; we don't describe the mechanism.
+*/}

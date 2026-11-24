@@ -23,6 +23,7 @@ export const MODULES: ModuleDef[] = [
   ] },
   { id: 'building', number: '03', title: 'Building flows', lessons: [
     l('connectors', 'Connectors: built-in vs managed'),
+    l('jdbc-databases', 'Databases over JDBC'),
     l('expressions', 'Expressions'),
     l('inline-code', 'Inline code and .NET functions'),
     l('control-flow', 'Control flow'),

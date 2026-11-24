@@ -1,0 +1,84 @@
+---
+title: Request/response vs async polling
+module: integration
+order: 6
+minutes: 10
+level: Intermediate
+summary: Someone is waiting for an answer, and the work takes longer than they can wait. See how Logic Apps answers synchronously, asynchronously, and how it polls slow APIs for you.
+youWillLearn:
+  - How long a caller can wait for a Response, and what happens after
+  - How to answer immediately and finish the work later
+  - How HTTP actions poll a slow API with 202 and a location header
+  - When a webhook beats polling
+reviewStatus: draft
+---
+
+<Step id="problem" name="Someone is waiting" tag="PROBLEM">
+The website calls your workflow to place an order and waits for an answer. Your workflow, in turn, calls a partner API that can take minutes to confirm.
+
+Two questions follow: how long can the website wait for you, and how long can you wait for the partner?
+</Step>
+
+<Step id="sync" name="Request and Response">
+A **Request** trigger with a **Response** action is the **request-response** pattern: the caller waits until your workflow sends the Response.
+
+The workflow keeps the inbound request open only for a limited time: **225 seconds** in Standard (120 in Consumption). If no Response is sent by then, the caller gets **504 Gateway Timeout**. If every Response action is skipped, the caller gets **502 Bad Gateway**, even if the run succeeds.
+</Step>
+
+<Step id="asyncin" name="Answer now, work later">
+Turn on the Response action's **Asynchronous response** setting, or leave out the Response action, and the workflow immediately returns **202 Accepted**. It can then take as long as it needs.
+
+The caller then needs another way to learn the outcome, for example a callback or a status it can check. Learn doesn't prescribe one.
+</Step>
+
+<Step id="outbound" name="Calling a slow API">
+Now the other side. In a **stateful** workflow, HTTP actions follow the **asynchronous pattern** by default. If the API answers **202 Accepted** with a **location** header, the action **polls** that URL until it gets a response other than 202, then continues.
+
+The HTTP action's **Asynchronous pattern** setting, under **Networking**, is on by default. The API can slow the polling down with a **Retry-After** header.
+</Step>
+
+<Step id="build" name="Building a pollable API" tag="TIP">
+If you build the API yourself, follow the pattern: answer **202 Accepted** with a **location** header (required) and optionally **Retry-After**. While the job runs, keep answering 202 at that location; when it's done, answer **200 OK** with the result.
+
+By default, Logic Apps polls the location after **one second**.
+</Step>
+
+<Step id="nolocation" name="202 without a location" tag="PROBLEM">
+Some APIs answer 202 with no location header to poll. For those, turn **off** the HTTP action's Asynchronous pattern setting, so the action doesn't keep checking for a status that never comes.
+</Step>
+
+<Step id="stateless" name="Stateless doesn't poll">
+In a **stateless** workflow, HTTP actions don't use the asynchronous pattern. They run synchronously, return the **202 as-is**, and move on: a location header isn't polled.
+
+If you need polling, use a stateful workflow.
+</Step>
+
+<Step id="webhook" name="Webhooks instead of polling">
+Polling means asking "done yet?" over and over. A **webhook** turns it around: the **HTTP Webhook** action calls the service's **subscribe** endpoint with a **callback URL**, and the workflow **pauses** until the service posts to that URL. Then it unsubscribes.
+
+It needs a service that supports subscribe and unsubscribe, but nothing polls in the meantime.
+</Step>
+
+<Step id="timeouts" name="Timeouts to know" tag="TIP">
+- An outbound HTTP request in Standard times out after **225 seconds** by default; change it per action under **Request options**, or in host settings.
+- For longer operations, Microsoft suggests the **asynchronous polling** pattern or an **Until** loop.
+- A stateful run can last **90 days** by default; a stateless one **5 minutes**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Request + Response** is synchronous: up to **225 s** in Standard, then **504**.
+- **Asynchronous response** (or no Response) returns **202** at once.
+- Stateful **HTTP** actions poll a **202 + location** API until it's done; respect **Retry-After**.
+- **Stateless** workflows don't poll.
+- **HTTP Webhook** waits for a callback instead of polling.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-create-api-app
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Not claimed: a location header on the 202 from an asynchronous Response action (Learn doesn't say it includes one), any 230-second figure (Learn says 225). The website/partner scenario is ours.
+*/}
