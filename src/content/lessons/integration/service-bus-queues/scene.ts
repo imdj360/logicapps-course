@@ -47,12 +47,12 @@ export const scene: Scene = {
       visible: [...flow, 'settle', 'trig-settle'],
       highlight: ['settle', 'trig-settle'],
       tokens: [{ id: 'k1', edge: 'trig-settle', tone: 'ok' }],
-      chips: [{ label: 'message', value: 'locked' }, { label: 'settle with', value: 'Complete · Abandon · Dead-letter' }, { label: 'long runs', value: 'Renew lock', tone: 'warn' }],
+      chips: [{ label: 'message', value: 'locked' }, { label: 'settle with', value: 'Complete · Abandon · Dead-letter …' }, { label: 'long runs', value: 'Renew lock', tone: 'warn' }],
     },
     sessions: {
       visible: [...flow],
       highlight: ['queue', 'trig'],
-      chips: [{ label: 'pattern', value: 'sequential convoy' }, { label: 'trigger', value: 'IsSessionsEnabled' }, { label: 'cache', value: '1,500 sessions' }],
+      chips: [{ label: 'pattern', value: 'sequential convoy' }, { label: 'trigger', value: 'IsSessionsEnabled' }, { label: 'cache', value: '1,500 sessions per entity' }],
     },
     deadletter: {
       visible: [...flow, 'dlq', 'dlqtrig', 'queue-dlq', 'dlq-dlqtrig'],
@@ -63,7 +63,7 @@ export const scene: Scene = {
     concurrency: {
       visible: [...flow],
       highlight: ['trig'],
-      chips: [{ label: 'concurrent runs', value: '> batch size' }, { label: 'between reads', value: '30 s default' }, { label: 'V1 + concurrency', value: 'risk: all dead-lettered', tone: 'fail' }],
+      chips: [{ label: 'concurrent runs', value: '> batch size' }, { label: 'between reads', value: '30 s default' }, { label: 'V1 + concurrency + 100 msgs', value: 'all dead-lettered', tone: 'fail' }],
     },
     auth: {
       visible: [...flow],

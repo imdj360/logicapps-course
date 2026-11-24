@@ -28,23 +28,23 @@ Microsoft says the built-in connector generally provides better performance, cap
 <Step id="trigger" name="The queue trigger">
 The built-in trigger **When messages are available in a queue** can return **one or more** messages per run.
 
-By default it **auto-completes**: in a stateful workflow, once the trigger's output is saved, the message is completed and removed from the queue. If that fails, the message is abandoned and becomes available again. In a stateless workflow, the decision is made only after the run completes.
+By default it **auto-completes**: in a stateful workflow, once the trigger's output is saved, the trigger completes the message. If a failure happens, it abandons the message. In a stateless workflow, the decision is made only after the run completes.
 </Step>
 
 <Step id="peeklock" name="Peek-lock: you decide">
-With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it with **Complete**, **Abandon** or **Dead-letter**, using the message's lock token.
+With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it, for example with **Complete**, **Abandon** or **Dead-letter** (there's also Defer), using the message's lock token.
 
-The lock doesn't last forever. Make sure runs don't take longer than the lock, or use **Renew lock on a message in queue**.
+The lock doesn't last forever. Our advice: keep runs shorter than the lock (Microsoft warns that runs shouldn't wait longer than the lock timeout), or use **Renew lock on a message in queue**.
 </Step>
 
 <Step id="sessions" name="In order: sessions">
 When related messages must be processed **in order**, such as all updates for one order, give them the same **session ID** and use a session-enabled queue. Microsoft calls this the **sequential convoy** pattern.
 
-On the built-in trigger, set **IsSessionsEnabled** to **Yes**. Session actions let you get messages from a session, complete or abandon them, and renew or close the session. The connector caches up to **1,500 sessions** per queue or subscription.
+On the built-in trigger, set **IsSessionsEnabled** to **Yes**. Session actions let you get messages from a session, complete or abandon them, and renew or close the session. The connector caches up to **1,500 sessions** per messaging entity.
 </Step>
 
 <Step id="deadletter" name="The dead-letter queue">
-Messages that can't be processed end up in the queue's **dead-letter queue**, either because your workflow used **Dead-letter** or because Service Bus moved them there.
+Messages can be moved to the queue's **dead-letter queue**, for example by your workflow's **Dead-letter** action.
 
 To read them, point a built-in queue trigger at `your-queue/$deadletterqueue`. That gives you a second workflow to alert, repair or resubmit.
 </Step>
@@ -52,17 +52,17 @@ To read them, point a built-in queue trigger at `your-queue/$deadletterqueue`. T
 <Step id="concurrency" name="Concurrency and batches" tag="TIP">
 If the trigger returns batches and you set **trigger concurrency**, keep the concurrent runs **larger than the batch size**. With concurrency on, there's a **30-second** delay between batch reads by default.
 
-<Callout title="Watch out">On the older **(V1)** queue trigger, enabling concurrency and sending 100 or more messages sends **all** messages to the dead-letter queue.</Callout>
+<Callout title="Watch out">On the **(V1)** queue trigger, enabling concurrency and sending 100 or more messages sends **all** messages to the dead-letter queue.</Callout>
 </Step>
 
 <Step id="auth" name="Connecting">
-The built-in connector authenticates with a **connection string**, **Microsoft Entra ID (OAuth)** or a **managed identity**. Use a connection string for the **namespace**: if it contains `EntityPath`, it's for a single queue and isn't the right one.
+The built-in connector authenticates with a **connection string**, **Microsoft Entra ID (OAuth)** or a **managed identity**. Use a connection string for the **namespace**: if it contains `EntityPath`, it's for a specific entity and isn't the right one.
 
 And avoid an infinite loop: a trigger and an action that use the **same queue** can feed each other forever.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Prefer the **built-in** Service Bus connector in Standard: better performance, and messages over 1 MB.
+- Prefer the **built-in** Service Bus connector in Standard: better performance, and large messages (managed caps at 1 MB).
 - The default trigger **auto-completes**; **peek-lock** lets you Complete, Abandon or Dead-letter.
 - **Sessions** keep related messages in order (sequential convoy).
 - Read failures from `queue/$deadletterqueue`.
@@ -75,5 +75,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 Not claimed: why to use a queue (decoupling, load levelling): Learn's Logic Apps pages don't say it, so the problem step presents it as our choice. Not claimed: default lock duration, automatic lock renewal, receive-and-delete mode, retry or max delivery count, target-based scaling. Learn has two conflicting descriptions of how built-in non-session triggers poll; we don't describe the mechanism.
 */}

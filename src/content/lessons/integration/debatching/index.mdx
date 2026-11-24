@@ -14,7 +14,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="500 orders, one request" tag="PROBLEM">
-A partner sends a single request with an array of 500 orders. A **For each** loop would process them all in **one run**: one long run history to read, and one run that ends up Failed if a single order fails.
+A partner sends a single request with an array of 500 orders. A **For each** loop would process them all in **one run**, which can take a long time. Our other concern: one long run history to read, and a single failed order can fail the whole run.
 
 There's another option: give **each order its own run**.
 </Step>
@@ -36,9 +36,7 @@ If a trigger's Swagger describes an array payload, `splitOn` is added automatica
 </Step>
 
 <Step id="scope" name="Only the item is in scope" tag="PROBLEM">
-In each split run, the trigger output is **one item**. You can't directly reference properties that sit **outside the array**, such as a batch header next to `orders`.
-
-To avoid failures when a property may be missing, use the `?` operator.
+With Split on, you can't directly reference properties that sit **outside the array**, such as a batch header next to `orders`. To avoid failures, Microsoft says to put the `?` operator before such references.
 </Step>
 
 <Step id="response" name="No synchronous reply">
@@ -48,13 +46,13 @@ So the partner gets one 202 for the whole request, not a result per order.
 </Step>
 
 <Step id="limits" name="Limits">
-Split on handles up to **100,000 items** per request. If you turn on **trigger concurrency**, that limit drops to **100 items**, and beyond it Split on isn't available.
+Split on handles up to **100,000 items** in a single trigger event. If you turn on **trigger concurrency**, that limit drops to **100 items**, and beyond it Split on isn't available.
 
 Remember that turning trigger concurrency on can't be undone for that trigger.
 </Step>
 
 <Step id="vs" name="Split on or For each?" tag="TIP">
-Microsoft notes that a For each loop can take too long, and suggests splitting on the trigger, or parallel branches, to speed things up.
+Microsoft notes that a For each loop can sometimes take too long, and suggests splitting on the trigger, or parallel branches, to speed things up.
 
 Our rule of thumb: **split** when each item stands on its own and you want one run per item; **loop** when you need the items together, for example to build one total or one file.
 </Step>
@@ -62,12 +60,13 @@ Our rule of thumb: **split** when each item stands on its own and you want one r
 <Step id="recap" name="Recap" tag="RECAP">
 - **Split on** starts one workflow run per array item; set it on the trigger.
 - Only triggers that accept and return arrays support it.
-- Each run sees one item: reference outside properties with care, using `?`.
+- Properties outside the array can't be referenced directly: use `?`.
 - With a **Response** action, the caller immediately gets **202 Accepted**.
 - Up to 100,000 items, or **100** with trigger concurrency on.
 </Step>
 
 {/*
+Fact-checked verbatim 2026-11-24.
 Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config

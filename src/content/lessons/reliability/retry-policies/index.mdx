@@ -1,0 +1,95 @@
+---
+title: Retry policies
+module: reliability
+order: 1
+minutes: 9
+level: Intermediate
+summary: Most failures are temporary. See what Logic Apps retries on its own, how to change it, and when retrying is the wrong answer.
+youWillLearn:
+  - What the default retry policy does, and which errors it retries
+  - The four retry policy types and how to set them
+  - The limits on retry counts and intervals in Standard
+  - How Retry-After and run history fit in
+reviewStatus: draft
+---
+
+<Step id="problem" name="Temporary failures" tag="PROBLEM">
+A partner API sometimes answers **503 Service Unavailable**, or **429 Too Many Requests** when you call it too often. A second later, the same call works.
+
+You don't want a failed run for that. **Retry policies** let an action try again on its own.
+</Step>
+
+<Step id="default" name="The default policy">
+Operations that support retries use the **Default** policy unless you choose another. For most operations, that's an **exponential interval** policy with **up to 4 retries**.
+
+It retries when the request **times out** or fails with **408**, **429** or a **5xx** response, and on connectivity exceptions. Other errors, such as a 400 Bad Request from an action, aren't the kind of intermittent failure it's meant for.
+</Step>
+
+<Step id="types" name="Four policy types">
+In the designer, open the action's **Settings**, and under **Networking**, choose a **Retry policy**:
+
+- **Default**: the built-in behaviour above.
+- **None**: don't retry.
+- **Fixed interval**: wait the same time between attempts.
+- **Exponential interval**: wait a random, growing time between attempts.
+
+In code view, it's the `retryPolicy` object in the action's `inputs`.
+</Step>
+
+<Step id="fixed" name="Fixed interval">
+A fixed policy retries a set number of times with the same pause each time. Microsoft's example tries two more times, 30 seconds apart:
+
+```json
+"retryPolicy": {
+  "type": "fixed",
+  "interval": "PT30S",
+  "count": 2
+}
+```
+
+Intervals use the ISO 8601 format: `PT30S` is 30 seconds.
+</Step>
+
+<Step id="exponential" name="Exponential interval">
+An exponential policy waits a **random** interval from a range that **grows** with each retry. That spreads retries out, so many runs don't hit a struggling service at the same moment.
+
+You can set `minimumInterval` and `maximumInterval`. The minimum defaults to **5 seconds**; in Standard, the maximum defaults to **1 hour**.
+</Step>
+
+<Step id="limits" name="Limits in Standard">
+- **Count**: 1 to **90** retries.
+- **Interval**: 5 seconds to 1 day in a **stateful** workflow, 1 second to 1 minute in a **stateless** one.
+- The defaults themselves are **host settings** in Standard, for example `Runtime.Backend.HttpOperation.DefaultRetryCount` (4) and `DefaultRetryInterval` (7 seconds).
+</Step>
+
+<Step id="retryafter" name="Retry-After" tag="TIP">
+A service can tell you how long to wait. If it returns a **Retry-After** header, for example with a **429**, the HTTP action uses it as the number of seconds before the next attempt. It also works with **202 Accepted** while polling.
+</Step>
+
+<Step id="history" name="Seeing retries">
+When an action needed retries but eventually worked, run history shows it as **Succeeded with retries**. That's a useful signal: an action that often needs retries is telling you something about the service it calls.
+</Step>
+
+<Step id="none" name="When not to retry" tag="TIP">
+Retrying repeats the request. If a call **isn't safe to repeat**, such as a payment, set the policy to **None** and handle the failure yourself, or make the call safe to repeat first. The Idempotency lesson covers how.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- The **Default** policy: exponential, up to **4 retries**, for **408, 429, 5xx** and connectivity errors.
+- Choose **None**, **Fixed** or **Exponential** under Settings > Networking, or set `retryPolicy`.
+- Standard allows 1–90 retries; intervals depend on stateful or stateless.
+- **Retry-After** sets the wait; run history shows **Succeeded with retries**.
+- Don't retry calls that aren't safe to repeat.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history ("Succeeded with retries")
+Learn conflict: the error-handling page's prose says default intervals "scale by 7.5 seconds but are capped between 5 and 45 seconds", while its JSON example, the limits page and the host settings give 7 seconds and a 1-hour maximum in Standard. We avoid the prose numbers.
+Not claimed: a list of status codes that are never retried, a full list of operations that support retry policies. "Payment" and "when not to retry" are our advice.
+*/}

@@ -1,0 +1,103 @@
+---
+title: Run-after & error scopes
+module: reliability
+order: 3
+minutes: 11
+level: Intermediate
+summary: Decide what happens after something fails. Use run-after, scopes and result() to catch errors, report exactly what broke, and clean up every time.
+youWillLearn:
+  - The four statuses run-after can react to
+  - How scopes turn many actions into one status
+  - How result() tells you which actions failed
+  - Why a handled failure makes the run Succeeded, and what to do about it
+reviewStatus: draft
+---
+
+<Step id="problem" name="Unplanned failures" tag="PROBLEM">
+When an action throws an error you didn't plan for, it's marked **Failed**, every action after it is marked **Skipped**, and the run ends **Failed**. Nothing tells the team, and nothing cleans up.
+
+**Run-after** settings let you plan for it.
+</Step>
+
+<Step id="statuses" name="Four outcomes">
+Every action finishes as **Succeeded**, **Failed**, **Skipped** or **TimedOut**. An action's **Run after** setting chooses which of those, for each predecessor, let it run. In the designer they're **Is successful**, **Has failed**, **Is skipped** and **Has timed out**.
+
+The default is Is successful. You must keep at least one status selected, and the **first action** after the trigger has no run-after setting.
+</Step>
+
+<Step id="json" name="Run after in code">
+In code view, it's the `runAfter` object. It can list several predecessors, each with its own statuses:
+
+```json
+"runAfter": {
+  "Action_A": ["Succeeded"],
+  "Action_B": ["Succeeded", "Failed"]
+}
+```
+
+This action runs only when A succeeded, and B either succeeded or failed.
+</Step>
+
+<Step id="scope" name="Scopes: one status for many">
+Reacting to every action separately gets messy. A **Scope** groups actions and gets its own status when they finish: **Succeeded** when all succeed, **Failed** when any fails.
+
+So one catch action can watch the whole scope. (Learn's error-handling page words it as the scope failing when its *final* action fails; the scopes page says *any*.)
+</Step>
+
+<Step id="trycatch" name="Try and catch">
+Put the work in a **Try** scope. Add a **Catch** scope after it, with run after set to **Has failed** and **Has timed out** for Try.
+
+Catch runs only when Try didn't succeed. Inside it: alert the team, log the error, or compensate.
+</Step>
+
+<Step id="result" name="What failed, exactly?">
+Inside Catch, `result('Try')` returns the results of Try's **top-level** actions, not actions nested in conditions or switches. Filter it for failures:
+
+```json
+"Filter_array": {
+  "type": "Query",
+  "inputs": {
+    "from": "@result('Try')",
+    "where": "@equals(item()['status'], 'Failed')"
+  }
+}
+```
+
+Each item has the action's `name`, `status`, `outputs` and `clientTrackingId`, so your alert can say exactly which action broke and why.
+</Step>
+
+<Step id="finally" name="Clean up every time">
+Some work must happen however the scope ends, such as releasing a lock or closing a file. Add a scope or action after Try with **all four** statuses selected: Is successful, Has failed, Is skipped and Has timed out.
+
+It runs no matter how Try ended. Microsoft lists cleanup among the common uses of scopes.
+</Step>
+
+<Step id="handled" name="Handled means Succeeded" tag="PROBLEM">
+There's a catch to catching. If a later action **handles** a failure, the run is marked **Succeeded**. Your dashboards stay green while an order failed.
+
+End the catch with a **Terminate** action set to **Failed**, with your own code and message. Terminate stops the run and returns that status. It can't be used inside a For each or Until loop.
+</Step>
+
+<Step id="monitor" name="Watch from outside" tag="TIP">
+Run-after handles one run. To see patterns across runs, set up **alerts** in Azure Monitor, for example "when more than five runs fail in an hour".
+
+To find related runs, pass an `x-ms-client-tracking-id` header to the trigger, or set a custom tracking ID. It appears as the **ClientTrackingId** in diagnostic logs.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Run after reacts to **Succeeded**, **Failed**, **Skipped** and **TimedOut**, per predecessor.
+- A **Scope** gives a group of actions one status; **Catch** runs after it fails or times out.
+- `result('Try')` lists the top-level actions' results; filter for **Failed**.
+- Select all four statuses for **cleanup** that always runs.
+- A handled failure makes the run **Succeeded**: end with **Terminate (Failed)**, and add alerts.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-run-steps-group-scopes
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Not claimed: a named "finally" construct (Learn doesn't use the word), Terminate restrictions beyond For each and Until. The Filter array example renames Learn's My_Scope to Try.
+*/}

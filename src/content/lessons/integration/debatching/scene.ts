@@ -24,7 +24,7 @@ export const scene: Scene = {
       visible: ['partner', 'each', 'partner-each'],
       highlight: ['each'],
       tokens: [{ id: 'p1', edge: 'partner-each', tone: 'info' }],
-      chips: [{ label: 'For each', value: '500 items, one run' }, { label: 'one fails', value: 'run Failed', tone: 'warn' }],
+      chips: [{ label: 'For each', value: '500 items, one run' }, { label: 'our concern', value: 'one failure, whole run', tone: 'warn' }],
     },
     spliton: {
       visible: [...split],
@@ -40,7 +40,7 @@ export const scene: Scene = {
     scope: {
       visible: [...split],
       highlight: ['r2'],
-      chips: [{ label: 'each run sees', value: 'one item' }, { label: 'outside the array', value: 'use ?', tone: 'warn' }],
+      chips: [{ label: 'outside properties', value: 'not directly' }, { label: 'outside the array', value: 'use ?', tone: 'warn' }],
     },
     response: {
       visible: [...split],

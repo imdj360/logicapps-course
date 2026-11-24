@@ -26,13 +26,13 @@ The workflow keeps the inbound request open only for a limited time: **225 secon
 </Step>
 
 <Step id="asyncin" name="Answer now, work later">
-Turn on the Response action's **Asynchronous response** setting, or leave out the Response action, and the workflow immediately returns **202 Accepted**. It can then take as long as it needs.
+Turn on the Response action's **Asynchronous response** setting, or leave out the Response action, and the workflow immediately returns **202 Accepted**. It can then take as long as it needs, within a stateful workflow's run duration.
 
 The caller then needs another way to learn the outcome, for example a callback or a status it can check. Learn doesn't prescribe one.
 </Step>
 
 <Step id="outbound" name="Calling a slow API">
-Now the other side. In a **stateful** workflow, HTTP actions follow the **asynchronous pattern** by default. If the API answers **202 Accepted** with a **location** header, the action **polls** that URL until it gets a response other than 202, then continues.
+Now the other side. In a **stateful** workflow, HTTP actions follow the **asynchronous pattern** by default. If the API answers **202 Accepted** with a **location** header, the engine **polls** that URL until it gets a response other than 202.
 
 The HTTP action's **Asynchronous pattern** setting, under **Networking**, is on by default. The API can slow the polling down with a **Retry-After** header.
 </Step>
@@ -56,7 +56,7 @@ If you need polling, use a stateful workflow.
 <Step id="webhook" name="Webhooks instead of polling">
 Polling means asking "done yet?" over and over. A **webhook** turns it around: the **HTTP Webhook** action calls the service's **subscribe** endpoint with a **callback URL**, and the workflow **pauses** until the service posts to that URL. Then it unsubscribes.
 
-It needs a service that supports subscribe and unsubscribe, but nothing polls in the meantime.
+It needs a service that supports subscribe and unsubscribe, but nothing polls in the meantime. In Standard, a webhook waits up to **30 days** in a stateful workflow and **5 minutes** in a stateless one.
 </Step>
 
 <Step id="timeouts" name="Timeouts to know" tag="TIP">
@@ -80,5 +80,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-create-api-app
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 Not claimed: a location header on the 202 from an asynchronous Response action (Learn doesn't say it includes one), any 230-second figure (Learn says 225). The website/partner scenario is ours.
 */}
