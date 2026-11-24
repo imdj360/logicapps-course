@@ -143,6 +143,7 @@ a.credit:hover { color: var(--fg); }
 .group__label { font: 600 12px var(--font-mono); fill: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
 .group--hl .group__box { stroke-width: 2.5; }
 .edge--dashed { stroke-dasharray: 6 5; }
+.edge__label { font: 600 12px var(--font-mono); fill: var(--muted); paint-order: stroke; stroke: var(--surface-2); stroke-width: 4px; }
 .edge--hl { stroke: var(--accent); stroke-width: 2.5; }
 .edge__head { fill: var(--border-strong); }
 

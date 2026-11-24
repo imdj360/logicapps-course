@@ -51,6 +51,12 @@ describe('Stage', () => {
     expect(container.querySelector('[data-node-id="a"]')).toHaveAttribute('data-state', 'normal');
   });
 
+  it('writes an edge label when one is set', () => {
+    const s = { ...scene, edges: [{ id: 't-a', from: 't', to: 'a', label: 'yes' }, scene.edges[1]] };
+    const { container } = render(<Stage scene={s} stepId="one" playing reducedMotion={false} />);
+    expect(container.querySelector('[data-edge-label="t-a"]')).toHaveTextContent('yes');
+  });
+
   it('marks skipped nodes', () => {
     const s = { ...scene, steps: { ...scene.steps, four: { visible: ['t', 'a', 'q'], failed: ['a'], skipped: ['q'], chips: [] } } };
     const { container } = render(<Stage scene={s} stepId="four" playing reducedMotion={false} />);

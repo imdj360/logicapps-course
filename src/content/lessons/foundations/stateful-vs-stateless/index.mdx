@@ -31,14 +31,16 @@ When a customer clicks **Buy**, two things must happen: the website must hear **
 
 So the shop uses two workflows in one logic app:
 
-- **Take order**: *Request* → *Check stock* → *Invoke workflow* (hands the order on) → *Response* "Order received".
+- **Take order**: *Request* → *Check stock* → a **Condition**, *In stock?*
+  - **Yes**: *Invoke workflow* hands the order to Process order, then *Response* "Order received".
+  - **No**: *Response* "Out of stock". Process order is never called.
 - **Process order**: *Request* → *Reserve stock* → *Create invoice*.
 
 Each Standard workflow is either **stateful** or **stateless**. These two need different ones.
 </Step>
 
 <Step id="stateful" name="Stateful: every step saved">
-*Process order* is **stateful**. Each of its steps saves its **inputs, outputs and state to external storage**. That gives you run history, and if a run is interrupted it can be reconstructed from the saved state and run to completion.
+*Process order* is **stateful**. Each of its steps saves its **inputs, outputs and state to external storage**. That gives you **run history**: you can open each run, follow the flow step by step with each step's inputs and outputs, and **resubmit** it. If a run is interrupted, it can be reconstructed from the saved state and run to completion.
 
 Stateful runs can also last much longer: the default maximum run duration is **90 days**. Use stateful when you need to keep, review or reference what happened.
 </Step>

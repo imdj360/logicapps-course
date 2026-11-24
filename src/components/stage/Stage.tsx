@@ -58,13 +58,13 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
         {(scene.groups ?? []).filter((g) => visible.has(g.id)).map((g) => (
           <g key={g.id} data-group-id={g.id} className={`group${highlight.has(g.id) ? ' group--hl' : ''}`}>
             <rect className="group__box" x={g.x} y={g.y} width={g.w} height={g.h} rx={14} />
-            <text className="group__label" x={g.x + 14} y={g.y + 20}>{g.label}</text>
+            <text className="group__label" x={g.labelAlign === 'end' ? g.x + g.w - 14 : g.x + 14} y={g.y + 20} textAnchor={g.labelAlign === 'end' ? 'end' : 'start'}>{g.label}</text>
           </g>
         ))}
         {scene.edges.filter((e) => visible.has(e.id)).map((e) => {
           const seg = segment(e.id);
           if (!seg) return null;
-          return (
+          const line = (
             <line
               key={e.id}
               data-edge-id={e.id}
@@ -72,6 +72,15 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
               x1={seg.from[0]} y1={seg.from[1]} x2={seg.to[0]} y2={seg.to[1]}
               markerEnd="url(#arrow)"
             />
+          );
+          if (!e.label) return line;
+          const mx = (seg.from[0] + seg.to[0]) / 2;
+          const my = (seg.from[1] + seg.to[1]) / 2;
+          return (
+            <g key={e.id}>
+              {line}
+              <text className="edge__label" data-edge-label={e.id} x={mx + 8} y={my - 6}>{e.label}</text>
+            </g>
           );
         })}
         {scene.nodes.filter((n) => visible.has(n.id)).map((n) => (
