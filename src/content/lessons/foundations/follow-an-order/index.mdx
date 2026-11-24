@@ -64,12 +64,13 @@ The default is: run only if the previous action **Succeeded**. *Parse order* fin
 </Step>
 
 <Step id="history" name="Every step is recorded">
-While the run moves, Logic Apps writes **run history** at two levels:
+While the order moves, Logic Apps records it at three levels:
 
-1. **The run**: one record for the whole run, with its status, when it started and ended, and what triggered it.
-2. **Each action**: its own record, with its status and timing, plus its **inputs**, its **outputs** and any error.
+1. **The trigger**: the request that came in, with its inputs and outputs, in the **trigger history**.
+2. **The run**: one run for each time the trigger fires, in the **run history**, with its status and when it started and ended.
+3. **Each action**: its own record, with its status and timing, plus its **inputs**, its **outputs** and any error.
 
-So for our order you get one run record, and separate records for *Parse order*, *Check stock* and *Send to queue*. In Standard, the action records sit in Azure Storage tables, and each one links to blobs that hold that action's inputs and outputs (Daniel's storage article shows the tables).
+So for our order you get the stored request, one run, and separate records for *Parse order*, *Check stock* and *Send to queue*. In Standard, these records sit in Azure Storage tables, and they link to blobs that hold the inputs and outputs (Daniel's storage article shows the tables).
 
 Run history is kept for **90 days** by default, in both Consumption and Standard, and you can change that.
 
@@ -101,7 +102,7 @@ Run statuses you'll see: *Running*, *Succeeded*, *Failed*, *Cancelled*, *Timed o
 - A skipped trigger creates **no run**. A fired trigger creates **one run**.
 - Actions run **in order**, each waiting for the previous one to *Succeed* unless you change `runAfter`.
 - A failed action makes the steps after it **Skipped** and the run **Failed**.
-- **Run history** keeps one record for the **run** and one for **each action**, with its inputs and outputs, for 90 days by default.
+- **Run history** keeps the **request**, **one run per trigger fire**, and a record for **each action** with its inputs and outputs, for 90 days by default.
 </Step>
 
 {/*
