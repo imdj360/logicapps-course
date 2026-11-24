@@ -36,6 +36,11 @@ const d = entry.data;
       <p class="lesson-head__crumb">{mod.number}. {mod.title} / Lesson {position} of {mod.lessons.length}</p>
       <h1>{d.title}</h1>
       <p class="lesson-head__summary">{d.summary}</p>
+      <p class="lesson-head__provenance" data-testid="provenance">
+        {d.reviewStatus === 'approved' && d.lastVerified
+          ? `Written with AI assistance, fact-checked against Microsoft Learn documentation and reviewed by Daniel Jonathan (${d.lastVerified}).`
+          : 'AI-assisted draft: not yet reviewed.'}
+      </p>
     </div>
     <div class="meta">
       <span>{d.minutes} min</span>
@@ -55,6 +60,5 @@ const d = entry.data;
 
   <div id="static-steps" class="static-steps">
     <Content components={{ Step, Callout }} />
-    {d.lastVerified && <p class="lesson-head__crumb">Last verified against Microsoft Learn: {d.lastVerified}</p>}
   </div>
 </BaseLayout>

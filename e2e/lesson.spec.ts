@@ -58,3 +58,9 @@ test('draft lessons are not published in a production build', async ({ page }) =
   await expect(sidebar.getByRole('link', { name: /Sample draft lesson/ })).toHaveCount(0);
   await expect(sidebar.getByRole('link', { name: /Sample lesson/ })).toBeVisible();
 });
+
+test('discloses AI assistance and review on every lesson', async ({ page }) => {
+  await page.goto('/lessons/sample/');
+  await expect(page.getByTestId('provenance')).toContainText('Written with AI assistance, fact-checked against Microsoft Learn documentation and reviewed by Daniel Jonathan');
+  await expect(page.locator('footer')).toContainText('written with AI assistance');
+});
