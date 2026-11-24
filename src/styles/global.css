@@ -153,6 +153,8 @@ a.credit:hover { color: var(--fg); }
 .node__sub { font: 400 11px var(--font-mono); fill: var(--muted); }
 .node--hl .node__card { stroke: var(--accent); stroke-width: 2.5; }
 .node--fail .node__card { stroke: var(--fail); stroke-width: 2; fill: var(--fail-bg); }
+.node--skipped { opacity: 0.5; }
+.node--skipped .node__card { stroke-dasharray: 5 4; }
 .node__badge circle { fill: var(--fail); }
 .node__badge path { stroke: var(--surface); stroke-width: 2; stroke-linecap: round; }
 .node--info .node__chip { fill: var(--info-bg); stroke: var(--info-border); } .node--info .node__glyph { stroke: var(--info); } .node--info .node__glyph--fill { fill: var(--info); }

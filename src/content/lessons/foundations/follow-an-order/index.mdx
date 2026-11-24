@@ -91,7 +91,12 @@ The next action only runs after *Succeeded*, so *Send to queue* is marked **Skip
 </Step>
 
 <Step id="read" name="Reading the run history" tag="TIP">
-Open the failed run and you can see exactly where it stopped: *Check stock* is red, and its **inputs and outputs** show the request that was sent and the error that came back.
+Open the run in the run history and you see each step's status:
+
+- The **run**: **Failed**, because at least one action failed.
+- *Request* and *Parse order*: **Succeeded**.
+- *Check stock*: **Failed**. Its inputs and outputs show the call that was sent and the HTTP 500 that came back.
+- *Send to queue*: **Skipped**. When an action fails, the action after it is marked Skipped, so it never ran.
 
 Run statuses you'll see: *Running*, *Succeeded*, *Failed*, *Cancelled*, *Timed out*, *Waiting* and *Aborted*. Actions can also be *Skipped* or *Succeeded with retries*.
 </Step>

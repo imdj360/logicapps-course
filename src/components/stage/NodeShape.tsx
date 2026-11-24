@@ -43,7 +43,7 @@ const FILLED = new Set<NodeKind>(['trigger', 'action', 'condition', 'llm-agent']
 
 interface Props {
   node: SceneNode;
-  state: 'normal' | 'highlight' | 'failed';
+  state: 'normal' | 'highlight' | 'failed' | 'skipped';
 }
 
 export function NodeShape({ node, state }: Props) {
@@ -51,7 +51,7 @@ export function NodeShape({ node, state }: Props) {
   const x = node.x - NODE_W / 2;
   const y = node.y - NODE_H / 2;
   return (
-    <g data-node-id={node.id} data-state={state} className={`node node--${tone}${state === 'highlight' ? ' node--hl' : ''}`}>
+    <g data-node-id={node.id} data-state={state} className={`node node--${tone}${state === 'highlight' ? ' node--hl' : ''}${state === 'skipped' ? ' node--skipped' : ''}`}>
       <rect className="node__card" x={x} y={y} width={NODE_W} height={NODE_H} rx={10} />
       <rect className="node__chip" x={x + 10} y={node.y - 14} width={28} height={28} rx={7} />
       <path

@@ -30,6 +30,7 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
   const step = scene.steps[stepId] ?? EMPTY;
   const visible = new Set(step.visible);
   const failed = new Set(step.failed ?? []);
+  const skipped = new Set(step.skipped ?? []);
   const highlight = new Set(step.highlight ?? []);
   const nodes = new Map(scene.nodes.map((n) => [n.id, n]));
   const [w, h] = scene.viewBox;
@@ -77,7 +78,7 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
           <NodeShape
             key={n.id}
             node={n}
-            state={failed.has(n.id) ? 'failed' : highlight.has(n.id) ? 'highlight' : 'normal'}
+            state={failed.has(n.id) ? 'failed' : skipped.has(n.id) ? 'skipped' : highlight.has(n.id) ? 'highlight' : 'normal'}
           />
         ))}
         {(step.tokens ?? []).map((t, i) => {

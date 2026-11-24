@@ -90,11 +90,11 @@ export const scene: Scene = {
       ],
     },
     read: {
-      visible: [...core, 'history', 'actrec', 'trigger-history', 'trigger-actrec', 'stock-actrec', 'run'],
+      visible: [...core, 'run'],
       failed: ['stock'],
-      highlight: ['actrec', 'stock-actrec'],
-      tokens: [{ id: 'r1', edge: 'stock-actrec', tone: 'fail' }],
-      chips: [{ label: 'failed step', value: 'Check stock', tone: 'fail' }, { label: 'output', value: 'HTTP 500' }],
+      skipped: ['queue'],
+      highlight: ['trigger', 'parse'],
+      chips: [{ label: 'run', value: 'Failed', tone: 'fail' }, { label: 'Check stock', value: 'Failed · HTTP 500', tone: 'fail' }, { label: 'Send to queue', value: 'Skipped', tone: 'warn' }],
     },
     recap: {
       visible: [...core, 'history', 'actrec', 'trigger-history', 'trigger-actrec', 'parse-actrec', 'stock-actrec', 'queue-actrec', 'run'],

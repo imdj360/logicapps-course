@@ -51,6 +51,12 @@ describe('Stage', () => {
     expect(container.querySelector('[data-node-id="a"]')).toHaveAttribute('data-state', 'normal');
   });
 
+  it('marks skipped nodes', () => {
+    const s = { ...scene, steps: { ...scene.steps, four: { visible: ['t', 'a', 'q'], failed: ['a'], skipped: ['q'], chips: [] } } };
+    const { container } = render(<Stage scene={s} stepId="four" playing reducedMotion={false} />);
+    expect(container.querySelector('[data-node-id="q"]')).toHaveAttribute('data-state', 'skipped');
+  });
+
   it('renders one element per token', () => {
     const { container } = render(<Stage scene={scene} stepId="two" playing reducedMotion={false} />);
     expect(ids(container, 'data-token-id')).toEqual(['m1']);

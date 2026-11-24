@@ -15,6 +15,8 @@ export interface StepState {
   visible: string[];
   highlight?: string[];
   failed?: string[];
+  /** Nodes shown as Skipped, e.g. actions after a failure. */
+  skipped?: string[];
   tokens?: Token[];
   chips: Chip[];
 }
