@@ -68,7 +68,7 @@ test('discloses AI assistance and review on every lesson', async ({ page }) => {
 });
 
 test('Microsoft Learn references open in a popup, not in the recap', async ({ page }) => {
-  await page.goto('/lessons/service-bus-queues/');
+  await page.goto('/lessons/storage-account/');
   await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
   const popup = page.getByTestId('refs-popup');
   await expect(popup).toBeHidden();

@@ -39,7 +39,7 @@ const d = entry.data;
       <p class="lesson-head__provenance" data-testid="provenance">
         {d.reviewStatus === 'approved' && d.lastVerified
           ? `Written with AI assistance and fact-checked against Microsoft Learn documentation (${d.lastVerified}). Daniel Jonathan spot-checks lessons by hand. Facts come from Microsoft Learn (see References); anything marked “ours” is our own advice.`
-          : 'AI-assisted draft: not yet reviewed.'}
+          : 'Draft: written with AI assistance and fact-checked against Microsoft Learn documentation; waiting for Daniel Jonathan to review it.'}
       </p>
     </div>
     <div class="meta">
