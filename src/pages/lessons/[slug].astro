@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Step from '../../components/mdx/Step.astro';
+import Callout from '../../components/mdx/Callout.astro';
+import { LessonIsland } from '../../components/player/LessonIsland';
+import { loadCatalog } from '../../lib/load-catalog';
+import { siteConfig } from '../../config/site';
+import type { Scene } from '../../lessons/scene-types';
+
+const scenes = import.meta.glob<{ scene: Scene }>('../../content/lessons/**/scene.ts', { eager: true });
+
+export async function getStaticPaths() {
+  const catalog = await loadCatalog();
+  const published = new Set(catalog.flatMap((m) => m.lessons).filter((l) => l.status === 'published').map((l) => l.slug));
+  const entries = await getCollection('lessons');
+  return entries.filter((e) => published.has(e.id)).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const slug = entry.id;
+const sceneModule = Object.entries(scenes).find(([path]) => path.endsWith(`/${slug}/scene.ts`))?.[1];
+if (!sceneModule) throw new Error(`Lesson "${slug}" has no scene.ts`);
+const scene = sceneModule.scene;
+
+const catalog = await loadCatalog();
+const mod = catalog.find((m) => m.lessons.some((l) => l.slug === slug))!;
+const position = mod.lessons.findIndex((l) => l.slug === slug) + 1;
+const stepCount = Object.keys(scene.steps).length;
+const d = entry.data;
+---
+<BaseLayout title={`${d.title} · Logic Apps course`} description={d.summary} activeSlug={slug}>
+  <div class="lesson-head">
+    <div>
+      <p class="lesson-head__crumb">{mod.number}. {mod.title} / Lesson {position} of {mod.lessons.length}</p>
+      <h1>{d.title}</h1>
+      <p class="lesson-head__summary">{d.summary}</p>
+    </div>
+    <div class="meta">
+      <span>{d.minutes} min</span>
+      <span>{d.level}</span>
+      <span>{stepCount} steps</span>
+    </div>
+  </div>
+
+  <LessonIsland
+    client:load
+    slug={slug}
+    scene={scene}
+    youWillLearn={d.youWillLearn}
+    relatedArticles={d.relatedArticles}
+    devtoUrl={siteConfig.devtoUrl}
+  />
+
+  <div id="static-steps" class="static-steps">
+    <Content components={{ Step, Callout }} />
+    {d.lastVerified && <p class="lesson-head__crumb">Last verified against Microsoft Learn: {d.lastVerified}</p>}
+  </div>
+</BaseLayout>

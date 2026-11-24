@@ -1,0 +1,12 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  tag?: 'PROBLEM' | 'FIX' | 'TIP' | 'RECAP';
+}
+const { id, name, tag } = Astro.props;
+---
+<section data-step data-step-id={id} data-step-name={name} data-step-tag={tag} id={`step-${id}`}>
+  <h2>{name}</h2>
+  <div class="step-body"><slot /></div>
+</section>

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { LessonPlayer, type PlayerStep } from './LessonPlayer';
 import type { Scene } from '../../lessons/scene-types';
 import * as progress from '../../lib/progress';
@@ -90,6 +90,15 @@ describe('LessonPlayer', () => {
   it('jumps to a step from the timeline', () => {
     renderPlayer();
     fireEvent.click(screen.getByRole('button', { name: /3\s*Wrap up/ }));
+    expect(heading()).toBe('Wrap up');
+  });
+
+  it('follows hash changes made after the page loaded', () => {
+    renderPlayer();
+    act(() => {
+      window.history.replaceState(null, '', '/lessons/demo/#3');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
     expect(heading()).toBe('Wrap up');
   });
 

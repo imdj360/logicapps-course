@@ -3,7 +3,7 @@ import type { Scene } from '../../lessons/scene-types';
 import { Stage } from '../stage/Stage';
 import { markComplete, markStepReached } from '../../lib/progress';
 import { track } from '../../lib/analytics';
-import { useStepNav } from './useStepNav';
+import { parseStepHash, useStepNav } from './useStepNav';
 import { StepPanel } from './StepPanel';
 import { Timeline } from './Timeline';
 
@@ -48,6 +48,12 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
       track('lesson_complete', { lesson: slug });
     }
   }, [nav.index, slug, count]);
+
+  useEffect(() => {
+    const onHash = () => nav.goTo(parseStepHash(window.location.hash, count));
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [nav.goTo, count]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
