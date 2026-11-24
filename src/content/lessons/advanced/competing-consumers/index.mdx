@@ -1,0 +1,72 @@
+---
+title: Competing consumers & priority queues
+module: advanced
+order: 6
+minutes: 9
+level: Advanced
+summary: A backlog of thousands of messages, and some of them urgent. Let many workers share one queue, and make sure the urgent work doesn't wait behind the rest.
+youWillLearn:
+  - How competing consumers spread work across workers
+  - Why ordering and duplicates need design attention
+  - How poison messages are kept out of the way
+  - How to give some messages priority with Service Bus
+reviewStatus: draft
+---
+
+<Step id="problem" name="A growing backlog" tag="PROBLEM">
+Every night, 50,000 invoice messages land on a queue. One worker would take until noon. And among them are a few dozen **urgent** credit notes that shouldn't wait.
+</Step>
+
+<Step id="pattern" name="Competing consumers">
+Microsoft's **Competing Consumers** pattern: several consumer instances read from the **same queue**, and each message goes to **only one** of them. Add consumers when the backlog grows.
+
+It's the opposite of publish-subscribe, where **every** subscriber gets every message.
+</Step>
+
+<Step id="logicapps" name="In Logic Apps">
+In Logic Apps, our mapping: a workflow with the built-in **peek-lock** Service Bus trigger is the consumer. As a Workflow Service Plan scales out, more instances read from the queue at once.
+
+Microsoft notes that peek-lock **hides** a message from other consumers while one is working on it; on success it's completed, on failure it can be abandoned.
+</Step>
+
+<Step id="idempotent" name="Order and duplicates" tag="PROBLEM">
+Two consequences of many workers:
+
+- **Order isn't guaranteed**: consumers receive messages in any order. If order matters, use the sequential convoy pattern instead.
+- A queue delivers each message **at least once**, so a message can be processed twice. Microsoft's advice: process messages **idempotently**.
+</Step>
+
+<Step id="poison" name="Poison messages">
+A malformed message can fail on every worker that tries it. Service Bus moves a message to the **dead-letter queue** once its delivery count passes **MaxDeliveryCount**, so it can't cycle forever. A separate workflow on the dead-letter queue can alert and repair.
+</Step>
+
+<Step id="priority" name="Priority queues">
+Microsoft's **Priority Queue** pattern gives urgent work its own path. Its Service Bus example: send to a **topic** with a **Priority** property, and use **SQL filters** to route high and low priority to separate **subscriptions**, each with its own consumers, more of them for high priority.
+
+The alternative is separate queues per priority.
+</Step>
+
+<Step id="starvation" name="Don't starve the rest" tag="TIP">
+With one consumer pool favouring the high-priority queue, low-priority messages can be delayed indefinitely. Microsoft suggests dedicated consumers per priority, or **raising the priority** of messages that have waited too long.
+</Step>
+
+<Step id="when" name="When to use them">
+Competing consumers fit work that's **independent**, can run **asynchronously** and comes in **variable volumes**. They don't fit tasks that must run in sequence or depend heavily on each other.
+
+Priority queues fit different service levels, such as premium and standard customers, but not work where strict first-in-first-out matters more.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Competing consumers**: many workers, one queue, each message to one worker.
+- In Logic Apps: peek-lock trigger, scaled out by the plan.
+- No ordering guarantee and at-least-once delivery: design **idempotently**.
+- **MaxDeliveryCount** sends poison messages to the dead-letter queue.
+- **Priority**: topic plus SQL filters, with dedicated consumers per level.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue
+Neither page mentions Logic Apps; the peek-lock-trigger-as-consumer mapping is ours. The invoice scenario is ours.
+*/}

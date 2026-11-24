@@ -1,0 +1,77 @@
+---
+title: Claim check
+module: advanced
+order: 1
+minutes: 9
+level: Advanced
+summary: A 40 MB invoice PDF doesn't belong in a queue message. Store the payload once, pass a reference, and let each receiver fetch it when it needs it.
+youWillLearn:
+  - What the Claim Check pattern is and when to use it
+  - The message size limits in Service Bus and Logic Apps that make it necessary
+  - How Event Grid and Blob Storage can produce the claim check for you
+  - Who deletes the payload, and how to keep it secure
+reviewStatus: draft
+---
+
+<Step id="problem" name="Too big to queue" tag="PROBLEM">
+Supplier invoices arrive as large PDFs with XML attached. Several workflows need them, connected through Service Bus. But queues are built for **many small messages**: large ones risk being **rejected**, slow everything down, and can cost more.
+</Step>
+
+<Step id="pattern" name="The pattern">
+Microsoft's **Claim Check** pattern: store the large payload in an **external data store**, and send only a **reference** to it, the claim check, through the messaging system. Receivers use the reference to fetch the payload **when they need to process it**.
+
+The messaging system never sees or stores the payload.
+</Step>
+
+<Step id="limits" name="The limits that force it">
+- **Service Bus**: 256 KB per message on Basic and Standard. Premium defaults to 1 MB per entity, and can go up to **100 MB** over AMQP.
+- **Logic Apps Service Bus connector**: large messages need the **built-in** connector in Standard; the **managed** connector is capped at **1 MB**, even on Premium.
+- **Logic Apps**: 100 MB per message, or up to 1 GB per action with chunking where supported.
+</Step>
+
+<Step id="sequence" name="How it flows">
+1. The sender writes the payload to the store, such as **Blob Storage**.
+2. **Only after the write succeeds**, it publishes a message with the reference.
+3. The receiver reads the reference and fetches the payload directly from the store.
+
+In Logic Apps, that's a **Create blob** action before **Send message**, and a **Get blob content** action in the receiving workflow (our mapping; Learn's pattern page has no Logic Apps example).
+</Step>
+
+<Step id="eventgrid" name="Let Event Grid do it">
+Microsoft's samples use **Blob Storage** with **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
+
+In production, Microsoft says to filter for fully committed blobs and to design the receiver for **delayed, duplicate and out-of-order** events.
+</Step>
+
+<Step id="lifecycle" name="Who deletes the payload?" tag="PROBLEM">
+The payload outlives the message. Decide which component **owns deletion**, and make sure a valid claim check never points at a deleted payload: align message expiry with blob retention.
+
+Writing the payload and publishing the reference aren't one transaction, so a failure in between can leave an **orphaned** payload. Microsoft suggests the Idempotent Consumer pattern for duplicates.
+</Step>
+
+<Step id="security" name="Keep it secure" tag="TIP">
+Don't embed **security tokens** in the claim check. Microsoft's advice: keep authorization a separate interaction between each system and the data store. In Logic Apps, that fits a **managed identity** with a role on the storage account (our mapping). For temporary access, use the **Valet Key** pattern.
+</Step>
+
+<Step id="when" name="When to use it">
+Use it when payloads regularly exceed the message size limit, when large messages strain the broker, or when the payload is **sensitive** and shouldn't pass through queue tools.
+
+Skip it when latency matters more than size, or when a tier that fits the payload is an option, such as Service Bus Premium. Either way, Microsoft's advice is to keep messages as small as possible.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Store the payload, send a **reference**: the claim check.
+- Service Bus: **256 KB** Standard, up to **100 MB** Premium; managed connector **1 MB**.
+- Publish the reference only **after** the write succeeds.
+- **Event Grid** BlobCreated events can be the claim check.
+- Decide who **deletes** the payload; keep tokens out of the reference.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/claim-check
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quotas
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+The claim-check page doesn't mention Logic Apps; the Create blob / Get blob content mapping and the managed-identity note are ours. The invoice scenario is ours.
+*/}

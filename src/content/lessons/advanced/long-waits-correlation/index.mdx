@@ -1,0 +1,75 @@
+---
+title: Correlation & long waits
+module: advanced
+order: 8
+minutes: 10
+level: Intermediate
+summary: A credit approval takes three days. Learn how long a Logic Apps run can wait, how webhooks pause a run until a callback, and how to keep track of which reply belongs to which order.
+youWillLearn:
+  - How long stateful and stateless runs, and webhook waits, can last
+  - How the HTTP Webhook action pauses a run until a callback
+  - How tracking IDs correlate runs, callbacks and logs
+  - When to split a long wait across two workflows
+reviewStatus: draft
+---
+
+<Step id="problem" name="Three days for a yes" tag="PROBLEM">
+Large orders need a credit check from the finance team. Someone has to look, decide and answer, and that can take **three days**. Meanwhile the order workflow must wait, without polling, and pick up exactly where it left off.
+</Step>
+
+<Step id="limits" name="How long a run can live">
+- A **stateful** run can last **90 days** by default; `Runtime.Backend.FlowRunTimeout` changes it, with a minimum of 7 days, and it must stay within run history retention.
+- A **stateless** run lasts **5 minutes** by default: no place for long waits.
+
+So long waits belong in **stateful** workflows.
+</Step>
+
+<Step id="webhook" name="Pause with a webhook">
+The **HTTP Webhook** action calls a service's **subscribe** endpoint with a **callback URL**, then the run **pauses** until the service posts to that URL. Then it unsubscribes and continues.
+
+In Standard, a webhook waits up to **30 days** in a stateful workflow and **5 minutes** in a stateless one. Set a shorter limit with `limit.timeout`.
+</Step>
+
+<Step id="callback" name="The callback URL">
+The callback URL carries a SAS token with no time-based expiry: it stays valid for the run. It stops working if the run is **cancelled** or **times out**, the workflow or logic app is **disabled or deleted**, or its access keys are **rotated**.
+
+Treat it like a password: send it only to the service that needs it.
+</Step>
+
+<Step id="approval" name="Approvals">
+For human decisions, the Office 365 Outlook connector's **Send approval email** action sends an email with options and **waits for the response**. Learn doesn't state how long it can wait, so give the action a timeout you choose, and handle the timeout.
+</Step>
+
+<Step id="correlation" name="Which reply is which?">
+With many orders waiting, you need to match replies and logs to the right order. A trigger's **custom tracking ID**, or an `x-ms-client-tracking-id` header on the trigger request, correlates the run's events, and it appears as **ClientTrackingId** in the logs.
+
+The HTTP Webhook action also sends `x-ms-client-tracking-id` to the target service, so it can identify the subscriber.
+</Step>
+
+<Step id="split" name="Or split the wait" tag="TIP">
+Our alternative for very long or uncertain waits: end the first workflow after it sends the request and saves the order's state, keyed by an ID. When the answer arrives, as an HTTP call or a queue message carrying the same ID, a **second workflow** loads the state and continues.
+
+No run waits for days, and a lost callback doesn't leave a run hanging.
+</Step>
+
+<Step id="timeout" name="Plan for silence" tag="TIP">
+Whichever approach you choose, decide what happens when **nobody answers**: a timeout, a reminder, an escalation, a cancellation. Catch it with a run after of **Has timed out**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Stateful runs: **90 days** by default; stateless: **5 minutes**.
+- **HTTP Webhook** pauses a run until a callback: up to **30 days** in Standard stateful.
+- The callback URL dies with the run, a disable or a key rotation.
+- Correlate with a **custom tracking ID** / `x-ms-client-tracking-id`.
+- For very long waits, **split** across two workflows, and always plan for no answer.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://learn.microsoft.com/en-us/connectors/office365/ (Send approval email)
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Not claimed: how long Send approval email waits (not on Learn). The split-workflow design and the credit-check scenario are ours.
+*/}

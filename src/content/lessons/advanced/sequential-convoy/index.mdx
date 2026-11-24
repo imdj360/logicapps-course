@@ -1,0 +1,76 @@
+---
+title: Sequential convoy
+module: advanced
+order: 3
+minutes: 10
+level: Advanced
+summary: 'Order created, changed, cancelled: updates must be handled in order, but different orders can run in parallel. Sessions make that possible.'
+youWillLearn:
+  - Why competing consumers break ordering
+  - How Service Bus sessions keep each group in order
+  - How Logic Apps processes a whole session in one run
+  - How to choose the session key and handle poison messages
+reviewStatus: draft
+---
+
+<Step id="problem" name="Out of order" tag="PROBLEM">
+Order updates arrive in sequence: created, changed, cancelled. With several workflow runs reading the same queue in parallel, "cancelled" can be processed before "changed", and the order comes back to life.
+
+A single reader keeps the order but can't scale. Microsoft's **Sequential Convoy** pattern gives you both.
+</Step>
+
+<Step id="pattern" name="The pattern">
+Group related messages by a **category key**, such as the order ID. Process each group **one message at a time**, in order, while **different groups run in parallel**.
+
+Microsoft notes that on Azure, **Service Bus message sessions** are a built-in implementation of this pattern.
+</Step>
+
+<Step id="sessions" name="Sessions">
+The sender sets each message's **SessionId** to the category key. In a session-enabled queue:
+
+- A receiver that accepts a session gets an **exclusive lock** on all its messages, including ones that arrive later.
+- Only **one receiver** holds a session at a time, and receives its messages **in order**.
+
+Sessions need the **Standard or Premium** tier, and once sessions are enabled on a queue, clients can't send or receive regular messages on it.
+</Step>
+
+<Step id="logicapps" name="In Logic Apps">
+Learn's Logic Apps guide for this pattern offers a **Standard** template: *Azure Service Bus: Process related messages from a session-enabled queue for the same workflow instance - Sequential convoy pattern*. In Consumption, you build the workflow yourself.
+
+The workflow starts with the **peek-lock** trigger, initializes the session from the first message, and processes **all messages from that session in the same run**. The next run handles the next session.
+</Step>
+
+<Step id="locks" name="Keep the lock alive">
+A session can take a while to process. In Learn's design, a **parallel branch** runs an **Until** loop that calls **Renew lock** with a delay shorter than the lock timeout; the minimum lock duration is **30 seconds**.
+
+If processing fails, **Abandon** unlocks the message and puts it back for another attempt.
+</Step>
+
+<Step id="poison" name="One bad message blocks the session" tag="PROBLEM">
+A message that keeps failing blocks **every message after it** in that session. Microsoft's advice: move it to the **dead-letter queue** after a retry threshold, by default after **10** delivery attempts.
+
+Careful: if you later move a dead-lettered message back, its original order within the session is lost.
+</Step>
+
+<Step id="key" name="Choose the key" tag="TIP">
+The session key is the unit of parallelism. Too coarse, such as one key per country, and there's little parallelism; each session's throughput is limited by how long one message takes.
+
+Microsoft says the pattern doesn't fit extremely high throughput, millions of messages a minute, or work where order doesn't matter: use competing consumers there.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Sequential convoy**: in order within a group, parallel across groups.
+- **Sessions** implement it: SessionId = category key, one receiver per session.
+- Standard has a **template** that processes a whole session per run, with peek-lock.
+- **Renew the lock** for long sessions; dead-letter **poison** messages.
+- Pick a session key that gives real parallelism.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/sequential-convoy
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sessions
+- https://learn.microsoft.com/en-us/azure/logic-apps/send-related-messages-sequential-convoy
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+Learn conflict: the Service Bus connector page still says Consumption can select the "Correlated in-order delivery using service bus sessions" template; the newer sequential-convoy page says it's only formerly available on GitHub. We follow the newer page. The order-status scenario is ours.
+*/}

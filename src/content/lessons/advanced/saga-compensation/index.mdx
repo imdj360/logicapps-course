@@ -1,0 +1,79 @@
+---
+title: Saga & compensation
+module: advanced
+order: 5
+minutes: 11
+level: Advanced
+summary: Reserve stock, charge the card, book the courier. When the third step fails, there's no rollback across three systems. A saga undoes the completed steps instead.
+youWillLearn:
+  - Why distributed business transactions can't simply roll back
+  - The saga pattern and its three kinds of step
+  - Orchestration vs choreography, and where Logic Apps fits
+  - How to write compensations that survive their own failures
+reviewStatus: draft
+---
+
+<Step id="problem" name="No rollback" tag="PROBLEM">
+An order goes through three systems: **reserve stock**, **charge the card**, **book the courier**. The courier booking fails. Stock is reserved and the card is charged, in two systems that already committed their changes.
+
+Microsoft's point: traditional ACID guarantees don't apply across **independently managed data stores**. There's nothing to roll back.
+</Step>
+
+<Step id="saga" name="The saga pattern">
+A **saga** is a sequence of **local transactions**: each step completes its work in one service and triggers the next. If a step fails, **compensating transactions** undo the changes that the completed steps made.
+
+For our order: release the stock, refund the card.
+</Step>
+
+<Step id="types" name="Three kinds of step">
+Microsoft names three:
+
+- **Compensable**: can be undone by another transaction with the opposite effect, like reserving stock.
+- **Pivot**: the **point of no return**, like shipping the parcel.
+- **Retryable**: **idempotent** steps after the pivot, which are retried until the saga finishes.
+
+Put risky steps before the pivot, while they can still be compensated.
+</Step>
+
+<Step id="orchestration" name="Orchestration or choreography">
+- **Choreography**: services exchange events, with no central controller. Good for simple flows with few services.
+- **Orchestration**: a central **orchestrator** tells each participant what to do. Better for complex flows, but the orchestrator becomes a single point of failure.
+
+A stateful Logic Apps workflow is a natural orchestrator: Microsoft's Scheduler Agent Supervisor pattern names Logic Apps for visual, connector-based orchestration.
+</Step>
+
+<Step id="compensate" name="Compensate in Logic Apps">
+Our design: run each step in order inside a **Try** scope, and record which steps completed. A **Catch** scope that runs on failure or timeout then calls the compensation for each completed step: refund, then release.
+
+Microsoft notes compensation doesn't have to run in exact reverse order, and doesn't necessarily restore the exact starting state: a refund isn't the same as never charging.
+</Step>
+
+<Step id="fails" name="When compensation fails" tag="PROBLEM">
+Microsoft is blunt: compensating transactions **can fail too**. Its advice:
+
+- Make every compensation step **idempotent**, so it can be retried safely.
+- **Record progress**, so compensation can resume from where it failed.
+- When nothing else works, **alert a person**: manual intervention is sometimes the only recovery.
+</Step>
+
+<Step id="when" name="When to use it">
+Use a saga when a business operation spans several services or stores and must be undone if a later step fails.
+
+Don't, says Microsoft, when steps are tightly coupled, when **retries alone** would handle most failures, or when the system **can't tolerate temporary inconsistency**: between the failure and the compensation, the data is briefly wrong.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Across services there's **no rollback**: compensate instead.
+- A **saga** is local transactions plus compensations.
+- Steps are **compensable**, **pivot** or **retryable**.
+- Logic Apps works well as the **orchestrator**: Try, record progress, Catch and compensate.
+- Compensations must be **idempotent**, resumable and alert-backed.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/saga
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction
+- https://learn.microsoft.com/en-us/azure/architecture/patterns/scheduler-agent-supervisor
+Neither the Saga nor the Compensating Transaction page mentions Logic Apps; the Try/Catch compensation design is ours. The order scenario is ours.
+*/}
