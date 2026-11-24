@@ -14,7 +14,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="A URL is a password" tag="PROBLEM">
-A Request trigger's callback URL carries a **Shared Access Signature** (SAS). Anyone who has the URL can call the workflow, and URLs end up in logs, tickets and chat messages.
+A Request trigger's callback URL carries a **Shared Access Signature** (SAS). Anyone who has the URL can call the workflow, and URLs can be logged or leaked (in our experience: in tickets and chat messages).
 
 Microsoft describes the alternative as keeping secrets, long-lived SAS URLs and access keys **out of workflows**: callers present a **Microsoft Entra ID token** instead, checked by **Easy Auth**.
 </Step>
@@ -47,13 +47,13 @@ It also says Standard can use other authentication types **without disabling SAS
 </Step>
 
 <Step id="chat" name="For agent chat">
-For **conversational agents**, Learn has a full walkthrough (preview). You need the **Application Developer** role in Entra ID and the **Azure Contributor** role on the logic app: Microsoft notes that's not the same as Logic Apps Standard Contributor.
+For **conversational agents**, Learn has a full walkthrough (preview). You need the **Application Developer** role in Entra ID and the **Azure Contributor** role or higher on the logic app: Microsoft notes that's not the same as Logic Apps Standard Contributor.
 
-Use **Require authentication** with a **302 redirect**. After that, the portal's built-in chat page stops working; people use the external chat client URL instead.
+Learn recommends **Require authentication** (unless you plan to allow some endpoints) and a **302 redirect** for agents. After that, the portal's built-in chat page stops working; people use the external chat client URL instead.
 </Step>
 
 <Step id="mcp" name="For MCP servers">
-MCP endpoints use **OAuth 2.0 by default**, which requires Easy Auth (preview). Expose an API on the app registration with the scope **user_impersonation**, the default the logic app expects.
+MCP servers (preview) use **OAuth 2.0 by default**, which requires Easy Auth. Expose an API on the app registration; Learn recommends the scope **user_impersonation**, the default supported scope (another scope needs an override in `host.json`).
 
 Set the allowed token audience to `api://<application-id-uri>/`, **with the trailing slash**. Unlike agent chat, Learn's MCP setup sets Restrict access to **Allow unauthenticated access**.
 </Step>
@@ -61,11 +61,11 @@ Set the allowed token audience to `api://<application-id-uri>/`, **with the trai
 <Step id="identity" name="Who called?">
 When Easy Auth validates a request, it adds the caller's identity to the request headers, including normalized claims such as `X-MS-CLIENT-PRINCIPAL`, groups, roles and scopes.
 
-Microsoft points out that downstream actions such as **Compose** or **Parse JSON** can then apply finer-grained authorization against those claims, for example only allowing a certain role to place large orders.
+Microsoft points out that downstream actions such as **Compose** or **Parse JSON** can then apply finer-grained authorization against those claims, for example (ours) only allowing a certain role to place large orders.
 </Step>
 
 <Step id="troubleshoot" name="When it says no" tag="TIP">
-- **401** with `invalid_token` mentioning the audience: the token's audience doesn't match your allowed audiences. Check the trailing slash.
+- **401** with `invalid_token` mentioning the audience: the token's audience doesn't match your allowed audiences (for MCP, check the trailing slash).
 - **403** after authentication: Learn notes it might mean the workflow or agent wasn't found.
 - With Require authentication on, it applies to **every** path of the app unless you exclude paths.
 </Step>
@@ -85,6 +85,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-model-context-protocol-server-standard
 - https://learn.microsoft.com/en-us/azure/logic-apps/agent-workflows-concepts
 - https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization
+Fact-checked verbatim 2026-11-24.
 Outside Learn: the Request-trigger setup is only in the Tech Community blog "Trigger workflows in Standard logic apps with Easy Auth"; we don't reproduce its steps.
 Not claimed: SAS behaviour alongside Easy Auth on Standard Request triggers, whether Standard can disable SAS, exact header names beyond X-MS-CLIENT-PRINCIPAL, why MCP needs "Allow unauthenticated access". The large-orders example is ours.
 */}

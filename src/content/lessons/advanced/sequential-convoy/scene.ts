@@ -10,7 +10,7 @@ export const scene: Scene = {
     { id: 'run1', kind: 'scope', label: 'Run: order 4711', sublabel: 'one session', x: 740, y: 130 },
     { id: 'run2', kind: 'scope', label: 'Run: order 4712', sublabel: 'in parallel', x: 740, y: 350 },
     { id: 'renew', kind: 'condition', label: 'Renew lock', sublabel: 'Until loop', x: 420, y: 80 },
-    { id: 'dlq', kind: 'servicebus', label: 'Dead-letter', sublabel: 'after 10 tries', x: 420, y: 410 },
+    { id: 'dlq', kind: 'servicebus', label: 'Dead-letter', sublabel: 'MaxDelivery 10', x: 420, y: 410 },
   ],
   edges: [
     { id: 'src-queue', from: 'src', to: 'queue' },
@@ -50,7 +50,7 @@ export const scene: Scene = {
       visible: [...core, 'dlq', 'queue-dlq'],
       highlight: ['dlq'],
       tokens: [{ id: 'd1', edge: 'queue-dlq', tone: 'fail' }],
-      chips: [{ label: 'bad message', value: 'blocks its session', tone: 'warn' }, { label: 'after', value: '10 deliveries' }],
+      chips: [{ label: 'bad message', value: 'blocks its session', tone: 'warn' }, { label: 'MaxDeliveryCount', value: 'default 10' }],
     },
     key: {
       visible: [...core],

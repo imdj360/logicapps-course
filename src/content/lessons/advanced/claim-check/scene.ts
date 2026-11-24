@@ -33,7 +33,7 @@ export const scene: Scene = {
     limits: {
       visible: [...core],
       highlight: ['queue'],
-      chips: [{ label: 'Standard', value: '256 KB' }, { label: 'Premium', value: 'up to 100 MB' }, { label: 'managed connector', value: '1 MB', tone: 'warn' }],
+      chips: [{ label: 'Standard', value: '256 KB' }, { label: 'Premium', value: 'up to 100 MB (AMQP)' }, { label: 'managed connector', value: '1 MB', tone: 'warn' }],
     },
     sequence: {
       visible: [...core],
@@ -54,7 +54,7 @@ export const scene: Scene = {
     security: {
       visible: [...core],
       highlight: ['receiver-blob'],
-      chips: [{ label: 'in the reference', value: 'no tokens' }, { label: 'access', value: 'managed identity' }],
+      chips: [{ label: 'in the reference', value: 'no tokens' }, { label: 'access (ours)', value: 'managed identity' }],
     },
     when: {
       visible: [...core],

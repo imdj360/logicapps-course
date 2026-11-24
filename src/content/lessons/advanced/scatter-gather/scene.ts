@@ -27,7 +27,7 @@ export const scene: Scene = {
     },
     honest: {
       visible: [...scatter, ...gather],
-      chips: [{ label: 'Learn pattern page', value: 'none (404)', tone: 'warn' }, { label: 'so', value: 'built from parts' }],
+      chips: [{ label: 'Arch. Center page', value: 'none (404)', tone: 'warn' }, { label: 'so', value: 'built from parts' }],
     },
     branches: {
       visible: [...scatter, ...gather],

@@ -45,7 +45,7 @@ export const scene: Scene = {
     request: {
       visible: [...core, 'sas', 'sas-wf'],
       highlight: ['wf'],
-      chips: [{ label: 'Learn', value: 'one sentence + a blog', tone: 'warn' }, { label: 'SAS', value: 'not disabled' }],
+      chips: [{ label: 'Learn', value: 'one sentence + a blog', tone: 'warn' }, { label: 'SAS', value: 'can stay on' }],
     },
     chat: {
       visible: [...core, 'entra', 'entra-easy'],
@@ -65,7 +65,7 @@ export const scene: Scene = {
     },
     troubleshoot: {
       visible: [...core],
-      chips: [{ label: '401 invalid_token', value: 'audience mismatch' }, { label: '403', value: 'workflow not found' }],
+      chips: [{ label: '401 invalid_token', value: 'audience mismatch' }, { label: '403', value: 'maybe workflow not found' }],
     },
     recap: {
       visible: [...core, 'entra', 'claims', 'entra-easy', 'wf-claims'],

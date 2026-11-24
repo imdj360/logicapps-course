@@ -14,7 +14,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="An answer that takes minutes" tag="PROBLEM">
-The pricing engine calculates a quote in three to ten minutes. The ordering workflow needs that quote. An HTTP call would time out: in Standard, an outbound request waits at most 225 seconds.
+The pricing engine calculates a quote in three to ten minutes. The ordering workflow needs that quote. An HTTP call would time out: by default, an outbound request in Standard times out after 225 seconds.
 
 Instead, send the request as a **message**, and get the reply as a **message**.
 </Step>
@@ -44,7 +44,7 @@ Sessions need the **Standard or Premium** tier.
 </Step>
 
 <Step id="logicapps" name="In Logic Apps">
-The built-in Service Bus connector in Standard can **send** messages, with a **Session Id** parameter and more properties under **Advanced parameters**, and **receive** from sessions, for example with **Get messages from a queue session**. Received messages expose **Reply to**, **Reply to session** and **Correlation ID**.
+The built-in Service Bus connector in Standard can **send** messages, with more properties under **Advanced parameters** (Learn lists a **Session Id** field only for the managed connector's Send message), and **receive** from sessions, for example with **Get messages from a queue session**. Received messages expose **Reply to**, **Reply to session** and **Correlation ID**.
 
 Learn's connector reference doesn't list every property you can set on send, so check what your connector version exposes before you design around it.
 </Step>
@@ -64,16 +64,15 @@ Service Bus also describes **multicast** request-reply: send the request to a **
 </Step>
 
 <Step id="cautions" name="Things to plan for" tag="TIP">
-- Replies that arrive **after** the requester gave up: decide what happens to them.
 - Session locks: only one receiver holds a session at a time.
-- Keep requests **idempotent**: a retried request may produce two replies.
+- Our cautions: decide what happens to replies that arrive **after** the requester gave up, and keep requests **idempotent**, since a retried request may produce two replies.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Use messaging request-reply when an answer takes longer than an HTTP call can wait.
 - **ReplyTo** says where to reply; **CorrelationId** links the reply to the request.
 - **ReplyToSessionId** plus sessions let many requesters share one reply queue.
-- The built-in connector sends with a Session Id and reads sessions; check which properties it exposes.
+- The built-in connector reads sessions; check which properties its Send message exposes.
 - Always design for a reply that never comes.
 </Step>
 
@@ -85,5 +84,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (225 s)
-Not claimed: that the built-in Send message action exposes ReplyTo, ReplyToSessionId or CorrelationId as named inputs (Learn's reference doesn't list them). The workflow design and the pricing-engine scenario are ours.
+Fact-checked verbatim 2026-11-24.
+Not claimed: that the built-in Send message action exposes Session Id (Learn lists it only for the managed connector), ReplyTo, ReplyToSessionId or CorrelationId as named inputs (Learn's reference doesn't list them). The workflow design and the pricing-engine scenario are ours.
 */}

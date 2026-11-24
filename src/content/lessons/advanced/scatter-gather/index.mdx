@@ -20,7 +20,7 @@ For each large order, purchasing wants quotes from three suppliers and picks the
 </Step>
 
 <Step id="honest" name="What Learn covers">
-Scatter-gather is a classic enterprise integration pattern, but Microsoft Learn has **no pattern page** for it: Learn mentions the name only as another name for concurrent orchestration of AI agents.
+Scatter-gather is a classic enterprise integration pattern, but the Azure Architecture Center has **no pattern page** for it; there, the name appears only as another name for concurrent orchestration of AI agents. Learn's BizTalk Server ESB Toolkit docs describe a scatter-gather pattern, but for a different product.
 
 So this lesson builds it from pieces Learn **does** document: parallel branches, Service Bus topics, multicast request-reply and timeouts. The combination is our design.
 </Step>
@@ -32,7 +32,7 @@ A **join** action after the branches waits for all branches at the same level to
 </Step>
 
 <Step id="deadline" name="Give each call a deadline">
-A slow supplier shouldn't hold up the rest. Give each supplier call a **timeout** in its settings, so it ends as timed out instead of waiting; an outbound HTTP request in Standard waits at most 225 seconds anyway. Then the join compares whatever came back.
+A slow supplier shouldn't hold up the rest. Set the HTTP action's **Timeout** under Settings > Request options; Learn says the action then fails if the server doesn't respond in time (by default, after 225 seconds in Standard). Connector actions may not offer the setting. Then the join compares whatever came back.
 </Step>
 
 <Step id="topics" name="Scatter with a topic">
@@ -66,5 +66,8 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber
 - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns (only mention of "scatter-gather")
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling (run after statuses)
+- https://learn.microsoft.com/en-us/biztalk/esb-toolkit/message-routing-patterns (BizTalk ESB scatter-gather)
+Fact-checked verbatim 2026-11-24.
 https://learn.microsoft.com/en-us/azure/architecture/patterns/scatter-gather returns 404. The whole design, the supplier scenario and the rule of thumb are ours.
 */}

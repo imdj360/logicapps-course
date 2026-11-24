@@ -38,7 +38,7 @@ In Logic Apps, that's a **Create blob** action before **Send message**, and a **
 </Step>
 
 <Step id="eventgrid" name="Let Event Grid do it">
-Microsoft's samples use **Blob Storage** with **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
+Three of Microsoft's four samples use **Blob Storage** with **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
 
 In production, Microsoft says to filter for fully committed blobs and to design the receiver for **delayed, duplicate and out-of-order** events.
 </Step>
@@ -61,7 +61,7 @@ Skip it when latency matters more than size, or when a tier that fits the payloa
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Store the payload, send a **reference**: the claim check.
-- Service Bus: **256 KB** Standard, up to **100 MB** Premium; managed connector **1 MB**.
+- Service Bus: **256 KB** Standard, up to **100 MB** Premium (AMQP); managed connector **1 MB**.
 - Publish the reference only **after** the write succeeds.
 - **Event Grid** BlobCreated events can be the claim check.
 - Decide who **deletes** the payload; keep tokens out of the reference.
@@ -73,5 +73,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quotas
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 The claim-check page doesn't mention Logic Apps; the Create blob / Get blob content mapping and the managed-identity note are ours. The invoice scenario is ours.
 */}

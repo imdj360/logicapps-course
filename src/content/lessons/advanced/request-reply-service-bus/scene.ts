@@ -21,7 +21,7 @@ export const scene: Scene = {
   steps: {
     problem: {
       visible: ['order', 'engine'],
-      chips: [{ label: 'answer takes', value: '3–10 min' }, { label: 'HTTP waits', value: '225 s max', tone: 'warn' }],
+      chips: [{ label: 'answer takes', value: '3–10 min' }, { label: 'HTTP timeout', value: '225 s default', tone: 'warn' }],
     },
     two: {
       visible: [...core],
@@ -41,7 +41,7 @@ export const scene: Scene = {
     logicapps: {
       visible: [...core],
       highlight: ['order'],
-      chips: [{ label: 'send', value: 'Session Id + advanced' }, { label: 'receive', value: 'Reply to · Correlation ID' }],
+      chips: [{ label: 'send', value: 'advanced parameters' }, { label: 'receive', value: 'Reply to · Correlation ID' }],
     },
     design: {
       visible: [...core],

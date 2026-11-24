@@ -47,15 +47,15 @@ If processing fails, **Abandon** unlocks the message and puts it back for anothe
 </Step>
 
 <Step id="poison" name="One bad message blocks the session" tag="PROBLEM">
-A message that keeps failing blocks **every message after it** in that session. Microsoft's advice: move it to the **dead-letter queue** after a retry threshold, by default after **10** delivery attempts.
+A message that keeps failing blocks **every message after it** in that session. Microsoft's advice: move it to the **dead-letter queue** after a retry threshold. In Service Bus, that happens automatically once **MaxDeliveryCount** (default **10**) is exceeded.
 
 Careful: if you later move a dead-lettered message back, its original order within the session is lost.
 </Step>
 
 <Step id="key" name="Choose the key" tag="TIP">
-The session key is the unit of parallelism. Too coarse, such as one key per country, and there's little parallelism; each session's throughput is limited by how long one message takes.
+The session key is the unit of parallelism. Too coarse, such as (our example) one key per country, and there's little parallelism; each session's throughput is limited by how long one message takes.
 
-Microsoft says the pattern doesn't fit extremely high throughput, millions of messages a minute, or work where order doesn't matter: use competing consumers there.
+Microsoft says the pattern doesn't fit extremely high throughput, millions of messages a minute (reconsider whether strict FIFO is needed), or work where order doesn't matter (use competing consumers).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -72,5 +72,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sessions
 - https://learn.microsoft.com/en-us/azure/logic-apps/send-related-messages-sequential-convoy
 - https://learn.microsoft.com/en-us/azure/connectors/connectors-create-api-servicebus
+Fact-checked verbatim 2026-11-24.
 Learn conflict: the Service Bus connector page still says Consumption can select the "Correlated in-order delivery using service bus sessions" template; the newer sequential-convoy page says it's only formerly available on GitHub. We follow the newer page. The order-status scenario is ours.
 */}
