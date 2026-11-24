@@ -71,7 +71,7 @@ export const scene: Scene = {
       visible: [...builtin, ...managed, 'queue', 'azure-queue'],
       highlight: ['managed', 'azure-queue'],
       tokens: [{ id: 't1', edge: 'azure-queue', tone: 'fail' }],
-      chips: [{ label: 'managed limits', value: 'per connector' }, { label: 'Service Bus managed', value: '6,000 calls/min' }],
+      chips: [{ label: 'managed limits', value: 'per connector' }, { label: 'Service Bus managed', value: '6,000/min/conn' }],
     },
     recap: {
       visible: [...builtin, ...managed, 'vnet', 'queue', 'conn', 'built-vnet', 'vnet-queue', 'azure-queue', 'managed-conn'],

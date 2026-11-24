@@ -52,7 +52,7 @@ A **managed** connection is a separate Azure resource, an **API connection**, th
 </Step>
 
 <Step id="auth" name="How they authenticate">
-Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the built-in SFTP connector doesn't, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server is an exception.
+Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the built-in SFTP connector doesn't, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server and HTTP are the exceptions.
 
 Microsoft recommends authenticating with a **managed identity** when possible.
 </Step>
@@ -64,7 +64,7 @@ Microsoft recommends authenticating with a **managed identity** when possible.
 </Step>
 
 <Step id="throttle" name="Throttling" tag="TIP">
-Managed connectors have their **own throttling limits**, which vary per connector. For example, the managed Service Bus connector allows up to **6,000 calls per minute**. The service on the other end can throttle you too.
+Managed connectors have their **own throttling limits**, which vary per connector. For example, the managed Service Bus connector allows up to **6,000 API calls per connection every 60 seconds**. The service on the other end can throttle you too.
 
 Built-in connectors, hosted on your runtime, are where Microsoft points you for **higher throughput and lower costs at scale**.
 </Step>
