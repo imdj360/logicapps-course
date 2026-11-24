@@ -24,7 +24,7 @@ export const scene: Scene = {
       visible: [...flow, 'compose', 'shop-compose'],
       highlight: ['shop', 'crm'],
       tokens: [{ id: 'p1', edge: 'shop-liquid', tone: 'info' }],
-      chips: [{ label: 'one field', value: 'Compose' }, { label: 'loops · conditions', value: 'Liquid', tone: 'ok' }],
+      chips: [{ label: 'basic transforms', value: 'Compose' }, { label: 'loops · conditions', value: 'Liquid', tone: 'ok' }],
     },
     actions: {
       visible: [...flow],

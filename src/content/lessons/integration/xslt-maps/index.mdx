@@ -32,19 +32,19 @@ The content must be XML. If it arrives base64-encoded or as text, convert it fir
 <Step id="where" name="Where maps live">
 In Standard, you **don't need an integration account** for maps. Add them directly to the logic app: in VS Code, put the file in your project's `Artifacts/Maps` folder; in the portal, under **Artifacts**, select **Maps**.
 
-A map added to the logic app can be used by the workflows in that logic app. You still need an integration account for B2B artifacts such as partners, agreements and certificates, and for AS2, X12 and EDIFACT.
+A map added directly to the logic app can be shared only across the workflows in that same logic app; to share maps across logic apps, link an integration account. You still need an integration account for B2B artifacts such as partners, agreements and certificates, and for AS2, X12 and EDIFACT.
 </Step>
 
 <Step id="versions" name="XSLT versions and sizes">
 Standard workflows support **XSLT**, **XSLT 2.0** and **XSLT 3.0** maps, and **no limits apply to map file sizes**.
 
-That's different from Consumption, where maps live in an integration account with size limits, and large transformations can fail with out-of-memory errors. Microsoft points to Standard's dedicated compute for heavier transformations.
+That's different from Consumption, where maps live in an integration account with size limits, and large transformations can fail with out-of-memory errors. Microsoft suggests slimming maps or payloads, or moving to Standard's dedicated compute.
 </Step>
 
 <Step id="datamapper" name="Data Mapper: maps you draw">
 **Data Mapper** builds maps visually in VS Code: you load a **source** and a **target** schema, then drag lines between elements and add functions, such as Concat, Format DateTime, Sum or If, in between.
 
-Schemas can be **XSD** or **JSON** files, from `Artifacts/Schemas`. It currently runs only in VS Code on **Windows**, inside a Standard project, and you can test a map with sample data from the test panel.
+Schemas can be **XSD** or **JSON** files: browse to them, or keep them in `Artifacts/Schemas` and pick them from the list. It currently runs only in VS Code on **Windows**, inside a Standard project, and you can test a map with sample data from the test panel.
 </Step>
 
 <Step id="files" name="What Data Mapper saves">
@@ -69,13 +69,13 @@ In Standard, add the assembly under **Artifacts** > **Assemblies** in the portal
 </Step>
 
 <Step id="validate" name="Validate before you transform" tag="TIP">
-A map assumes its input has the right shape. Check that first with the **Validate XML** action, against an `.xsd` schema stored in `Artifacts/Schemas` or an integration account. A bad message then fails at validation, with a clear error, instead of producing a wrong output.
+A map assumes its input has the right shape. Check that first with the **Validate XML** action, against an `.xsd` schema stored in `Artifacts/Schemas` or an integration account. That way a malformed message is rejected at the validation step rather than reaching the map.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **Transform XML** applies an XSLT map: set Content, Map Source and Map.
 - In Standard, maps live in `Artifacts/Maps` or the portal's **Maps**; no integration account needed.
-- Standard supports XSLT 1.0, 2.0 and 3.0, with no map size limit.
+- Standard supports XSLT, XSLT 2.0 and XSLT 3.0 maps, with no limit on map file size.
 - **Data Mapper** saves an `.lml` and a generated `.xslt`; run it with **Transform using Data Mapper XSLT**.
 - Maps can call **.NET assemblies**; validate input with **Validate XML** first.
 </Step>
@@ -88,5 +88,6 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-schemas
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-enterprise-integration-xml-validation
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+Fact-checked verbatim 2026-11-24.
 Not claimed: the XSLT engine (Saxon or otherwise), Data Mapper version or GA status, the XSLT version Data Mapper generates, inline-only C# script support per hosting model, map caching or restart behaviour. "Commit both" and "validate first" are our advice.
 */}

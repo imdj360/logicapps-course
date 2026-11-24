@@ -50,7 +50,7 @@ export const scene: Scene = {
     versions: {
       visible: [...flow, 'maps', 'maps-transform'],
       highlight: ['maps'],
-      chips: [{ label: 'XSLT', value: '1.0 · 2.0 · 3.0' }, { label: 'map size', value: 'no limit (Standard)', tone: 'ok' }],
+      chips: [{ label: 'map types', value: 'XSLT · 2.0 · 3.0' }, { label: 'map file size', value: 'no limit (Standard)', tone: 'ok' }],
     },
     datamapper: {
       visible: [...flow, 'maps', 'schemas', 'dm', 'dm-schemas', 'maps-transform'],
@@ -79,7 +79,7 @@ export const scene: Scene = {
       visible: [...flow, 'validate', 'schemas', 'partner-validate', 'validate-transform', 'schemas-validate'],
       highlight: ['validate', 'schemas-validate'],
       tokens: [{ id: 'v1', edge: 'partner-validate', tone: 'info' }, { id: 'v2', edge: 'validate-transform', tone: 'ok' }],
-      chips: [{ label: 'action', value: 'Validate XML' }, { label: 'bad input', value: 'fails early', tone: 'ok' }],
+      chips: [{ label: 'action', value: 'Validate XML' }, { label: 'bad input', value: 'rejected before the map', tone: 'ok' }],
     },
     recap: {
       visible: [...flow, 'validate', 'maps', 'schemas', 'dm', 'lml', 'dmx', 'asm', 'partner-validate', 'validate-transform', 'maps-transform', 'schemas-validate', 'dm-lml', 'lml-maps', 'maps-dmx', 'asm-maps', 'dm-schemas'],
