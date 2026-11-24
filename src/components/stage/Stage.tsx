@@ -76,10 +76,16 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
           if (!e.label) return line;
           const mx = (seg.from[0] + seg.to[0]) / 2;
           const my = (seg.from[1] + seg.to[1]) / 2;
+          // Beside mostly-vertical lines, above the others, so the text never sits on the line.
+          const vertical = Math.abs(seg.to[0] - seg.from[0]) < Math.abs(seg.to[1] - seg.from[1]);
           return (
             <g key={e.id}>
               {line}
-              <text className="edge__label" data-edge-label={e.id} x={mx + 8} y={my - 6}>{e.label}</text>
+              <text
+                className="edge__label" data-edge-label={e.id}
+                x={vertical ? mx + 10 : mx} y={vertical ? my + 4 : my - 8}
+                textAnchor={vertical ? 'start' : 'middle'}
+              >{e.label}</text>
             </g>
           );
         })}

@@ -2,14 +2,14 @@
 title: Parameters and app settings
 module: develop
 order: 2
-minutes: 10
+minutes: 7
 level: Intermediate
-summary: Keep environment-specific values out of your workflows. See what parameters and app settings each do, how they reference each other, and where secrets belong.
+summary: One workflow, three environments. Follow one value from the workflow to parameters.json, to an app setting, to Key Vault, and see what each step is for.
 youWillLearn:
-  - How parameters and app settings differ in a Standard logic app
-  - How to use @parameters() and @appsetting() in your project files
+  - How a workflow reads a value through parameters
+  - When a parameter should point at an app setting
+  - How a secret ends up in Key Vault
   - How to give each environment its own values
-  - What Learn says about Key Vault references and secrets
 learnLinks:
   - title: "Create Parameters for Workflow Inputs"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
@@ -19,69 +19,78 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-visual-studio-code
   - title: "Use Key Vault References as App Settings"
     url: https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references
-reviewStatus: approved
-lastVerified: '2026-11-24'
+reviewStatus: draft
 ---
 
 <Step id="problem" name="Same workflow, three environments" tag="PROBLEM">
-Your order-intake workflow calls a pricing API. The URL and key differ in dev, test and production, and you don't want to edit the workflow for each one.
+Your order-intake workflow calls a pricing API. Dev, test and production each have their own **URL** and **key**.
 
-Standard gives you two tools for this: **parameters** and **app settings**.
+You don't want to edit the workflow for each environment, and the key must never sit in the workflow at all.
 </Step>
 
-<Step id="two" name="Two tools">
-Microsoft says that in Standard you can work with environment variables both at runtime and at deployment by using **parameters and app settings**.
+<Step id="two" name="The idea">
+**The workflow never holds the values. It asks for them by name.**
 
-**App settings** are global configuration options for all workflows in the same logic app. **Parameters** let you design the workflow first and insert environment-specific values later.
+Follow one value down the chain:
+
+1. The workflow uses `@parameters('pricingKey')`.
+2. `parameters.json` says where `pricingKey` comes from: an app setting.
+3. The app setting `PricingKey` points at a secret in **Key Vault**.
+
+The URL is not a secret, so it stops at step 2.
 </Step>
 
 <Step id="params" name="parameters.json">
-In VS Code, define parameters in a root-level `parameters.json`. Each key is a parameter name, and each value needs a **type** and a **value**.
+One file at the root of the project lists every parameter, each with a **type** and a **value**:
 
-The file must define every parameter you use anywhere in the project, including workflow definitions and connections. In a trigger or action, reference one with `@parameters('name')`. Parameters can hold large values and complex objects, such as an authentication object.
+```json
+{
+  "pricingUrl": { "type": "string", "value": "https://pricing-dev.contoso.com" },
+  "pricingKey": { "type": "string", "value": "@appsetting('PricingKey')" }
+}
+```
+
+In a trigger or action you write `@parameters('pricingUrl')`. Inside `parameters.json`, `@appsetting(...)` is the **only expression** allowed.
 </Step>
 
-<Step id="appsetting" name="@appsetting()">
-Locally, app settings live in `local.settings.json` and act as local environment variables. You reference an app setting with `@appsetting('name')`.
+<Step id="appsetting" name="App settings">
+App settings are **app-wide** configuration for all workflows in the logic app:
 
-Inside `parameters.json`, `@appsetting` is the **only valid expression type**. In `connections.json`, the only valid ones are `@parameters` and `@appsetting`. So a parameter can point at an app setting, and a workflow then uses `@parameters()`.
+- **Locally**: in `local.settings.json`.
+- **In Azure**: **Settings** > **Environment variables** > **App settings**.
+
+For the secret, the app setting holds a Key Vault reference instead of the key:
+
+```text
+PricingKey = @Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/pricing-key)
+```
+
+The app reads it with its **system-assigned identity**, which needs the **Key Vault Secrets User** role.
 </Step>
 
-<Step id="choose" name="Which one to use">
-Learn's note: consider **parameters as the default** way to parameterize values. When you need to store secure keys or strings, reference app settings from your parameters.
-
-Reasons: app settings have **size limits** and can't be referenced from certain areas, while parameters support large values and complex objects. In Learn's `connections.json` example, simple values use app settings because they're generated during deployment and are easy to populate in a pipeline.
+<Step id="choose" name="Which one when?">
+- **Parameters**: the default. They hold large values and complex objects.
+- **App settings**: when a value is a **secret**, or your pipeline sets it during deployment. Reference them from parameters.
+- **Key Vault**: for the secret itself, through an app setting. Standard parameters don't support `securestring` or `secureobject`, and Microsoft prefers a **managed identity** when the target supports it.
 </Step>
 
 <Step id="env" name="Values per environment">
-- **Parameters**: keep one `parameters.json` per environment and promote the matching file with your pipeline. Learn shows `az functionapp deploy ... --type static --target-path parameters.json`. Replacing the file isn't available in the portal or designer.
-- **App settings**: set in the portal under **Settings > Environment variables > App settings**, with `az logicapp config appsettings set`, or from your pipeline with the `appSettings` parameter of the Azure Function App Deploy task.
+- **Parameters**: keep one `parameters.json` per environment, and let your pipeline deploy the matching file, for example `az functionapp deploy ... --type static --target-path parameters.json`.
+- **App settings**: set them per environment in the portal, with `az logicapp config appsettings set`, or from your pipeline.
+
+The workflow itself is the same file everywhere.
 </Step>
 
-<Step id="secrets" name="Where secrets go">
-Learn's guidance: secure data types such as `securestring` and `secureobject` **aren't supported** in Standard parameters. Authenticate with a **managed identity** when possible.
-
-If that's not possible, secure connection strings by other means, such as **Azure Key Vault**, which you can use with app settings. Don't put a secret in plain text in `parameters.json` (ours, following from the above).
-</Step>
-
-<Step id="keyvault" name="Key Vault references">
-An app setting can hold a reference such as `@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/mysecret)`. The app's **system-assigned identity** is used by default, and it needs read access to secrets (for example the **Key Vault Secrets User** role).
-
-Without a version in the reference, the app picks up a newer secret version **within 24 hours**. Store only real secrets there: the designer **can't dereference** an app setting that points to Key Vault, so keep nonsecret values, such as URLs, directly in app settings.
-</Step>
-
-<Step id="slots" name="Per-slot values and the designer" tag="TIP">
-The Azure Functions slots article describes marking a setting as a **Deployment slot setting**. App Service guidance on Key Vault references says most such settings should be marked as slot settings, since you should have separate vaults per environment.
-
-If you parameterize `connections.json`, the designer becomes **restricted**, locally and in the portal. Learn suggests developing with a nonparameterized file and replacing it in your deployment pipeline.
+<Step id="watch" name="Watch out" tag="TIP">
+- The designer **can't resolve** an app setting that points at Key Vault, so keep only real secrets there. Values like the URL stay plain.
+- Parameterizing `connections.json` restricts the designer. Develop with a plain file and swap in the parameterized one in your pipeline.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- **App settings** are app-wide; **parameters** live in `parameters.json` and take large or complex values.
-- Use `@parameters()` in workflows and connections; use `@appsetting()` in parameters and connections.
-- Keep a **parameters file per environment**; set app settings per environment.
-- No secure types in Standard; prefer **managed identity**, otherwise **Key Vault** through app settings.
-- Keep nonsecret values out of Key Vault references the designer must resolve.
+- The workflow asks with `@parameters('name')`.
+- `parameters.json` holds plain values, or `@appsetting('Name')` for secrets.
+- The app setting holds a **Key Vault reference** for the secret.
+- One `parameters.json` and one set of app settings per environment; the workflow never changes.
 </Step>
 
 {/*
@@ -90,6 +99,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-standard-workflows-visual-studio-code (local.settings.json)
 - https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references (reference format, default identity, 24 hours, slot settings tip; page says it applies to App Service, Azure Functions or Azure Logic Apps (Standard))
+Rewritten 2026-11-25 as one chain (workflow → parameters.json → app setting → Key Vault); the pricingUrl/pricingKey names and URLs are illustrative.
 Fact-checked verbatim 2026-11-24.
 Not claimed: that secrets must never be in parameters.json (Learn only says to secure connection strings by other means such as Key Vault; the plain-text warning is ours). Learn's logic apps pages show no end-to-end sample of a parameter pointing at a Key Vault-backed app setting, and its own note says the designer cannot dereference such a setting.
 */}
