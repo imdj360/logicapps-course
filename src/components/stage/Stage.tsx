@@ -54,6 +54,12 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
             <path d="M0 0 L10 5 L0 10 Z" className="edge__head" />
           </marker>
         </defs>
+        {(scene.groups ?? []).filter((g) => visible.has(g.id)).map((g) => (
+          <g key={g.id} data-group-id={g.id} className={`group${highlight.has(g.id) ? ' group--hl' : ''}`}>
+            <rect className="group__box" x={g.x} y={g.y} width={g.w} height={g.h} rx={14} />
+            <text className="group__label" x={g.x + 14} y={g.y + 20}>{g.label}</text>
+          </g>
+        ))}
         {scene.edges.filter((e) => visible.has(e.id)).map((e) => {
           const seg = segment(e.id);
           if (!seg) return null;

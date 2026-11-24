@@ -30,6 +30,10 @@ export const scene: Scene = {
     { id: 'stock-actrec', from: 'stock', to: 'actrec', style: 'dashed' },
     { id: 'queue-actrec', from: 'queue', to: 'actrec', style: 'dashed' },
   ],
+  groups: [
+    // Frames the trigger and every action: one trigger fire = one run.
+    { id: 'run', label: 'One run', x: 236, y: 38, w: 628, h: 260 },
+  ],
   steps: {
     problem: {
       visible: [...core],
@@ -49,13 +53,13 @@ export const scene: Scene = {
       chips: [{ label: 'trigger', value: 'Skipped', tone: 'warn' }, { label: 'runs created', value: '0' }],
     },
     fired: {
-      visible: ['shop', 'trigger', 'shop-trigger'],
+      visible: ['shop', 'trigger', 'shop-trigger', 'run'],
       highlight: ['trigger'],
       tokens: [{ id: 'order', edge: 'shop-trigger', tone: 'info' }],
       chips: [{ label: 'trigger', value: 'Succeeded · Fired', tone: 'ok' }, { label: 'run', value: 'Running' }],
     },
     actions: {
-      visible: [...core],
+      visible: [...core, 'run'],
       highlight: ['trigger-parse', 'parse-stock', 'stock-queue'],
       tokens: [
         { id: 'a1', edge: 'trigger-parse', tone: 'info' },
@@ -65,8 +69,8 @@ export const scene: Scene = {
       chips: [{ label: 'run', value: 'Running' }, { label: 'runAfter', value: 'Succeeded' }],
     },
     history: {
-      visible: [...core, 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'parse-actrec', 'stock-actrec', 'queue-actrec'],
-      highlight: ['trigrec', 'history', 'actrec'],
+      visible: [...core, 'run', 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'parse-actrec', 'stock-actrec', 'queue-actrec'],
+      highlight: ['run', 'trigrec', 'history', 'actrec'],
       tokens: [{ id: 'h0', edge: 'trigger-trigrec', tone: 'info' }, { id: 'h4', edge: 'trigrec-history', tone: 'info' }, { id: 'h1', edge: 'parse-actrec', tone: 'info' }, { id: 'h2', edge: 'stock-actrec', tone: 'info' }, { id: 'h3', edge: 'queue-actrec', tone: 'info' }],
       chips: [{ label: 'trigger', value: 'the request in · out' }, { label: 'run', value: 'one per trigger fire' }, { label: 'each action', value: 'inputs · outputs' }],
     },
@@ -77,7 +81,7 @@ export const scene: Scene = {
       chips: [{ label: 'runs', value: '2 running' }, { label: 'concurrency', value: 'off (unlimited)' }],
     },
     failure: {
-      visible: [...core],
+      visible: [...core, 'run'],
       failed: ['stock'],
       tokens: [{ id: 'f1', edge: 'parse-stock', tone: 'fail' }],
       chips: [
@@ -87,14 +91,14 @@ export const scene: Scene = {
       ],
     },
     read: {
-      visible: [...core, 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'stock-actrec'],
+      visible: [...core, 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'stock-actrec', 'run'],
       failed: ['stock'],
       highlight: ['actrec', 'stock-actrec'],
       tokens: [{ id: 'r1', edge: 'stock-actrec', tone: 'fail' }],
       chips: [{ label: 'failed step', value: 'Check stock', tone: 'fail' }, { label: 'output', value: 'HTTP 500' }],
     },
     recap: {
-      visible: [...core, 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'parse-actrec', 'stock-actrec', 'queue-actrec'],
+      visible: [...core, 'trigrec', 'history', 'actrec', 'trigger-trigrec', 'trigrec-history', 'parse-actrec', 'stock-actrec', 'queue-actrec', 'run'],
       chips: [{ label: 'trigger', value: 'starts a run' }, { label: 'recorded', value: 'the run + every action' }],
     },
   },

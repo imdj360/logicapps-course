@@ -60,13 +60,14 @@ describe.each(entries)('lesson $slug', ({ frontmatter, steps, body, scene }) => 
   it('only references nodes and edges that exist', () => {
     const nodeIds = new Set(scene!.nodes.map((n) => n.id));
     const edgeIds = new Set(scene!.edges.map((e) => e.id));
+    const groupIds = new Set((scene!.groups ?? []).map((g) => g.id));
     for (const e of scene!.edges) {
       expect(nodeIds, `edge ${e.id}.from`).toContain(e.from);
       expect(nodeIds, `edge ${e.id}.to`).toContain(e.to);
     }
     for (const [id, st] of Object.entries(scene!.steps)) {
       for (const v of [...st.visible, ...(st.highlight ?? []), ...(st.failed ?? [])]) {
-        expect(nodeIds.has(v) || edgeIds.has(v), `step ${id}: ${v}`).toBe(true);
+        expect(nodeIds.has(v) || edgeIds.has(v) || groupIds.has(v), `step ${id}: ${v}`).toBe(true);
       }
       for (const t of st.tokens ?? []) expect(edgeIds, `step ${id} token ${t.id}`).toContain(t.edge);
     }

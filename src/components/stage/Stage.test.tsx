@@ -22,6 +22,7 @@ const scene: Scene = {
       chips: [{ label: 'run status', value: 'Failed', tone: 'fail' }],
     },
   },
+  groups: [{ id: 'run', label: 'One run', x: 10, y: 40, w: 400, h: 120 }],
   legend: [{ tone: 'info', label: 'message' }],
 };
 
@@ -33,6 +34,15 @@ describe('Stage', () => {
     const { container } = render(<Stage scene={scene} stepId="one" playing reducedMotion={false} />);
     expect(ids(container, 'data-node-id')).toEqual(['t', 'a']);
     expect(ids(container, 'data-edge-id')).toEqual(['t-a']);
+  });
+
+  it('draws a group box only when the step lists it', () => {
+    const withGroup = { ...scene, steps: { ...scene.steps, three: { visible: ['run', 't', 'a'], chips: [] } } };
+    const { container, rerender } = render(<Stage scene={withGroup} stepId="three" playing reducedMotion={false} />);
+    expect(ids(container, 'data-group-id')).toEqual(['run']);
+    expect(container.querySelector('[data-group-id="run"]')).toHaveTextContent('One run');
+    rerender(<Stage scene={withGroup} stepId="one" playing reducedMotion={false} />);
+    expect(ids(container, 'data-group-id')).toEqual([]);
   });
 
   it('marks failed nodes', () => {
