@@ -49,7 +49,7 @@ Its advice: be **prescriptive**, and expect to refine the instructions over seve
 <Step id="tools" name="Tools are actions">
 A **tool** is a sequence of one or more actions that completes a task for the agent. A tool must start with an action, can't contain a trigger, works only inside its own agent loop, and doesn't support control-flow actions.
 
-**Agent parameters** let the model supply a tool's inputs each time it calls the tool. Microsoft's guideline is **no more than 10 tools** per agent loop: too many hurt quality.
+**Agent parameters** let the model supply a tool's inputs each time it calls the tool. Microsoft's general guideline is **no more than 10 tools** per agent loop, though it varies with the model you use.
 </Step>
 
 <Step id="types" name="Autonomous or conversational">

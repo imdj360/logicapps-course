@@ -49,11 +49,11 @@ Sometimes a workflow needs a secret during a run, for example to pass it to an A
 <Step id="secure" name="Keep it out of run history" tag="FIX">
 A secret you read at run time shows up in run history unless you hide it. In the action's **Settings**, under **Security**, turn on **Secure Outputs** (and **Secure Inputs** on the actions that use it).
 
-Secured data isn't sent to Log Analytics, and you can't add tracked properties to that action. Also turn on Secure Inputs or Outputs in downstream actions where you want the data hidden. Some built-in actions, such as Compose and the variable actions, don't support these settings.
+Secured data isn't sent to Log Analytics, and you can't add tracked properties to that action. Also turn on Secure Inputs or Outputs in downstream actions where you want the data hidden. Some built-in actions, such as the variable actions, For each, If and Scope, don't support these settings. Compose, Parse JSON and Response have only Secure Inputs, which also hides their outputs.
 </Step>
 
 <Step id="slots" name="Per environment" tag="TIP">
-Microsoft recommends **separate vaults** per environment, and marking app settings that use Key Vault references as **slot settings**.
+Microsoft recommends **separate vaults** per environment, and marking most app settings that use Key Vault references as **slot settings**.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

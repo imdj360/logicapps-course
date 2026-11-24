@@ -41,7 +41,7 @@ One Standard logic app can hold both kinds side by side, so *Price lookup* and *
 <Step id="limits" name="Stateless works best small and short">
 Stateless workflows are best for runs **under 5 minutes** (the default maximum run duration) and content **under 64 KB** in total. Bigger content might significantly slow the workflow, or even crash it with out-of-memory exceptions.
 
-Loops are smaller too. By default a *For each* handles **100 items** in a stateless workflow, compared with 100,000 in a stateful one, and an *Until* loop allows at most **100 iterations**.
+Loops are smaller too. By default a *For each* handles **100 items** in a stateless workflow, compared with 100,000 in a stateful one, and an *Until* loop defaults to 60 iterations and allows at most **100**.
 </Step>
 
 <Step id="triggers" name="Start with a push trigger">
@@ -63,7 +63,7 @@ To debug, switch on **Debug state** in the workflow's settings in the Azure port
 </Step>
 
 <Step id="mix" name="Use both together" tag="TIP">
-Workflows can call each other in the same Standard logic app. When a stateless workflow calls a stateful one, the call is **synchronous**: the parent waits for the child.
+Workflows can call each other in the same Standard logic app. When a stateless workflow calls a stateful one, Learn calls the pattern **synchronous ("fire and forget")**: the child returns 202 Accepted and the parent carries on without waiting for its results. A parent waits only when the child is **stateless**.
 
 A pattern we like for *Price lookup* and *Process order*: keep the part the customer waits for stateless and fast, and hand anything that must not be lost to a stateful workflow, for example through a queue.
 </Step>

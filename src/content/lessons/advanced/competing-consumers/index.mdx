@@ -21,11 +21,11 @@ Every night, 50,000 invoice messages land on a queue. One worker would take unti
 <Step id="pattern" name="Competing consumers">
 Microsoft's **Competing Consumers** pattern: several consumer instances read from the **same queue**, and each message goes to **only one** of them. Add consumers when the backlog grows.
 
-It's the opposite of publish-subscribe, where **every** subscriber gets every message.
+Our contrast: with publish-subscribe, **every** subscriber gets every message.
 </Step>
 
 <Step id="logicapps" name="In Logic Apps">
-In Logic Apps, our mapping: a workflow with the built-in **peek-lock** Service Bus trigger is the consumer. As a Workflow Service Plan scales out, more instances read from the queue at once.
+In Logic Apps, our mapping: a workflow with the built-in **peek-lock** Service Bus trigger is the consumer. As a Workflow Service Plan scales out, we expect more instances to read from the queue at once (our expectation).
 
 Microsoft's Functions example shows that peek-lock **hides** a message from other consumers while one is working on it; on success it's completed, on failure it can be abandoned.
 </Step>

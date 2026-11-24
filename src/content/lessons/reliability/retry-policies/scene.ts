@@ -44,7 +44,7 @@ export const scene: Scene = {
     exponential: {
       visible: [...core],
       highlight: ['call-api'],
-      chips: [{ label: 'wait', value: 'random, growing' }, { label: 'min / max (Standard)', value: '5 s / 1 h' }],
+      chips: [{ label: 'wait', value: 'random, growing' }, { label: 'max interval', value: '1 h (HTTP host)' }],
     },
     limits: {
       visible: [...core],

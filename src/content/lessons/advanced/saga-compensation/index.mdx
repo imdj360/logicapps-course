@@ -33,7 +33,7 @@ Microsoft names three:
 - **Pivot**: the **point of no return**, like shipping the parcel.
 - **Retryable**: **idempotent** steps after the pivot, so they can be retried safely until the saga reaches its final state.
 
-Microsoft's advice on irreversible steps: do them only after all critical validations succeed. Our reading: put the risky, compensable steps before the pivot.
+Microsoft's Compensating Transaction page advises, for irreversible steps: do them only after all critical validations succeed. Our reading: put the risky, compensable steps before the pivot.
 </Step>
 
 <Step id="orchestration" name="Orchestration or choreography">

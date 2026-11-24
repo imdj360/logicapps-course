@@ -40,7 +40,7 @@ For production in Standard, protect the chat endpoint with **Easy Auth** (App Se
 <Step id="tools" name="Limit what tools can do">
 Every tool is an action you chose to give the agent. Our advice: start with **read-only** tools, and add tools that change data only when you need them, each with the narrowest identity and permissions.
 
-Learn's on-behalf-of guidance (preview) points the same way: use the user's identity for read-only operations, and **app-only authorization with explicit confirmation** for writes.
+Learn's on-behalf-of guidance (preview) is about identity, not tool choice: it suggests OBO for read-only operations, and **app-only authorization with explicit confirmation** for writes.
 </Step>
 
 <Step id="human" name="Keep a human in the loop">
@@ -60,13 +60,13 @@ With Application Insights or advanced telemetry, agent loop events appear in you
 </Step>
 
 <Step id="cost" name="Watch the cost" tag="TIP">
-Model tokens are the cost driver. Keep tool results small, for example by trimming them with a Compose action, keep to about 10 tools, and use the per-iteration token counts to spot an agent that loops more than it should.
+Model tokens are the cost driver. Keep tool results small, for example by trimming them with a Compose action, keep to about 10 tools (Learn's guideline, which varies by model), and use the per-iteration token counts to spot an agent that loops more than it should.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - Model connection: **system-assigned managed identity**, least-privileged role.
 - Chat endpoint: **Easy Auth** in production, not the developer key.
-- Tools: **read-only first**; writes with explicit confirmation.
+- Tools: **read-only first** (ours); Learn suggests app-only authorization with explicit confirmation for writes.
 - Put **human checkpoints** in the workflow; Learn describes no built-in gate.
 - Use the **agent log** and telemetry to see tools, results and tokens.
 </Step>

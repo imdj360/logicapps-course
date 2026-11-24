@@ -56,7 +56,7 @@ export const scene: Scene = {
     },
     slots: {
       visible: [...core],
-      chips: [{ label: 'per environment', value: 'own vault' }, { label: 'KV settings', value: 'slot settings' }],
+      chips: [{ label: 'per environment', value: 'own vault' }, { label: 'KV settings', value: 'most: slot settings' }],
     },
     recap: {
       visible: [...core, 'action', 'history', 'app-action', 'action-kv', 'action-history'],

@@ -40,7 +40,7 @@ export const scene: Scene = {
       visible: [...core, ...targets],
       highlight: ['sb', 'mi-sb'],
       tokens: [{ id: 'b1', edge: 'mi-sb', tone: 'ok' }],
-      chips: [{ label: 'user-assigned', value: 'SQL Server · HTTP only', tone: 'warn' }],
+      chips: [{ label: 'user-assigned', value: 'mostly SQL · HTTP', tone: 'warn' }],
     },
     managed: {
       visible: [...core, ...targets],

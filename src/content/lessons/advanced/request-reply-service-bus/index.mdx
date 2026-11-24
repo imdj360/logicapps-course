@@ -45,7 +45,7 @@ Sessions need the **Standard or Premium** tier.
 </Step>
 
 <Step id="logicapps" name="In Logic Apps">
-The built-in Service Bus connector in Standard can **send** messages, with more properties under **Advanced parameters** (Learn lists a **Session Id** field only for the managed connector's Send message), and **receive** from sessions, for example with **Get messages from a queue session**. Received messages expose **Reply to**, **Reply to session** and **Correlation ID**.
+The built-in Service Bus connector in Standard can **send** messages, with more properties under **Advanced parameters** (Learn's managed connector Send message lists **Reply To**, **Reply To Session Id** and **Session Id**; the built-in reference lists only the message, so check which properties your built-in Send exposes, or use the managed connector, which is capped at 1 MB), and **receive** from sessions, for example with **Get messages from a queue session**. Received messages expose **Reply to**, **Reply to session** and **Correlation ID**.
 
 Learn's connector reference doesn't list every property you can set on send, so check what your connector version exposes before you design around it.
 </Step>

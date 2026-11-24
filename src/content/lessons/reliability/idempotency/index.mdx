@@ -33,7 +33,7 @@ If your business can't handle duplicates, Microsoft says you need to implement *
 - **Delivery**: the rare repeat delivery described above.
 - **Resubmit**: rerunning a run repeats its actions. Microsoft warns that create operations might create **duplicate data**.
 - **Retries**: a retry resends a request after a timeout or error. If the first request did reach the service, the work may now happen twice. (That's our reasoning; Learn doesn't spell it out.)
-- **Concurrency**: Microsoft warns that changing concurrency on the Service Bus auto-complete trigger can cause **duplicate messages** when the workflow is throttled.
+- **Concurrency**: Microsoft warns that changing concurrency on the Service Bus managed connector's auto-complete trigger can cause **duplicate messages** when the workflow is throttled.
 </Step>
 
 <Step id="key" name="Use a business key">

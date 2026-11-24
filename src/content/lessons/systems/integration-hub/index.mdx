@@ -39,7 +39,7 @@ Because the managed trigger is a webhook from the public cloud, it doesn't work 
 </Step>
 
 <Step id="eventhubs" name="Event Hubs: streams">
-For high-volume streams, such as telemetry, the **Event Hubs** trigger returns up to a set number of events per run, from **one partition per run**. Each built-in connection handles up to **1,000 events per minute**; Microsoft suggests spreading higher volumes across connections or workflows.
+For high-volume streams, such as telemetry, the **Event Hubs** trigger returns up to a set number of events per run, from **one partition per run (per Learn's Event Hubs how-to)**. Each built-in connection handles up to **1,000 events per minute**; Microsoft suggests spreading higher volumes across connections or workflows.
 
 The trigger keeps its own position in the stream. Updating the trigger resets it, so it might read from the start again.
 </Step>

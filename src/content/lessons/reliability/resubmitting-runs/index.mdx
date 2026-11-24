@@ -40,7 +40,7 @@ The partner stays down longer than the retries last. *Call partner API* ends as 
 <Step id="catch" name="Try and Catch scopes" tag="FIX">
 Logic Apps has no try/catch keyword, but **scopes** give you the same pattern. Put *Call partner API* and *Save order* inside a *Scope* named **Try**. Then add a second *Scope* after it, named **Catch**, with your error handling inside: here, an alert to the team.
 
-A scope gets its own status once everything inside it finishes. If **any** action inside fails, the scope is marked **Failed**. So the Catch scope doesn't need to know which action broke. It only watches the Try scope.
+A scope gets its own status once everything inside it finishes. Learn's scopes page says that when any action inside fails, the scope is marked **Failed** (its error-handling page words it as the final action failing). So the Catch scope doesn't need to know which action broke. It only watches the Try scope.
 </Step>
 
 <Step id="run-after" name="Configure run after">
@@ -78,7 +78,7 @@ Logic Apps reruns the workflow **with the same inputs** as the original run, and
 <Step id="from-action" name="Resubmit from an action" tag="TIP">
 You don't always want to start from the top. **Submit from this action** reruns from a chosen action: actions before it **reuse their original inputs and outputs**, and the selected action and everything after it run again.
 
-It has limits: the run must be finished (Succeeded, Failed or Cancelled), the workflow must be **sequential** with **40 actions or fewer**, and you can't start from inside or after a *For each* or *Until* loop.
+It has limits: the run must be finished (Succeeded, Failed or Cancelled), the workflow must be **sequential** with **40 actions or fewer**, and you can't start from a *For each* or *Until* action, from inside or after one, or from inside a Condition or Switch branch.
 </Step>
 
 <Step id="duplicates" name="Watch for duplicates" tag="PROBLEM">

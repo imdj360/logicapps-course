@@ -68,7 +68,7 @@ export const scene: Scene = {
       visible: [...fast, ...safe, 'you', 'you-storage'],
       highlight: ['mem'],
       failed: ['price'],
-      chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not possible', tone: 'fail' }, { label: 'debug', value: 'Debug state (not prod)' }],
+      chips: [{ label: 'run history', value: 'off by default', tone: 'warn' }, { label: 'resubmit', value: 'not by default', tone: 'fail' }, { label: 'debug', value: 'Debug state (not prod)' }],
     },
     mix: {
       visible: [...fast, ...safe, 'price-queue'],

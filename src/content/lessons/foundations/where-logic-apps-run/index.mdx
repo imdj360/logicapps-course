@@ -30,7 +30,7 @@ That runtime can live in three places: on a **Workflow Service Plan**, in an **A
 </Step>
 
 <Step id="plans" name="Workflow Service Plan">
-The default home is a **Workflow Service Plan**. You choose a tier per instance:
+The most common home, in our experience, is a **Workflow Service Plan**. You choose a tier per instance:
 - **WS1**: 1 vCPU, 3.5 GB memory
 - **WS2**: 2 vCPU, 7 GB memory
 - **WS3**: 4 vCPU, 14 GB memory
@@ -83,7 +83,7 @@ It's a different model from Standard, not another home for the same project. Sta
 - **Workflow Service Plan (WS1–WS3)**: pay for reserved capacity (built-in operations included, managed connector calls extra), dynamic scaling, private endpoints and VNet integration.
 - **ASE v3**: fully isolated and dedicated, Isolated v2 plans, you manage scaling.
 - **Hybrid**: Standard on your own Kubernetes via Azure Arc, with a SQL database for run history, and some features missing.
-- On Azure, Standard uses a **storage account** for stateful workflows, and the runtime is built on **Azure Functions**.
+- On Azure, a Standard logic app needs a **storage account** (stateful workflows keep their run state there), and the runtime is built on **Azure Functions**.
 - **Consumption** is multitenant, one workflow per resource, pay per execution: the easiest start, but with fewer capabilities than Standard.
 </Step>
 

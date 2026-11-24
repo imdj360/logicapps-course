@@ -46,7 +46,7 @@ export const scene: Scene = {
       visible: [...core, ...tools],
       highlight: ['t1', 't2'],
       tokens: [{ id: 'tt1', edge: 'agent-t1', tone: 'ok' }, { id: 'tt2', edge: 'agent-t2', tone: 'ok' }],
-      chips: [{ label: 'tool', value: 'actions, no trigger' }, { label: 'guideline', value: '≤ 10 tools' }],
+      chips: [{ label: 'tool', value: 'actions, no trigger' }, { label: 'guideline', value: 'about 10, varies' }],
     },
     types: {
       visible: [...core, ...tools],

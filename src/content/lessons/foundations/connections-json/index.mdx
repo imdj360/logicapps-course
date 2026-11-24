@@ -75,7 +75,7 @@ A managed connection is different: the connection itself is a **separate Azure r
 <Step id="local" name="Local isn't Azure" tag="PROBLEM">
 When VS Code creates a managed connection, it's **for local use**. Its authentication is a **raw key** stored in `local.settings.json`, and Microsoft says these keys are for development only: they **expire after seven days**.
 
-So before you release to Azure, change the connection's authentication to the Azure format, a **managed identity**. And every managed API connection needs an **access policy** that gives your logic app's identity permission to use it. A missing access policy, or leftover local authentication, is a likely cause of "it worked on my laptop".
+So before you release to Azure, change the connection's authentication to the Azure format, a **managed identity**. And every managed API connection needs an **access policy** that gives your logic app's identity permission to use it. A missing access policy, or leftover local authentication, is a plausible cause of "it worked on my laptop" (our experience).
 </Step>
 
 <Step id="identity" name="Managed identity" tag="FIX">

@@ -38,7 +38,7 @@ By default it **auto-completes**: in a stateful workflow, once the trigger's out
 <Step id="peeklock" name="Peek-lock: you decide">
 With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it, for example with **Complete**, **Abandon** or **Dead-letter** (there's also Defer), using the message's lock token.
 
-The lock doesn't last forever. Our advice: keep runs shorter than the lock (Microsoft warns that runs shouldn't wait longer than the lock timeout), or use **Renew lock on a message in queue**.
+The lock doesn't last forever. Our advice: keep runs shorter than the lock (when you tune trigger concurrency and waiting runs, Microsoft warns that runs shouldn't wait longer than the message lock timeout), or use **Renew lock on a message in queue**.
 </Step>
 
 <Step id="sessions" name="In order: sessions">

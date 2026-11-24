@@ -39,7 +39,7 @@ In Logic Apps, that's a **Create blob** action before **Send message**, and a **
 </Step>
 
 <Step id="eventgrid" name="Let Event Grid do it">
-Three of Microsoft's four samples use **Blob Storage** with **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
+All four of Microsoft's samples use **Blob Storage**, and three use **Event Grid**: the upload raises a **BlobCreated** event, and the blob URL in the event is the claim check.
 
 In production, Microsoft says to filter for fully committed blobs and to design the receiver for **delayed, duplicate and out-of-order** events.
 </Step>

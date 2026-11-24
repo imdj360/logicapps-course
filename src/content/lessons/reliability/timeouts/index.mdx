@@ -33,7 +33,7 @@ The host setting `Runtime.Backend.HttpOperation.RequestTimeout` holds that value
 </Step>
 
 <Step id="action" name="Action timeout">
-You can limit how long an action may run. In code view, `limit.timeout` caps the duration of the **asynchronous pattern**, in ISO 8601 format; in the designer it's the action's **Timeout** setting:
+You can limit how long an action may run. In code view, `limit.timeout` caps the duration of the **asynchronous pattern**, in ISO 8601 format; for the HTTP action the designer exposes a timeout under **Settings > Request options > Timeout**:
 
 ```json
 "limit": { "timeout": "PT10M" }
@@ -55,7 +55,7 @@ A whole **stateful** run can last **90 days** by default; set `Runtime.Backend.F
 </Step>
 
 <Step id="catch" name="Catching a timeout" tag="FIX">
-A timeout is an outcome you can act on. On the next action, or on a catch scope, open **Run after** and select **Has timed out**, alongside **Has failed**.
+A timeout is an outcome you can act on. On the next action, or on a catch scope, open **Run after** and select **Has timed out**, alongside **Has failed**. Learn describes the outcome both as Cancelled (ActionTimedOut) and as Timed out, so test what your run after sees.
 
 That way a partner that never answers leads to an alert or a fallback, not a run stuck on Running.
 </Step>

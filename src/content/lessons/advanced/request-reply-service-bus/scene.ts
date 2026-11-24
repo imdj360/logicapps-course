@@ -21,7 +21,7 @@ export const scene: Scene = {
   steps: {
     problem: {
       visible: ['order', 'engine'],
-      chips: [{ label: 'answer takes', value: '3–10 min' }, { label: 'HTTP timeout', value: '225 s default', tone: 'warn' }],
+      chips: [{ label: 'answer takes', value: '3–10 min' }, { label: 'HTTP timeout', value: '225 s Standard', tone: 'warn' }],
     },
     two: {
       visible: [...core],

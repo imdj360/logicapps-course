@@ -45,7 +45,7 @@ By default, Logic Apps polls the location after **one second**.
 </Step>
 
 <Step id="nolocation" name="202 without a location" tag="PROBLEM">
-Some APIs answer 202 with no location header to poll. For those, turn **off** the HTTP action's Asynchronous pattern setting, so the action doesn't keep checking for a status that never comes.
+Some APIs answer 202 with no location header to poll. For those, turn **off** the HTTP action's Asynchronous pattern setting, so, in our view, the action doesn't keep checking for a status that never comes. Learn's own reasons to turn it off are to stop checking location headers and to avoid HTTP timeouts on long-running tasks.
 </Step>
 
 <Step id="stateless" name="Stateless doesn't poll">
@@ -61,7 +61,7 @@ It needs a service that supports subscribe and unsubscribe, but nothing polls in
 </Step>
 
 <Step id="timeouts" name="Timeouts to know" tag="TIP">
-- An outbound HTTP request in Standard times out after **225 seconds** by default; change it per action under **Request options**, or in host settings.
+- An outbound HTTP request in Standard times out after **225 seconds** by default; you can lower it per action under **Request options** or in host settings, but 225 seconds is also the maximum.
 - For longer operations, Microsoft suggests the **asynchronous polling** pattern or an **Until** loop.
 - A stateful run can last **90 days** by default; a stateless one **5 minutes**.
 </Step>

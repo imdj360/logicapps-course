@@ -54,11 +54,11 @@ Intervals use the ISO 8601 format: `PT30S` is 30 seconds.
 <Step id="exponential" name="Exponential interval">
 An exponential policy waits a **random** interval from a range that **grows** with each retry. That spreads retries out, so many runs don't hit a struggling service at the same moment.
 
-You can set `minimumInterval` and `maximumInterval`. The minimum defaults to **5 seconds**; in Standard, the maximum defaults to **1 hour**.
+You can set `minimumInterval` and `maximumInterval`. The minimum defaults to **5 seconds**. For the maximum, Learn's retry policy reference says **1 day** (P1D), while the Standard host settings for the HTTP action set **1 hour**; set it explicitly if it matters.
 </Step>
 
 <Step id="limits" name="Limits in Standard">
-- **Count**: the `count` property takes 1 to **90** retries; in Standard the default is 4.
+- **Count**: Learn lists 1 to **90** for the `count` property; in Standard the default is 4.
 - **Interval**: 5 seconds to 1 day in a **stateful** workflow, 1 second to 1 minute in a **stateless** one.
 - The defaults themselves are **host settings** in Standard, for example `Runtime.Backend.HttpOperation.DefaultRetryCount` (4) and `DefaultRetryInterval` (7 seconds).
 </Step>
