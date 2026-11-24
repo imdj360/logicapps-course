@@ -72,7 +72,17 @@ a.credit:hover { color: var(--fg); }
   border-right: 1px solid var(--border); background: color-mix(in oklch, var(--surface) 70%, transparent);
   display: flex; flex-direction: column;
 }
-.sidebar__head { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 1rem 0.5rem; font: 600 13px/1 var(--font-display); }
+.sidebar__head { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 2.6rem 0.5rem 1rem; font: 600 13px/1 var(--font-display); }
+/* Desktop: hide or show the course menu to give the lesson more room. Choice is remembered in localStorage. */
+.sidebar-toggle { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--muted); font: 600 16px/1 var(--font-mono); cursor: pointer; }
+.sidebar-toggle:hover { color: var(--fg); border-color: var(--border-strong); }
+.sidebar { position: sticky; }
+.sidebar-toggle--hide { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 1; }
+.sidebar-toggle--show { display: none; position: fixed; left: 8px; top: 68px; z-index: 20; }
+html[data-sidebar='collapsed'] .shell { grid-template-columns: minmax(0, 1fr); }
+html[data-sidebar='collapsed'] .sidebar { display: none; }
+html[data-sidebar='collapsed'] .sidebar-toggle--show { display: grid; }
+@media (min-width: 1101px) { html[data-sidebar='collapsed'] .player { grid-template-columns: minmax(0, 1fr) 460px; } }
 .sidebar__head span { font: 400 12px/1 var(--font-mono); color: var(--muted); }
 .modules { list-style: none; margin: 0; padding: 0 0.5rem 1rem; flex: 1; }
 .module > button {
@@ -184,6 +194,9 @@ a.credit:hover { color: var(--fg); }
 .tag--RECAP { color: var(--agent); background: var(--agent-bg); border-color: var(--agent-border); }
 .step-panel h2 { margin: 0; font-size: 1.3rem; }
 .step-body > :first-child { margin-top: 0; }
+/* Code in the narrow step panel wraps instead of scrolling sideways. */
+.step-body pre { white-space: pre-wrap; font-size: 12.5px; }
+.step-body pre code { overflow-wrap: anywhere; }
 .step-body p { margin: 0 0 0.75rem; }
 .step-body ul { margin: 0 0 0.75rem; padding-left: 1.2rem; }
 .callout { border: 1px solid var(--warn-border); background: var(--warn-bg); border-radius: var(--radius-md); padding: 0.65rem 0.8rem; font-size: 14px; margin: 0.25rem 0 0.75rem; }
@@ -266,6 +279,9 @@ kbd { font: 500 10.5px/1 var(--font-mono); border: 1px solid var(--border-strong
 @media (max-width: 900px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
   .menu-btn { display: inline-grid; }
+  /* Phones use the menu button; the desktop hide/show toggle doesn't apply. */
+  .sidebar-toggle--hide, html[data-sidebar='collapsed'] .sidebar-toggle--show { display: none; }
+  html[data-sidebar='collapsed'] .sidebar { display: flex; }
   .sidebar {
     position: fixed; inset: 56px auto 0 0; width: min(300px, 86vw); z-index: 30;
     background: var(--surface); transform: translateX(-100%); transition: transform 0.2s; box-shadow: var(--shadow);

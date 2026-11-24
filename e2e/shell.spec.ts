@@ -44,3 +44,16 @@ test('progress shows the published lesson count', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#sidebar')).toContainText(/Progress\s*0\s*\/\s*\d+/);
 });
+
+test('desktop: the course menu can be hidden and shown again, and stays hidden on the next page', async ({ page }) => {
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/lessons/storage-account/');
+  const sidebar = page.locator('#sidebar');
+  await expect(sidebar).toBeVisible();
+  await page.getByRole('button', { name: 'Hide course menu' }).click();
+  await expect(sidebar).toBeHidden();
+  await page.goto('/');
+  await expect(page.locator('#sidebar')).toBeHidden();
+  await page.getByRole('button', { name: 'Show course menu' }).click();
+  await expect(page.locator('#sidebar')).toBeVisible();
+});

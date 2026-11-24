@@ -49,6 +49,7 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
       try {
         const t = localStorage.getItem('lac:theme');
         if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        if (localStorage.getItem('lac:sidebar') === 'collapsed') document.documentElement.setAttribute('data-sidebar', 'collapsed');
       } catch {}
     </script>
     <Analytics />
@@ -57,8 +58,10 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
     <TopBar />
     <div class="shell">
       <aside id="sidebar" class="sidebar" aria-label="Course">
+        <button type="button" class="sidebar-toggle sidebar-toggle--hide" data-sidebar-toggle="collapsed" aria-label="Hide course menu" title="Hide course menu">‹</button>
         <Sidebar client:load catalog={catalog} activeSlug={activeSlug} />
       </aside>
+      <button type="button" class="sidebar-toggle sidebar-toggle--show" data-sidebar-toggle="open" aria-label="Show course menu" title="Show course menu">›</button>
       <div>
         <main class="main"><slot /></main>
         <Footer />
@@ -66,6 +69,14 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
     </div>
     <script>
       import { track } from '../lib/analytics';
+      document.querySelectorAll<HTMLButtonElement>('[data-sidebar-toggle]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const collapsed = btn.dataset.sidebarToggle === 'collapsed';
+          if (collapsed) document.documentElement.setAttribute('data-sidebar', 'collapsed');
+          else document.documentElement.removeAttribute('data-sidebar');
+          try { localStorage.setItem('lac:sidebar', collapsed ? 'collapsed' : 'open'); } catch {}
+        }),
+      );
       document.addEventListener('click', (e) => {
         const el = (e.target as HTMLElement).closest('[data-track]');
         if (el) track(el.getAttribute('data-track') as 'devto_click');
