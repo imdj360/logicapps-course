@@ -16,9 +16,9 @@ test('sidebar lists every module', async ({ page }) => {
 test('coming-soon lessons are not links', async ({ page }) => {
   await page.goto('/');
   const sidebar = page.locator('#sidebar');
-  await sidebar.getByRole('button', { name: /Whole systems/ }).click();
-  await expect(sidebar.getByText('EDI / B2B flow')).toBeVisible();
-  await expect(sidebar.getByRole('link', { name: /EDI \/ B2B flow/ })).toHaveCount(0);
+  await sidebar.getByRole('button', { name: /Test fixtures/ }).click();
+  await expect(sidebar.getByText('Sample draft lesson')).toBeVisible();
+  await expect(sidebar.getByRole('link', { name: /Sample draft lesson/ })).toHaveCount(0);
 });
 
 test('theme toggle switches data-theme', async ({ page }) => {
