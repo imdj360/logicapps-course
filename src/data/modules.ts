@@ -53,6 +53,7 @@ export const MODULES: ModuleDef[] = [
   { id: 'security', number: '07', title: 'Security & delivery', lessons: [
     l('managed-identity', 'Managed identity'),
     l('key-vault', 'Key Vault'),
+    l('easy-auth', 'Easy Auth (App Service authentication)'),
     l('private-networking', 'Private endpoints & VNet'),
     l('cicd', 'CI/CD with Bicep & ARM'),
   ] },
@@ -63,7 +64,17 @@ export const MODULES: ModuleDef[] = [
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),
   ] },
-  { id: 'systems', number: '09', title: 'Whole systems', lessons: [
+  { id: 'advanced', number: '09', title: 'Advanced integration patterns', lessons: [
+    l('claim-check', 'Claim check'),
+    l('request-reply-service-bus', 'Request-reply over Service Bus'),
+    l('sequential-convoy', 'Sequential convoy'),
+    l('scatter-gather', 'Scatter-gather'),
+    l('saga-compensation', 'Saga & compensation'),
+    l('competing-consumers', 'Competing consumers & priority queues'),
+    l('circuit-breaker', 'Circuit breaker'),
+    l('long-waits-correlation', 'Correlation & long waits'),
+  ] },
+  { id: 'systems', number: '10', title: 'Whole systems', lessons: [
     l('order-processing', 'Order-processing pipeline'),
     l('edi-b2b', 'EDI / B2B flow'),
     l('integration-hub', 'Event-driven integration hub'),

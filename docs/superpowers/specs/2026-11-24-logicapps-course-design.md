@@ -82,7 +82,7 @@ Own identity — not Lens Suite branding, and not the reference's palette or iso
 
 ## Curriculum
 
-Nine modules. The course is Standard-first: Microsoft's direction is Standard, and a Standard project is built the same way whatever the hosting; Consumption is covered only as a short aside. Lessons teach the patterns without naming Lens Suite or LogicAppsHub.
+Ten modules (Advanced integration patterns added as module 09, Whole systems moved to 10). The course is Standard-first: Microsoft's direction is Standard, and a Standard project is built the same way whatever the hosting; Consumption is covered only as a short aside. Lessons teach the patterns without naming Lens Suite or LogicAppsHub.
 
 1. **Foundations** — Where Logic Apps run (Standard-first: build once, host on WS plan / ASE v3 / hybrid; Consumption as a short aside) · Follow an order through a run (trigger → actions → run history) · Stateful vs stateless
 1b. **Hosting & runtime** (added by Daniel; Standard deep dives) — Standard on Workflow Service Plans (WS1/WS2/WS3) · Standard on App Service Environment v3 (isolated network) · Hybrid / on-premises deployment (Arc-enabled Kubernetes, SQL storage) · The storage account behind Standard (run state, queues, run history; why it limits throughput; scale units with multiple storage accounts) · Standard is built on the Azure Functions runtime (host.json, app settings, local dev with Functions Core Tools, built-in connectors as Functions extensions, custom .NET code). Source material: Daniel's HybridLADeployment and LogicAppScaleUnits repos.

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { MODULES } from '../src/data/modules';
 
 test('hero invites you to start the course', async ({ page }) => {
   await page.goto('/');
@@ -10,7 +11,7 @@ test('hero invites you to start the course', async ({ page }) => {
 test('shows every module with its live lesson count', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('.module-card');
-  await expect(cards).toHaveCount(9);
+  await expect(cards).toHaveCount(MODULES.length);
   await expect(cards.first()).toContainText(/lessons? live|coming soon/i);
 });
 
