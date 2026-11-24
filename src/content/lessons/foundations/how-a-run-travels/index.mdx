@@ -1,0 +1,93 @@
+---
+title: How a run travels
+module: foundations
+order: 1
+minutes: 8
+level: Beginner
+summary: Follow one order through a workflow, from trigger to run history, and see what Logic Apps records on the way.
+youWillLearn:
+  - The difference between polling and push triggers
+  - When a trigger creates a run, and when it doesn't
+  - How actions decide whether to run
+  - What run history records, and for how long
+reviewStatus: draft
+---
+
+<Step id="problem" name="Where's my order?" tag="PROBLEM">
+A customer says their order never arrived. The website sent it to your Logic Apps workflow, the workflow should have put it on the orders queue, and the warehouse never saw it.
+
+Before you can find out what went wrong, you need to know how a single run travels through a workflow. Let's follow one order.
+</Step>
+
+<Step id="listen" name="Two ways to listen">
+Every workflow starts with a **trigger**. Triggers come in two styles.
+
+A **push trigger** waits to be called. The *Request* trigger creates an HTTPS endpoint, and the workflow starts when someone (here, the shop website) sends a request to it.
+
+A **polling trigger** checks a service on a schedule, for example every minute: "is there a new file in this SFTP folder?"
+</Step>
+
+<Step id="skipped" name="Nothing new: skipped">
+When a polling trigger checks and finds nothing that matches, its trigger history shows **Skipped**.
+
+No run is created for a skipped trigger. So if your workflow "didn't run", the trigger history is the first place to look: maybe it ran its check and simply found nothing.
+</Step>
+
+<Step id="fired" name="The trigger fires">
+Back to our order. The website posts it to the Request trigger, the trigger **fires**, and Logic Apps creates a new **workflow instance**: a run.
+
+That run carries its own copy of the trigger's outputs, the order, and has its own status from now until it finishes.
+</Step>
+
+<Step id="actions" name="Actions run in order">
+By default, actions run **one after another**. Each action has a `runAfter` setting that says which earlier action it waits for, and in which status.
+
+The default is: run only if the previous action **Succeeded**. *Parse order* finishes, then *Check stock* starts, then the order goes onto the queue.
+</Step>
+
+<Step id="history" name="Every step is recorded">
+While the run moves, Logic Apps writes **run history**: the status of every step, its inputs, its outputs and any error.
+
+Run history is kept for **90 days** by default, in both Consumption and Standard, and you can change that.
+
+<Callout title="Standard only" variant="info">Stateless workflows in Standard don't keep run history by default. They trade it for speed. Stateful workflows do.</Callout>
+</Step>
+
+<Step id="parallel" name="Many runs at once">
+A second order arrives from the mobile app while the first is still running. It doesn't wait: each trigger fire gets its own run, and **by default runs execute in parallel**, with no limit.
+
+You can turn on trigger concurrency control to cap how many runs execute at once.
+
+<Callout title="Watch out">Once you turn concurrency control on, you can't turn it off again for that trigger.</Callout>
+</Step>
+
+<Step id="failure" name="One action fails" tag="PROBLEM">
+Now our customer's run. *Check stock* calls the stock system and gets an error. The action is marked **Failed**.
+
+The next action only runs after *Succeeded*, so *Send to queue* is marked **Skipped**, and because a step failed, the whole run ends as **Failed**. That's why the warehouse never saw the order.
+</Step>
+
+<Step id="read" name="Reading the run history" tag="TIP">
+Open the failed run and you can see exactly where it stopped: *Check stock* is red, and its **inputs and outputs** show the request that was sent and the error that came back.
+
+Run statuses you'll see: *Running*, *Succeeded*, *Failed*, *Cancelled*, *Timed out*, *Waiting* and *Aborted*. Actions can also be *Skipped* or *Succeeded with retries*.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- A **trigger** starts everything: push triggers wait to be called, polling triggers check on a schedule.
+- A skipped trigger creates **no run**. A fired trigger creates **one run**.
+- Actions run **in order**, each waiting for the previous one to *Succeed* unless you change `runAfter`.
+- A failed action makes the steps after it **Skipped** and the run **Failed**.
+- **Run history** records every step's status, inputs and outputs, for 90 days by default.
+</Step>
+
+{/*
+Sources (checked 2026-11-24):
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers
+- https://learn.microsoft.com/en-us/azure/logic-apps/error-exception-handling
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-branches
+- https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+- https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres
+*/}
