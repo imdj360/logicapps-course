@@ -24,7 +24,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="500 orders, one request" tag="PROBLEM">
-A partner sends a single request with an array of 500 orders. A **For each** loop would process them all in **one run**, which can take a long time. Our other concern: one long run history to read, and a single failed order can fail the whole run.
+A partner sends a single request with an array of 500 orders. The obvious workflow is **Request → For each order → Create order**: all 500 orders in **one run**, which can take a long time. Our other concern: one long run history to read, and a single failed order can fail the whole run.
 
 There's another option: give **each order its own run**.
 </Step>
@@ -36,7 +36,7 @@ On a trigger that returns an array, turn on **Split on**: in the trigger's **Set
 "splitOn": "@triggerBody()?['orders']"
 ```
 
-The trigger then **splits the array** and starts a separate workflow instance for each item.
+The trigger then **splits the array** and starts a separate workflow instance for each item. Each run sees one order and does the same steps, for example *Validate* then *Create order* (our example).
 </Step>
 
 <Step id="which" name="Which triggers support it">
