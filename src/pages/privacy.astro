@@ -6,16 +6,18 @@ import { siteConfig } from '../config/site';
   <article class="prose">
     <h1>Privacy</h1>
     <p>This course has no accounts, no sign-up forms and sets no cookies.</p>
-    <p>
-      Visits are counted with <a href="https://plausible.io/data-policy">Plausible Analytics</a>, which is cookieless and
-      collects no personal data. It records which pages are viewed and which lesson steps are reached, so the course can be improved.
-    </p>
+    {siteConfig.plausibleDomain && (
+      <p>
+        Visits are counted with <a href="https://plausible.io/data-policy">Plausible Analytics</a>, which is cookieless and
+        collects no personal data. It records which pages are viewed and which lesson steps are reached, so the course can be improved.
+      </p>
+    )}
     <p>Your lesson progress is stored only in your own browser (local storage) and never leaves your device.</p>
     <p>
       Questions?
       {siteConfig.contactEmail
         ? <a href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>
-        : siteConfig.devtoUrl ? <a href={siteConfig.devtoUrl}>Reach Daniel on dev.to</a> : 'Reach Daniel via dev.to.'}
+        : <a href="https://github.com/imdj360/logicapps-course/issues">Open an issue on the GitHub repo</a>}
     </p>
   </article>
 </BaseLayout>
