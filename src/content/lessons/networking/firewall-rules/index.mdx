@@ -1,0 +1,113 @@
+---
+title: "Firewalls, fixed IPs and service tags"
+module: networking
+order: 5
+minutes: 10
+level: Advanced
+summary: The network team forces all outbound traffic through a firewall, and a partner wants one fixed IP to allow. Get the subnets, firewall rules, service tags, NAT gateway and Key Vault access right before go-live.
+youWillLearn:
+  - Why you need two subnets, and what delegation means
+  - What a firewall must allow when all outbound traffic goes through it
+  - Which service tags and connection addresses to use in rules
+  - How to give the app one fixed outbound IP
+  - How Key Vault references work behind a firewall
+learnLinks:
+  - title: "Limits and Configuration: Firewall IP Addresses and Service Tags"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config#firewall-configuration-ip-addresses-and-service-tags
+  - title: "Integrate your app with an Azure virtual network (App Service)"
+    url: https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration
+  - title: "Azure NAT Gateway integration (App Service)"
+    url: https://learn.microsoft.com/en-us/azure/app-service/networking/nat-gateway-integration
+  - title: "Use Key Vault references (App Service)"
+    url: https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references
+  - title: "Create Standard workflows in the Azure portal: find domain names for firewall access"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
+reviewStatus: draft
+---
+
+<Step id="problem" name="Go-live week" tag="PROBLEM">
+Three things go wrong in the same week:
+
+1. The network team sends **all outbound traffic through the hub firewall**. Managed connectors start failing.
+2. **Key Vault** goes behind a firewall, and app settings that reference it stop resolving.
+3. A partner will only accept calls from **one fixed IP address**, and the app's outbound address isn't fixed.
+</Step>
+
+<Step id="subnets" name="Two subnets, not one">
+VNet integration works by giving the app's workers addresses in a **delegated subnet**: the subnet is handed over to App Service (`Microsoft.Web/serverFarms`). The portal delegates it for you if you have permission to change the subnet.
+
+A **private endpoint** needs a subnet **without delegations**. So a private Standard app needs **two** subnets: one delegated for VNet integration (size it **/26**), and one for private endpoints.
+</Step>
+
+<Step id="forced" name="Forced through a firewall">
+A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to everything the app sends.
+
+So the firewall must now allow everything the app needs: its **storage account**, every connection's endpoint, and the **managed connector** addresses. Miss one and that part of the app stops working, often only at runtime.
+</Step>
+
+<Step id="tags" name="Use service tags">
+Write firewall rules with **service tags** instead of IP lists. Microsoft's tags for Logic Apps:
+
+- **LogicAppsManagement**: inbound traffic to the Logic Apps service.
+- **LogicApps**: outbound traffic from multitenant Logic Apps.
+- **AzureConnectors**: managed connectors, both their webhook callbacks *in* and their calls *out* to services such as Blob Storage or Event Hubs.
+
+For Standard, Microsoft also says to follow the App Service networking requirements and allow the domain names your connections use.
+</Step>
+
+<Step id="fqdns" name="Find what to allow">
+- **IP addresses**: on the logic app, **Settings** > **Networking** shows the **Inbound** and **Outbound** traffic addresses.
+- **Connection domain names**: open **Workflows** > **Connections** > **API Connections**, select a connection, open **JSON View**, and copy its `connectionRuntimeUrl`. Repeat for each connection.
+
+That list becomes your firewall allow rules.
+</Step>
+
+<Step id="nat" name="One fixed outbound IP">
+For the partner's allow-list, attach a **NAT gateway** to the integration subnet. Microsoft: it gives *"a static, predictable public IP address for outbound internet-facing traffic"*, and many more SNAT ports for busy apps.
+
+It needs VNet integration that **routes all** traffic, application and configuration.
+
+If a route table already sends internet traffic to a firewall, the partner sees the **firewall's** public IP instead; then that's the address to give them (ours).
+</Step>
+
+<Step id="keyvault" name="Key Vault behind a firewall">
+A Key Vault reference in an app setting is resolved during **startup**: Microsoft calls that *configuration routing*, separate from the calls your workflows make.
+
+If the vault has network restrictions, the app needs network access to it. Microsoft says the vault **shouldn't depend on the app's public outbound IPs**, because the source address can differ, and should instead accept traffic from the **virtual network** the app uses. Make sure configuration traffic is routed through that network too.
+</Step>
+
+<Step id="inbound" name="Callbacks into a public app" tag="TIP">
+If the app's endpoint stays public but filtered by **access restrictions**, managed connectors that use webhooks still have to call back in. Allow the **AzureConnectors** service tag, or the managed connector IP addresses for your region.
+
+Some callers aren't what you'd expect: for **Office 365** triggers, the caller is the Office 365 connector itself.
+</Step>
+
+<Step id="checklist" name="Go-live checklist" tag="TIP">
+Before switching on the firewall (ours):
+
+- Integration subnet: **delegated**, **/26**, its own **NSG** and **route table**.
+- Private endpoint subnet: **no delegation**; private DNS zones **linked**.
+- Firewall: storage, **AzureConnectors**, each `connectionRuntimeUrl` domain.
+- Partner allow-list: **NAT gateway** or the firewall's public IP.
+- Key Vault: allows the app's **virtual network**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Two subnets: **delegated** for VNet integration, **undelegated** for private endpoints.
+- Forced tunnelling makes the firewall decide everything: allow storage, connections and managed connectors.
+- Use service tags: **LogicAppsManagement**, **LogicApps**, **AzureConnectors**.
+- Fixed outbound IP: **NAT gateway** (or the firewall's IP).
+- Key Vault: allow the **virtual network**, not the app's public IPs.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- app-service/overview-vnet-integration (applies to Logic apps): "Virtual network integration works by mounting virtual interfaces to the worker roles with addresses in the delegated subnet"; permission "Microsoft.Network/virtualNetworks/subnets/write Delegate the subnet. Only required when the subnet hasn't been delegated"; delegation name 'Microsoft.Web/serverFarms'; "Route tables (UDRs): You can place a route table on the integration subnet to send outbound traffic where you want"; "NAT gateway: You can use NAT gateway to get a dedicated outbound IP and mitigate SNAT port exhaustion"; "Only traffic configured in application or configuration routing is subject to the NSGs and UDRs that are applied to your integration subnet"; "Configuration routing affects operations that happen before or during startup of your app. Examples are container image pull and app settings with Key Vault reference".
+- logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint: private endpoint subnet "without any delegations"; /26 recommendation; route all is the default for Standard.
+- logic-apps/logic-apps-limits-and-config, "Firewall configuration: IP addresses and service tags": LogicAppsManagement "Inbound IP address prefixes for the Azure Logic Apps service"; LogicApps "Outbound IP address prefixes for the multitenant Azure Logic Apps service"; AzureConnectors "IP address prefixes required for managed connectors that make inbound webhook callbacks to the Azure Logic Apps service and outbound calls to their respective services, such as Azure Blob Storage or Azure Event Hubs"; Office 365: "The return caller is actually the Office 365 connector ... use the AzureConnectors service tag".
+- connectors/introduction: "For Standard workflows, follow Azure App Service networking requirements and allow the fully qualified domain names required by connector connections."
+- logic-apps/create-single-tenant-workflows-azure-portal, "Find domain names for firewall access": Settings > Networking (Inbound Traffic / Outbound Traffic); Workflows > Connections > API Connections > JSON View > connectionRuntimeUrl.
+- app-service/networking/nat-gateway-integration: "A NAT gateway gives you a static, predictable public IP address for outbound internet-facing traffic"; increases SNAT ports; "The virtual network integration must route all internet-bound traffic (application and configuration)".
+- app-service/app-service-key-vault-references: "If your vault is configured with network restrictions, ensure that the application has network access. Vaults shouldn't depend on the app's public outbound IP addresses because the origin IP address of the secret request could be different. Instead, the vault should be configured to accept traffic from a virtual network that the app uses."
+Ours: the go-live story; "two subnets" as the consequence of delegated vs undelegated; that a firewall default route makes the partner see the firewall's IP; the checklist.
+*/}

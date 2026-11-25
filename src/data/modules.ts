@@ -67,6 +67,7 @@ export const MODULES: ModuleDef[] = [
     l('private-networking', 'Lock down inbound: private endpoints'),
     l('private-storage', 'The storage account on a private network'),
     l('on-premises-access', 'Reaching on-premises systems'),
+    l('firewall-rules', 'Firewalls, fixed IPs and service tags'),
   ] },
   { id: 'delivery', number: '10', title: 'Infrastructure & delivery', lessons: [
     l('bicep-standard', 'Bicep for a Standard logic app'),
