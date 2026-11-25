@@ -79,14 +79,15 @@ It uses outbound ports **TCP 80, 443, 1433, 5671, 5672 and 9350–9354**. If you
 Each gateway resource links to **exactly one** installation.
 </Step>
 
-<Step id="example" name="Example: files into the datacenter">
+<Step id="example" name="Example: from a partner's SFTP into the datacenter">
 A pattern from one of Daniel's production projects (ours, anonymised):
 
-1. A workflow runs on a **Recurrence** trigger and builds the outgoing order files.
-2. The **File System** managed connector's **Create file** action writes each file into a per-partner folder on an on-premises share, for example `<root>\<partner>\OUT\ORDER`.
-3. The ERP picks the files up from there.
+1. A **Recurrence** trigger runs every **5 minutes** and lists new files in a partner's **SFTP** folder.
+2. For each file, the workflow reads it, archives a copy to **Blob storage**, and writes it to an on-premises share with the **File System** managed connector's **Create file** action, into a per-partner folder such as `<root>\<partner>\OUT\ORDER`.
+3. It then deletes the file from the SFTP folder, so it isn't picked up twice. A Try/Catch scope alerts support if anything fails.
+4. The ERP picks the files up from the share.
 
-The connection is created in Bicep as a `Microsoft.Web/connections` resource for the `filesystem` API, with the share's **root folder**, the **gateway** resource ID and a Windows account for the share, taken from the pipeline's secrets. The gateway resource sits in a **shared subscription**, apart from the logic apps, which works because both are in the same Microsoft Entra tenant. The logic app reaches the connection with its **managed identity** in `connections.json`.
+The File System connection is created in Bicep as a `Microsoft.Web/connections` resource for the `filesystem` API, with the share's **root folder**, the **gateway** resource ID and a Windows account taken from the pipeline's secrets. The gateway resource sits in a **shared subscription**, apart from the logic apps, which works because both are in the same Microsoft Entra tenant. The deployment pipeline generates `connections.json`, and the logic app reaches the connection with its **managed identity**.
 </Step>
 
 <Step id="file-share" name="File shares: two File System connectors">
