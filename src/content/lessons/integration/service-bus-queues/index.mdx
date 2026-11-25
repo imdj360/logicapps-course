@@ -30,7 +30,7 @@ reviewStatus: draft
 <Step id="problem" name="Bursts in, steady out" tag="PROBLEM">
 Orders arrive in bursts: hundreds in a minute after a promotion, then nothing for an hour. The ERP can only take them at its own steady pace.
 
-A common answer, and the one this lesson uses, is a **Service Bus queue** between them: the shop puts orders on the queue, and a workflow takes them off as fast as the ERP allows.
+A common answer, and the one this lesson uses, is a **Service Bus queue** between them. The shop puts orders on the queue. An **Order to ERP** workflow takes each one off, **parses** it (Parse JSON) and **sends** it to the ERP (HTTP), as fast as the ERP allows.
 </Step>
 
 <Step id="connectors" name="Built-in or managed">
@@ -46,7 +46,7 @@ By default it **auto-completes**: in a stateful workflow, once the trigger's out
 </Step>
 
 <Step id="peeklock" name="Peek-lock: you decide">
-With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it, for example with **Complete**, **Abandon** or **Dead-letter** (there's also Defer), using the message's lock token.
+With **When messages are available in a queue (peek-lock)**, the message stays on the queue, **locked**, while your workflow works on it. Your workflow then settles it, using the message's lock token. In our workflow: after *Send to ERP* succeeds, **Complete the message in a queue**; if it fails, **Dead-letter the message in a queue** (ours). There's also **Abandon** and Defer.
 
 The lock doesn't last forever. Our advice: keep runs shorter than the lock (when you tune trigger concurrency and waiting runs, Microsoft warns that runs shouldn't wait longer than the message lock timeout), or use **Renew lock on a message in queue**.
 </Step>
