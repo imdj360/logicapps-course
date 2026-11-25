@@ -45,7 +45,7 @@ On a Workflow Service Plan the app runs on Azure's **shared App Service infrastr
 <Step id="block-outbound" name="Block: reach private resources">
 **Need:** call a private API or database, in your network, a **peered** network, or over **ExpressRoute**.
 
-**Add:** **VNet integration** for outbound calls, plus **private DNS** for anything behind a private endpoint.
+**Add:** **VNet integration** for outbound calls, plus **private DNS** for anything behind a private endpoint. To lock an Azure service such as Storage or Service Bus to your subnet without a private endpoint, a **service endpoint** is the lighter option; Microsoft recommends private endpoints for private access.
 
 **Trade-off:** by default all outbound traffic goes through your network, so your NSGs and route tables apply to it.
 
@@ -117,7 +117,7 @@ Build the outbound block first: the storage and datacenter blocks depend on it.
 
 <Step id="recap" name="Recap" tag="RECAP">
 - The app runs **outside** your network on a Workflow Service Plan; blocks connect it.
-- **Reach private resources**: VNet integration (+ private DNS, peering).
+- **Reach private resources**: VNet integration (+ private DNS, peering; service endpoints as the lighter option).
 - **No public inbound**: private endpoint.
 - **Private storage**: four storage private endpoints.
 - **Datacenter**: built-in over VPN/ExpressRoute, or the data gateway.

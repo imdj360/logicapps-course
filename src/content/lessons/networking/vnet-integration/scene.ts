@@ -25,6 +25,7 @@ export const scene: Scene = {
     { id: 'db', kind: 'storage', label: 'SQL Server', sublabel: 'private IP', x: 760, y: 270 },
     { id: 'shared', kind: 'storage', label: 'Shared SQL', sublabel: 'in the hub', x: 760, y: 430 },
     { id: 'hubgw', kind: 'hosting-plan', label: 'VPN gateway', sublabel: 'to datacenter', x: 540, y: 430 },
+    { id: 'sbsvc', kind: 'servicebus', label: 'Service Bus', sublabel: 'subnet rule', x: 640, y: 420 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure service', x: 640, y: 420 },
   ],
   edges: [
@@ -36,6 +37,7 @@ export const scene: Scene = {
     { id: 'sql-subnet', from: 'sql', to: 'subnet' },
     { id: 'subnet-api', from: 'subnet', to: 'api' },
     { id: 'subnet-db', from: 'subnet', to: 'db' },
+    { id: 'subnet-sbsvc', from: 'subnet', to: 'sbsvc', style: 'dashed', label: 'service endpoint' },
     { id: 'subnet-shared', from: 'subnet', to: 'shared', label: 'peering' },
     { id: 'subnet-hubgw', from: 'subnet', to: 'hubgw', style: 'dashed' },
     { id: 'mail-subnet', from: 'mail', to: 'subnet' },
@@ -93,6 +95,12 @@ export const scene: Scene = {
       visible: [...app, ...vnet, ...wired, 'hubBox', 'shared', 'subnet-shared'],
       highlight: ['subnet-shared'],
       chips: [{ label: 'private endpoint names', value: 'must resolve privately' }, { label: 'Azure DNS private zones', value: 'link to the network', tone: 'ok' }],
+    },
+    'service-endpoints': {
+      visible: [...app, ...vnet, ...wired, 'sbsvc', 'subnet-sbsvc'],
+      highlight: ['sbsvc', 'subnet-sbsvc', 'subnet'],
+      tokens: [{ id: 'se1', edge: 'sql-subnet', tone: 'info' }, { id: 'se2', edge: 'subnet-sbsvc', tone: 'ok' }],
+      chips: [{ label: 'service endpoint', value: 'subnet allowed, no private IP' }, { label: 'from on-premises', value: 'not usable', tone: 'warn' }, { label: 'Microsoft recommends', value: 'private endpoints', tone: 'ok' }],
     },
     dns: {
       visible: [...app, ...vnet, ...wired],

@@ -42,6 +42,8 @@ A **private endpoint** needs a subnet **without delegations**. So a private Stan
 <Step id="forced" name="Forced through a firewall">
 A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to the app's outbound traffic. **Configuration** traffic, such as the storage content share, goes over the public route unless you route it through the network too (for example `WEBSITE_CONTENTOVERVNET`).
 
+Traffic to services secured with **service endpoints** is the exception: it goes straight to the service over the Azure backbone, not through the firewall route.
+
 So the firewall must allow everything the app sends that way: every connection's endpoint, the **managed connector** addresses, and the storage account once its traffic is routed through. Miss one and that part of the app stops working, often only at runtime.
 </Step>
 
