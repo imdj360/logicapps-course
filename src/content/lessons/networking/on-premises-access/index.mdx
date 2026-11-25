@@ -52,7 +52,7 @@ Ask one question first: **is there a network path from Azure to the datacenter**
 Built-in connectors run inside the logic app, so they need a network path to the datacenter:
 
 - **VNet integration** routes the app's outbound calls into your virtual network, all of them by default (the VNet integration lesson in this module).
-- Your virtual network reaches the datacenter, typically over a **VPN** or **ExpressRoute** link (ours: that link is Azure networking, not a Logic Apps setting).
+- Your virtual network is connected to the datacenter with **ExpressRoute** or a **site-to-site VPN**. Microsoft notes that VNet integration then needs no extra configuration to reach on-premises resources.
 
 You then authenticate to the data source directly in the connection.
 </Step>
@@ -127,5 +127,6 @@ Sources (checked 2026-11-25, raw page text):
 - data-integration/gateway/service-gateway-onprem: "requires no inbound ports to your network—only outbound ports"; "The on-premises data gateway initiates outbound connections to the cloud, but requires no inbound connections. All communication from the cloud is received in responses to polling over the outbound connections."
 - data-integration/gateway/service-gateway-communication: "The gateway communicates on the following outbound ports: TCP 80, 443, 1433, 5671, 5672, and from 9350 through 9354. The gateway doesn't require inbound ports."; "The gateway relies on Azure Relay for cloud connectivity."
 - logic-apps-using-file-connector: "The File System connector currently supports only Windows file systems on Windows operating systems. Mapped network drives aren't supported. For the built-in connector, the root folder must be a top-level file share ... specify subfolders by using relative paths"; "A Standard logic app supports up to 20 built-in File System connections"; "The built-in connector can connect directly to a file share and access Azure virtual networks without an on-premises data gateway"; built-in requires "a Windows-based Workflow Service Plan or App Service Environment v3"; "set the WEBSITE_CONTENTOVERVNET app setting to 1, or enable the vnetContentShareEnabled site property. Make sure the virtual network can resolve the file server's fully qualified domain name (FQDN) and allows outbound SMB traffic on port 445"; managed: "gateway installation and file system server must exist in the same Windows domain".
+- app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
 Ours: the 'start with the network' decision, the file-drop example (from Daniel's production project, anonymised: no client, subscription or resource names); the ERP story; VPN or ExpressRoute as the typical link from the virtual network to the datacenter (Azure networking, not stated on the Logic Apps pages); "check its communication settings first" as advice.
 */}

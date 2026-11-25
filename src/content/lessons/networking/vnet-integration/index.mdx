@@ -52,13 +52,17 @@ Run the workflow again. The same HTTP action to 10.0.1.3 now succeeds.
 <Step id="subnet" name="Size the subnet once" tag="TIP">
 You **can't change the subnet size** after you assign it, so plan for the scale the app might reach.
 
-Microsoft recommends a **/26** subnet (64 addresses). If you create the subnet in the Azure portal while integrating, **/27** is the minimum; an existing subnet can be as small as **/28**. A busy logic app can scale out to many instances, and each one needs an address.
+Each instance of the plan takes **one address**, and while the plan scales up or down the count **temporarily doubles**. Microsoft recommends allocating **double your planned maximum**; a **/26** (64 addresses) covers the maximum scale of one plan. If you create the subnet in the Azure portal while integrating, **/27** is the minimum; an existing subnet can be as small as **/28**.
+
+Several plans can share one subnet, with at least a **/26**. One plan can have at most **two** VNet integrations, and all apps in a plan can use the same one.
 </Step>
 
 <Step id="route-all" name="All outbound goes through the VNet">
 By default, the **Outbound internet traffic** option is selected, so **all** outbound traffic from the app goes through the virtual network, not just calls to private addresses. In that case the `WEBSITE_VNET_ROUTE_ALL` app setting is ignored.
 
-So your network's firewall, network security groups (NSGs) and route tables (UDRs) now apply to everything the app calls.
+So your network's firewall, network security groups (NSGs) and route tables (UDRs) now apply to the app's outbound calls.
+
+One catch Microsoft notes: with Route All on, a **storage account in another region** can become unreachable unless you use a service endpoint, a private endpoint or a route table for it.
 </Step>
 
 <Step id="connectors" name="Which connectors use the VNet">
@@ -96,7 +100,7 @@ The rule removes public internet access and allows traffic only from your networ
 
 The differences from a private endpoint: the service gets **no private address** in your network, and service endpoints **can't** be used from on-premises. Microsoft recommends **private endpoints** for private access to Azure services.
 
-Check the tier first: for **Service Bus**, virtual network rules and private endpoints are supported only on the **Premium** tier.
+Check the tier first: for **Service Bus**, virtual network rules and private endpoints are supported only on the **Premium** tier. And the integration subnet itself can't have **service endpoint policies**.
 </Step>
 
 <Step id="dns" name="Your own DNS" tag="TIP">
@@ -123,6 +127,7 @@ Sources (checked 2026-11-25, raw page text):
 - logic-apps-gateway-connection: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway."
 overview-vnet-integration (App Service, "Works with App Service apps, function apps, and Logic apps"): "Virtual network integration supports connecting to a virtual network in the same region"; the app can access "Resources in virtual networks peered to the virtual network your app is integrated with including global peering connections. Resources across Azure ExpressRoute connections"; "if your outbound call is to a virtual machine or private endpoint in the integration virtual network or peered virtual network, the outbound address is an address from the integration subnet"; "you can use a route table to send outbound traffic to your Azure ExpressRoute gateway" and BGP routes "affect your app traffic"; private endpoints: "make sure that your DNS lookups resolve to the private endpoint ... Integrate with Azure DNS private zones. When your virtual network doesn't have a custom DNS server, the integration is done automatically when the zones are linked to the virtual network. Manage the private endpoint in the DNS server used by your app."
 - virtual-network/virtual-network-service-endpoints-overview: "Once you enable service endpoints in your virtual network, you can add a virtual network rule to secure the Azure service resources to your virtual network. The rule addition provides improved security by fully removing public internet access to resources and allowing traffic only from your virtual network"; "service traffic switches to use virtual network private addresses as the source IP addresses"; "Endpoints always take service traffic directly from your virtual network to the service on the Microsoft Azure backbone network ... through forced-tunneling, without impacting service traffic"; "Endpoints can't be used for traffic from your on-premises services to Azure services"; "There's no extra charge for using service endpoints"; "Microsoft recommends use of Azure Private Link and private endpoints for secure and private access to services hosted on the Azure platform".
+- app-service/overview-vnet-integration (ms.date 2026-10-06): "One address is used from the integration subnet for each App Service plan instance"; "the amount of IP addresses used by the App Service plan is temporarily doubled while the scale operation completes"; "we recommend allocating double the IPs of your planned maximum scale. A /26 with 64 addresses cover the maximum scale of a single multitenant App Service plan"; MPSJ "a minimum size of /26"; "You can't have more than two virtual network integrations per App Service plan. Multiple apps in the same App Service plan can use the same virtual network integration"; "The integration subnet can't have service endpoint policies enabled"; "Connectivity to global Azure Storage accounts might fail for VNet-integrated apps when virtual network Route All is enabled and the app doesn't use service endpoints, private endpoints, or User-Defined Routes (UDRs) ... common when the storage account is in a different region".
 - app-service/overview-vnet-integration: "Virtual network integration enables you to reach Azure services that are secured with service endpoints ... configure service endpoints against the integration subnet."
 - service-bus-messaging/service-bus-service-endpoints: "Virtual Networks are supported only in Premium tier Service Bus namespaces ... The endpoint is restricted to Premium tier namespaces only."; service-bus-messaging/private-link-service: "This feature is supported with the premium tier of Azure Service Bus."
 - storage/common/storage-network-security: "When you create network rules by using the Azure portal, it automatically creates these service endpoints as you select each target subnet."

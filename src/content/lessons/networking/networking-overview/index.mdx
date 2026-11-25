@@ -76,7 +76,7 @@ Lesson: *The storage account on a private network*.
 **Need:** read or write data in the company datacenter.
 
 **Add one of:**
-- a **built-in** connector over the network: VNet integration plus a VPN or ExpressRoute link (ours: the usual link);
+- a **built-in** connector over the network: VNet integration plus **ExpressRoute** or a **site-to-site VPN** from your network to the datacenter;
 - the **on-premises data gateway**, when only a **managed** connector exists for the data source.
 
 No VPN or ExpressRoute? Use the gateway: it needs **no inbound ports**, only outbound connections from the gateway machine.
@@ -133,5 +133,6 @@ Sources (checked 2026-11-25, raw page text):
 - app-service/networking-features: "All the roles in an App Service deployment exist in a multitenant network ... you can't connect the App Service network directly to your network. Instead of connecting the networks, you need features to handle the various aspects of application communication"; "The single-tenant App Service Environment (ASE) hosts Isolated SKU App Service plans directly in your Azure virtual network".
 - app-service/overview-vnet-integration: peered networks including global peering, ExpressRoute; private DNS zones linked to the virtual network; route tables; NAT gateway "dedicated outbound IP".
 - logic-apps-limits-and-config: service tags LogicAppsManagement, LogicApps, AzureConnectors.
-Ours: the building-block framing, the three combinations, VPN/ExpressRoute as the usual datacenter link, and the build order.
+- app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
+Ours: the building-block framing, the combinations, and the build order.
 */}
