@@ -64,7 +64,11 @@ So if you need predictable results from a loop that changes a variable, set its 
 </Step>
 
 <Step id="nested" name="Nested loops" tag="TIP">
-A For each inside another For each **always runs sequentially**. If the inner work needs to run in parallel, move it into a **child workflow** and call that from the loop.
+Say a workflow handles a batch of orders: **For each order**, then inside it **For each line** to reserve stock, and finally the order total.
+
+A For each inside another For each **always runs sequentially**: the lines are reserved one at a time, even if the outer loop is parallel.
+
+If the inner work needs to run in parallel, move it into a **child workflow** and call it with **Invoke workflow** for each line. The batch-of-orders example is ours.
 </Step>
 
 <Step id="until" name="Until: repeat until done">

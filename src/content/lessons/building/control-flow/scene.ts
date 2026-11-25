@@ -7,7 +7,17 @@ const lines = ['loop', 'stock', 'total', 'sw-loop', 'loop-stock', 'loop-total'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
+  // Only the nested-loops step uses these frames: a loop inside a loop, and the child-workflow alternative.
+  groups: [
+    { id: 'outerLoop', label: 'For each order', x: 40, y: 40, w: 820, h: 240 },
+    { id: 'innerLoop', label: 'For each line · always sequential', x: 80, y: 90, w: 470, h: 170 },
+    { id: 'childBox', label: 'Instead: a child workflow per line', x: 40, y: 320, w: 820, h: 160 },
+  ],
   nodes: [
+    { id: 'nstock', kind: 'connector-builtin', label: 'Reserve stock', sublabel: 'one line', x: 315, y: 190 },
+    { id: 'ntotal', kind: 'action', label: 'Order total', sublabel: 'after the lines', x: 720, y: 190 },
+    { id: 'ninvoke', kind: 'action', label: 'Invoke workflow', sublabel: 'per line', x: 240, y: 410 },
+    { id: 'nchild', kind: 'trigger', label: 'Child workflow', sublabel: 'Reserve stock', x: 640, y: 410 },
     { id: 'trigger', kind: 'trigger', label: 'Order received', x: 100, y: 90 },
     { id: 'cond', kind: 'condition', label: 'Express?', sublabel: 'Condition', x: 300, y: 90 },
     { id: 'expr', kind: 'action', label: 'Priority ship', sublabel: 'True path', x: 520, y: 90 },
@@ -31,6 +41,8 @@ export const scene: Scene = {
     { id: 'loop-stock', from: 'loop', to: 'stock' },
     { id: 'loop-total', from: 'loop', to: 'total', style: 'dashed' },
     { id: 'scope-loop', from: 'scope', to: 'loop', style: 'dashed' },
+    { id: 'nstock-ntotal', from: 'nstock', to: 'ntotal' },
+    { id: 'ninvoke-nchild', from: 'ninvoke', to: 'nchild', label: 'runs in parallel' },
   ],
   steps: {
     problem: {
@@ -66,8 +78,9 @@ export const scene: Scene = {
       chips: [{ label: 'declare', value: 'top level only' }, { label: 'parallel + Increment', value: 'unpredictable', tone: 'fail' }, { label: 'fix', value: 'parallelism 1', tone: 'ok' }],
     },
     nested: {
-      visible: [...lines],
-      highlight: ['loop'],
+      visible: ['outerLoop', 'innerLoop', 'childBox', 'nstock', 'ntotal', 'ninvoke', 'nchild', 'nstock-ntotal', 'ninvoke-nchild'],
+      highlight: ['innerLoop', 'nchild'],
+      tokens: [{ id: 'nl1', edge: 'nstock-ntotal', tone: 'info' }, { id: 'nl2', edge: 'ninvoke-nchild', tone: 'ok' }, { id: 'nl3', edge: 'ninvoke-nchild', tone: 'ok' }],
       chips: [{ label: 'nested For each', value: 'always sequential', tone: 'warn' }, { label: 'need parallel?', value: 'child workflow' }],
     },
     until: {
