@@ -1,15 +1,18 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
-const core = ['trigger', 'call', 'api', 'next', 'trig-call', 'call-api', 'call-next'];
+const core = ['wfBox', 'trigger', 'call', 'api', 'next', 'trig-call', 'call-api', 'call-next'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
+  groups: [
+    { id: 'wfBox', label: 'Process order', x: 40, y: 175, w: 760, h: 135 },
+  ],
   nodes: [
-    { id: 'trigger', kind: 'trigger', label: 'Order received', x: 110, y: 240 },
-    { id: 'call', kind: 'connector-builtin', label: 'Call partner', sublabel: 'retry policy', x: 380, y: 240 },
-    { id: 'api', kind: 'user', label: 'Partner API', sublabel: '503 · 429', x: 380, y: 420 },
-    { id: 'next', kind: 'action', label: 'Save order', x: 650, y: 240 },
-    { id: 'history', kind: 'storage', label: 'Run history', sublabel: 'with retries', x: 650, y: 90 },
+    { id: 'trigger', kind: 'trigger', label: 'Order received', sublabel: 'trigger', x: 150, y: 245 },
+    { id: 'call', kind: 'connector-builtin', label: 'Call partner', sublabel: 'HTTP · retries', x: 420, y: 245 },
+    { id: 'api', kind: 'user', label: 'Partner API', sublabel: '503 · 429', x: 420, y: 420 },
+    { id: 'next', kind: 'action', label: 'Save order', x: 690, y: 245 },
+    { id: 'history', kind: 'storage', label: 'Run history', sublabel: 'with retries', x: 690, y: 80 },
   ],
   edges: [
     { id: 'trig-call', from: 'trigger', to: 'call' },
@@ -28,7 +31,7 @@ export const scene: Scene = {
       visible: [...core],
       highlight: ['call', 'call-api'],
       tokens: [{ id: 'd1', edge: 'call-api', tone: 'fail' }, { id: 'd2', edge: 'call-api', tone: 'fail' }, { id: 'd3', edge: 'call-api', tone: 'ok' }],
-      chips: [{ label: 'default', value: 'exponential, up to 4' }, { label: 'retried on', value: '408 · 429 · 5xx' }],
+      chips: [{ label: 'default', value: 'exponential, up to 4' }, { label: 'waits', value: '5–45 s' }, { label: 'retried on', value: 'timeout · 408 · 429 · 5xx' }],
     },
     types: {
       visible: [...core],

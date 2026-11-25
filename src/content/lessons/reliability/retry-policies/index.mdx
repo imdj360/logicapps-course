@@ -33,9 +33,9 @@ You don't want a failed run for that. **Retry policies** let an action try again
 </Step>
 
 <Step id="default" name="The default policy">
-Operations that support retries use the **Default** policy unless you choose another. For most operations, that's an **exponential interval** policy with **up to 4 retries**.
+Operations that support retries use the **Default** policy unless you choose another. For most operations, that's an **exponential interval** policy with **up to 4 retries**. The waits between them scale by 7.5 seconds and stay between **5 and 45 seconds**.
 
-It retries when the request **times out** or fails with **408**, **429** or a **5xx** response, and on connectivity exceptions. Other errors, such as a 400 Bad Request from an action, aren't the kind of intermittent failure it's meant for.
+It retries when the request **times out** or fails with **408**, **429** or a **5xx** response. Other errors, such as **400 Bad Request**, aren't retried (ours: they won't fix themselves).
 </Step>
 
 <Step id="types" name="Four policy types">
@@ -88,7 +88,7 @@ Retrying repeats the request. If a call **isn't safe to repeat**, such as a paym
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- The **Default** policy: exponential, up to **4 retries**, for **408, 429, 5xx** and connectivity errors.
+- The **Default** policy: exponential, up to **4 retries** (5–45 s apart), for timeouts, **408, 429** and **5xx**.
 - Choose **None**, **Fixed** or **Exponential** under Settings > Networking, or set `retryPolicy`.
 - `count` takes 1–90 (default 4); intervals depend on stateful or stateless.
 - **Retry-After** sets the wait; run history shows **Succeeded with retries**.
