@@ -2,7 +2,7 @@
 title: Run-after & error scopes
 module: reliability
 order: 3
-minutes: 8
+minutes: 7
 level: Intermediate
 summary: When a step fails, decide what happens next. Run after tells an action when to run; a scope lets one Catch watch a whole group of actions.
 youWillLearn:
@@ -66,18 +66,16 @@ Inside Catch you want to know *what* failed. `result('Try')` lists every action 
 Your alert can then say "*Charge card* failed: card declined". (`result()` only sees the top-level actions in the box.)
 </Step>
 
-<Step id="finally" name="Always clean up">
-Some work must happen however Try ends, such as writing how the order ended to your log.
-
-Add a **Log outcome** step after the Try box and tick **all four** for Try: Is successful, Has failed, Is skipped and Has timed out. It runs every time, success or failure.
-
-There's no built-in "log" action: *Log outcome* is just our name for the step. Microsoft's own error-handling example uses an **HTTP** action that POSTs the details to a logging endpoint; a table or database insert works too (ours).
-</Step>
-
 <Step id="handled" name="Caught means Succeeded" tag="PROBLEM">
 One surprise: once Catch handles the failure, the **run shows Succeeded**. The order failed, but your dashboard is green.
 
 End Catch with **Terminate**, status **Failed**, and your own message. Now the run says what really happened. (Terminate can't go inside a For each or Until loop.)
+</Step>
+
+<Step id="monitor" name="Watch from outside" tag="TIP">
+Run after handles one run at a time. To notice when failures **pile up**, add an alert in **Azure Monitor**, for example "when more than five runs fail in an hour".
+
+With Terminate (Failed) in place, those runs end as Failed, so the alert sees them (ours).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -85,6 +83,7 @@ End Catch with **Terminate**, status **Failed**, and your own message. Now the r
 - One action: set run after to **Has failed** to react.
 - Many actions: wrap them in a **Try scope**; a **Catch scope** runs when Try fails.
 - `result('Try')` tells you which action broke.
+- Tick **all four** outcomes and a step runs every time, like `finally` in code.
 - A caught failure shows **Succeeded**: end with **Terminate (Failed)**.
 </Step>
 

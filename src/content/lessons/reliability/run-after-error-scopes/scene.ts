@@ -6,7 +6,6 @@ const flow = ['trigger', 'stock', 'charge', 'confirm', 'trig-stock', 'stock-char
 // All the work, Confirm order included, sits inside the Try box.
 const tryScope = ['tryBox'];
 const catchScope = ['catchBox', 'filter', 'term', 'try-catch', 'filter-term'];
-const clean = ['cleanup', 'try-cleanup'];
 
 export const scene: Scene = {
   viewBox: [900, 520],
@@ -22,7 +21,6 @@ export const scene: Scene = {
     { id: 'filter', kind: 'action', label: 'Filter result', sublabel: "result('Try')", x: 420, y: 300 },
     { id: 'term', kind: 'condition', label: 'Terminate', sublabel: 'Failed', x: 690, y: 300 },
     { id: 'notify', kind: 'action', label: 'Notify team', sublabel: 'if card fails', x: 495, y: 300 },
-    { id: 'cleanup', kind: 'connector-builtin', label: 'Log outcome', sublabel: 'HTTP to a log', x: 100, y: 300 },
   ],
   edges: [
     { id: 'trig-stock', from: 'trigger', to: 'stock' },
@@ -31,7 +29,6 @@ export const scene: Scene = {
     { id: 'try-catch', from: 'tryBox', to: 'catchBox', style: 'dashed', label: 'Try failed' },
     { id: 'filter-term', from: 'filter', to: 'term' },
     { id: 'charge-notify', from: 'charge', to: 'notify', style: 'dashed', label: 'failed' },
-    { id: 'try-cleanup', from: 'tryBox', to: 'cleanup', style: 'dashed', label: 'always' },
   ],
   steps: {
     problem: {
@@ -69,12 +66,6 @@ export const scene: Scene = {
       highlight: ['filter'],
       chips: [{ label: "result('Try')", value: 'each action: name · status' }, { label: 'keep', value: 'status = Failed' }],
     },
-    finally: {
-      visible: [...flow, ...tryScope, ...clean],
-      highlight: ['cleanup', 'try-cleanup'],
-      tokens: [{ id: 'f1', edge: 'try-cleanup', tone: 'ok' }],
-      chips: [{ label: 'Log outcome runs after Try', value: 'all four outcomes' }, { label: 'so it runs', value: 'every time', tone: 'ok' }],
-    },
     handled: {
       visible: [...flow, ...tryScope, ...catchScope],
       failed: ['charge'],
@@ -83,8 +74,15 @@ export const scene: Scene = {
       tokens: [{ id: 'h1', edge: 'filter-term', tone: 'info' }],
       chips: [{ label: 'without Terminate', value: 'run Succeeded', tone: 'warn' }, { label: 'with Terminate', value: 'run Failed', tone: 'fail' }],
     },
+    monitor: {
+      visible: [...flow, ...tryScope, ...catchScope],
+      failed: ['charge'],
+      skipped: ['confirm'],
+      highlight: ['term'],
+      chips: [{ label: 'alert, e.g.', value: 'more than 5 failed runs / hour' }],
+    },
     recap: {
-      visible: [...flow, ...tryScope, ...catchScope, ...clean],
+      visible: [...flow, ...tryScope, ...catchScope],
       chips: [{ label: 'react', value: 'run after' }, { label: 'many actions', value: 'Try + Catch scopes' }],
     },
   },
