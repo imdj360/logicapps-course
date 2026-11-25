@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
-import { Stage } from './Stage';
+import { focusRange, Stage } from './Stage';
 import type { Scene } from '../../lessons/scene-types';
 
 const scene: Scene = {
@@ -94,4 +94,24 @@ describe('Stage', () => {
     const { container } = render(<Stage scene={scene} stepId="nope" playing reducedMotion={false} />);
     expect(container.querySelectorAll('[data-node-id]')).toHaveLength(0);
   });
+});
+
+describe('focusRange', () => {
+  const sc: Scene = {
+    viewBox: [900, 500],
+    nodes: [
+      { id: 'a', kind: 'action', label: 'A', x: 100, y: 100 },
+      { id: 'b', kind: 'action', label: 'B', x: 700, y: 100 },
+    ],
+    edges: [{ id: 'a-b', from: 'a', to: 'b' }],
+    steps: {
+      one: { visible: ['a', 'b', 'a-b'], highlight: ['b'], chips: [] },
+      both: { visible: ['a', 'b', 'a-b'], highlight: ['a-b'], chips: [] },
+      none: { visible: ['a'], chips: [] },
+    },
+    legend: [],
+  };
+  it('spans the highlighted node', () => expect(focusRange(sc, 'one')).toEqual([622, 778]));
+  it('spans both ends of a highlighted edge', () => expect(focusRange(sc, 'both')).toEqual([22, 778]));
+  it('falls back to the visible nodes', () => expect(focusRange(sc, 'none')).toEqual([22, 178]));
 });

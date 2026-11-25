@@ -143,6 +143,7 @@ html[data-sidebar='collapsed'] .main { padding-left: 3rem; }
 .chip--neutral { border-left-color: var(--border-strong); }
 
 .stage__scroll { overflow-x: auto; border-radius: var(--radius-md); }
+.stage__hint { margin: 0; font: 400 12px/1.3 var(--font-mono); color: var(--muted); text-align: center; }
 /* Desktop: cap the diagram's height so it and the step timeline fit on one screen. The SVG keeps its aspect ratio and centres. */
 @media (min-width: 1101px) {
   .stage__svg { max-height: max(260px, calc(100vh - 400px)); }

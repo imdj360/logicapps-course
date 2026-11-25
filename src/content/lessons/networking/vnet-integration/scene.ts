@@ -100,7 +100,7 @@ export const scene: Scene = {
       visible: [...app, ...vnet, ...wired, 'sbsvc', 'subnet-sbsvc'],
       highlight: ['sbsvc', 'subnet-sbsvc', 'subnet'],
       tokens: [{ id: 'se1', edge: 'sql-subnet', tone: 'info' }, { id: 'se2', edge: 'subnet-sbsvc', tone: 'ok' }],
-      chips: [{ label: 'service endpoint', value: 'subnet allowed, no private IP' }, { label: 'from on-premises', value: 'not usable', tone: 'warn' }, { label: 'Microsoft recommends', value: 'private endpoints', tone: 'ok' }],
+      chips: [{ label: 'service endpoint', value: 'subnet allowed, no private IP' }, { label: 'from on-premises', value: 'not usable', tone: 'warn' }, { label: 'Microsoft recommends', value: 'private endpoints', tone: 'ok' }, { label: 'Service Bus', value: 'Premium tier only', tone: 'warn' }],
     },
     dns: {
       visible: [...app, ...vnet, ...wired],
