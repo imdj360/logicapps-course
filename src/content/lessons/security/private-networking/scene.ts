@@ -11,7 +11,7 @@ export const scene: Scene = {
     { id: 'app', kind: 'hosting-plan', label: 'Logic app', sublabel: 'Standard', x: 560, y: 240 },
     { id: 'vnet', kind: 'keyvault', label: 'VNet integr.', sublabel: 'outbound', x: 560, y: 410 },
     { id: 'db', kind: 'storage', label: 'Private DB', sublabel: '10.0.0.4', x: 800, y: 410 },
-    { id: 'internet', kind: 'user', label: 'Internet', sublabel: '403', x: 330, y: 80 },
+    { id: 'internet', kind: 'user', label: 'Internet', sublabel: 'public', x: 330, y: 80 },
     { id: 'webhook', kind: 'connector-managed', label: 'Event Grid', sublabel: 'webhook', x: 800, y: 80 },
     { id: 'storage', kind: 'storage', label: 'Storage', sublabel: '443 · 445', x: 800, y: 240 },
   ],
@@ -21,8 +21,9 @@ export const scene: Scene = {
     { id: 'app-vnet', from: 'app', to: 'vnet' },
     { id: 'vnet-db', from: 'vnet', to: 'db' },
     { id: 'internet-pe', from: 'internet', to: 'pe', style: 'dashed' },
+    { id: 'internet-app', from: 'internet', to: 'app', label: 'IP rules' },
     { id: 'webhook-app', from: 'webhook', to: 'app', style: 'dashed' },
-    { id: 'app-storage', from: 'app', to: 'storage' },
+    { id: 'vnet-storage', from: 'vnet', to: 'storage' },
   ],
   steps: {
     problem: {
@@ -57,8 +58,9 @@ export const scene: Scene = {
       chips: [{ label: 'allow outbound', value: 'managed connector IPs', tone: 'warn' }],
     },
     storage: {
-      visible: [...core, ...out, 'storage', 'app-storage'],
-      highlight: ['storage', 'app-storage'],
+      visible: [...core, ...out, 'storage', 'vnet-storage'],
+      highlight: ['vnet', 'storage', 'vnet-storage'],
+      tokens: [{ id: 's1', edge: 'app-vnet', tone: 'ok' }, { id: 's2', edge: 'vnet-storage', tone: 'ok' }],
       chips: [{ label: 'ports', value: '443 · 445 · 20000–30000' }],
     },
     dns: {
@@ -66,11 +68,13 @@ export const scene: Scene = {
       chips: [{ label: 'own DNS', value: 'WEBSITE_DNS_SERVER' }],
     },
     restrictions: {
-      visible: [...core, 'internet', 'internet-pe'],
+      visible: ['internet', 'app', 'internet-app'],
+      highlight: ['app', 'internet-app'],
+      tokens: [{ id: 'r1', edge: 'internet-app', tone: 'ok' }],
       chips: [{ label: 'public, but', value: 'access restrictions' }],
     },
     recap: {
-      visible: [...core, ...out, 'storage', 'app-storage'],
+      visible: [...core, ...out, 'storage', 'vnet-storage'],
       chips: [{ label: 'traffic', value: 'private both ways' }],
     },
   },

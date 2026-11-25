@@ -84,7 +84,6 @@ With Terminate (Failed) in place, those runs end as Failed, so the alert sees th
 - One action: set run after to **Has failed** to react.
 - Many actions: wrap them in a **Try scope**; a **Catch scope** runs when Try fails.
 - `result('Try')` tells you which action broke.
-- Tick **all four** outcomes and a step runs every time, like `finally` in code.
 - A caught failure shows **Succeeded**: end with **Terminate (Failed)**.
 </Step>
 

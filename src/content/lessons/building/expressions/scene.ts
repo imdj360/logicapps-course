@@ -8,7 +8,7 @@ export const scene: Scene = {
     { id: 'trigger', kind: 'trigger', label: 'Order received', sublabel: 'JSON body', x: 110, y: 240 },
     { id: 'email', kind: 'action', label: 'Customer email', sublabel: "?['email']", x: 390, y: 90 },
     { id: 'ship', kind: 'action', label: 'Ship date', sublabel: 'addDays +3', x: 390, y: 240 },
-    { id: 'summary', kind: 'action', label: 'Summary text', sublabel: '@{...}', x: 390, y: 390 },
+    { id: 'summary', kind: 'action', label: 'Summary text', sublabel: 'expression', x: 390, y: 390 },
     { id: 'params', kind: 'keyvault', label: 'Parameters', sublabel: 'per environment', x: 690, y: 170 },
     { id: 'appset', kind: 'keyvault', label: 'App settings', sublabel: 'configuration', x: 690, y: 360 },
   ],

@@ -6,11 +6,12 @@ const tools = ['read', 'write', 'agent-read', 'agent-write'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'user', kind: 'human', label: 'Caller', sublabel: 'Easy Auth', x: 110, y: 240 },
+    { id: 'user', kind: 'human', label: 'Caller', sublabel: 'user / app', x: 110, y: 240 },
     { id: 'agent', kind: 'llm-agent', label: 'Agent', sublabel: 'agent loop', x: 380, y: 240 },
-    { id: 'model', kind: 'llm-agent', label: 'Model', sublabel: 'MI, least priv.', x: 380, y: 80 },
+    { id: 'model', kind: 'llm-agent', label: 'Model', sublabel: 'Azure OpenAI', x: 380, y: 80 },
     { id: 'read', kind: 'action', label: 'Read tool', sublabel: 'read-only', x: 680, y: 150 },
-    { id: 'write', kind: 'action', label: 'Write tool', sublabel: 'needs approval', x: 680, y: 330 },
+    { id: 'write', kind: 'action', label: 'Write tool', sublabel: 'changes data', x: 680, y: 330 },
+    { id: 'mock', kind: 'action', label: 'Compose (mock)', sublabel: 'fake result', x: 680, y: 240 },
     { id: 'human', kind: 'human', label: 'Approver', sublabel: 'checkpoint', x: 680, y: 450 },
     { id: 'log', kind: 'appinsights', label: 'Agent log', sublabel: 'tools · tokens', x: 110, y: 420 },
   ],
@@ -19,6 +20,7 @@ export const scene: Scene = {
     { id: 'agent-model', from: 'agent', to: 'model' },
     { id: 'agent-read', from: 'agent', to: 'read' },
     { id: 'agent-write', from: 'agent', to: 'write', style: 'dashed' },
+    { id: 'agent-mock', from: 'agent', to: 'mock', style: 'dashed' },
     { id: 'write-human', from: 'write', to: 'human', style: 'dashed' },
     { id: 'agent-log', from: 'agent', to: 'log', style: 'dashed' },
   ],
@@ -52,7 +54,9 @@ export const scene: Scene = {
       chips: [{ label: 'built-in gate', value: 'not documented', tone: 'warn' }, { label: 'so', value: 'design the checkpoint' }],
     },
     test: {
-      visible: [...core, ...tools],
+      visible: [...core, 'mock', 'agent-mock'],
+      highlight: ['mock', 'agent-mock'],
+      tokens: [{ id: 'te1', edge: 'agent-mock', tone: 'ok' }],
       chips: [{ label: 'design with', value: 'Compose · mocked results' }],
     },
     observe: {
@@ -72,7 +76,7 @@ export const scene: Scene = {
     },
   },
   legend: [
-    { tone: 'info', label: 'request' },
+    { tone: 'info', label: 'request / log' },
     { tone: 'ok', label: 'allowed' },
   ],
 };

@@ -36,7 +36,8 @@ export const scene: Scene = {
   steps: {
     problem: {
       visible: [...core],
-      failed: ['queue'],
+      highlight: ['queue'],
+      tokens: [{ id: 'p1', edge: 'shop-trigger', tone: 'info' }],
       chips: [{ label: 'order', value: '#4711' }, { label: 'warehouse', value: 'never received', tone: 'fail' }],
     },
     listen: {
@@ -82,6 +83,7 @@ export const scene: Scene = {
     failure: {
       visible: [...core, 'run'],
       failed: ['stock'],
+      skipped: ['queue'],
       tokens: [{ id: 'f1', edge: 'parse-stock', tone: 'fail' }],
       chips: [
         { label: 'Check stock', value: 'Failed', tone: 'fail' },
@@ -98,7 +100,7 @@ export const scene: Scene = {
     },
     recap: {
       visible: [...core, 'history', 'actrec', 'trigger-history', 'trigger-actrec', 'parse-actrec', 'stock-actrec', 'queue-actrec', 'run'],
-      chips: [{ label: 'trigger', value: 'starts a run' }, { label: 'recorded', value: 'the run + every action' }],
+      chips: [{ label: 'trigger', value: 'starts a run' }, { label: 'recorded', value: 'run + trigger + actions' }],
     },
   },
   legend: [

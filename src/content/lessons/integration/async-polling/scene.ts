@@ -1,13 +1,16 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 // The workflow runs in order: Request → HTTP (partner) → Response. The website waits outside it.
-const flow = ['wfBox', 'site', 'req', 'http', 'resp', 'site-req', 'req-http', 'http-resp', 'resp-site'];
+const flowCore = ['site', 'req', 'http', 'resp', 'site-req', 'req-http', 'http-resp', 'resp-site'];
+const flow = ['wfBox', ...flowCore];
 const partner = ['api', 'http-api'];
+const partnerPoll = ['api', 'http-api-poll'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
   groups: [
     { id: 'wfBox', label: 'Place order · stateful', x: 216, y: 150, w: 640, h: 128 },
+    { id: 'wfBoxStateless', label: 'Place order · stateless', x: 216, y: 150, w: 640, h: 128 },
   ],
   nodes: [
     { id: 'site', kind: 'user', label: 'Website', sublabel: 'waits', x: 100, y: 410 },
@@ -22,8 +25,11 @@ export const scene: Scene = {
     { id: 'req-http', from: 'req', to: 'http' },
     { id: 'http-resp', from: 'http', to: 'resp' },
     { id: 'resp-site', from: 'resp', to: 'site', style: 'dashed', label: 'answer' },
-    { id: 'http-api', from: 'http', to: 'api', label: 'poll' },
-    { id: 'hook-api', from: 'hook', to: 'api', style: 'dashed', label: 'callback' },
+    { id: 'http-api', from: 'http', to: 'api' },
+    { id: 'http-api-poll', from: 'http', to: 'api', label: 'poll' },
+    { id: 'req-hook', from: 'req', to: 'hook' },
+    { id: 'hook-resp', from: 'hook', to: 'resp' },
+    { id: 'api-hook', from: 'api', to: 'hook', style: 'dashed', label: 'callback' },
   ],
   steps: {
     problem: {
@@ -45,17 +51,17 @@ export const scene: Scene = {
       chips: [{ label: 'switch 1 · Response action', value: 'Asynchronous response' }, { label: 'website gets', value: '202 at once', tone: 'ok' }],
     },
     outbound: {
-      visible: [...flow, ...partner],
-      highlight: ['http', 'api', 'http-api'],
+      visible: [...flow, ...partnerPoll],
+      highlight: ['http', 'api', 'http-api-poll'],
       tokens: [
-        { id: 'o1', edge: 'http-api', tone: 'info' },
-        { id: 'o2', edge: 'http-api', tone: 'info' },
-        { id: 'o3', edge: 'http-api', tone: 'ok' },
+        { id: 'o1', edge: 'http-api-poll', tone: 'info' },
+        { id: 'o2', edge: 'http-api-poll', tone: 'info' },
+        { id: 'o3', edge: 'http-api-poll', tone: 'ok' },
       ],
       chips: [{ label: 'switch 2 · HTTP action', value: 'Asynchronous pattern' }, { label: 'partner answers', value: '202 + location' }, { label: 'HTTP action', value: 'polls until done' }],
     },
     build: {
-      visible: [...flow, ...partner],
+      visible: [...flow, ...partnerPoll],
       highlight: ['api'],
       chips: [{ label: 'while running', value: '202 + location' }, { label: 'done', value: '200 + result', tone: 'ok' }, { label: 'first poll', value: 'after 1 s' }],
     },
@@ -65,15 +71,15 @@ export const scene: Scene = {
       chips: [{ label: '202, no location', value: 'turn async pattern off', tone: 'warn' }],
     },
     stateless: {
-      visible: [...flow, ...partner],
+      visible: ['wfBoxStateless', ...flowCore, ...partner],
       highlight: ['http'],
       tokens: [{ id: 'n1', edge: 'http-api', tone: 'info' }],
       chips: [{ label: 'stateless', value: 'returns 202 as-is', tone: 'warn' }, { label: 'polls location', value: 'no' }],
     },
     webhook: {
-      visible: [...flow, ...partner, 'hook', 'hook-api'],
-      highlight: ['hook', 'hook-api', 'api'],
-      tokens: [{ id: 'w1', edge: 'hook-api', tone: 'ok' }],
+      visible: ['wfBox', 'site', 'req', 'hook', 'resp', 'api', 'site-req', 'req-hook', 'hook-resp', 'resp-site', 'api-hook'],
+      highlight: ['hook', 'api-hook', 'api'],
+      tokens: [{ id: 'w1', edge: 'api-hook', tone: 'ok' }],
       chips: [{ label: 'subscribe', value: 'callback URL' }, { label: 'workflow', value: 'pauses, no polling', tone: 'ok' }],
     },
     timeouts: {
@@ -81,7 +87,7 @@ export const scene: Scene = {
       chips: [{ label: 'HTTP request', value: '225 s (also max)' }, { label: 'stateful run', value: '90 days' }, { label: 'stateless run', value: '5 min', tone: 'warn' }],
     },
     recap: {
-      visible: [...flow, ...partner, 'hook', 'hook-api'],
+      visible: [...flow, ...partnerPoll, 'hook', 'req-hook', 'api-hook'],
       chips: [{ label: 'wait', value: 'Response' }, { label: 'poll', value: '202 + location' }, { label: 'callback', value: 'webhook' }],
     },
   },

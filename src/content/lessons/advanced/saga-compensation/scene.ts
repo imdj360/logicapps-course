@@ -6,13 +6,13 @@ const comp = ['refund', 'release', 'orch-refund', 'orch-release'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'orch', kind: 'scope', label: 'Order workflow', sublabel: 'in charge', x: 120, y: 240 },
-    { id: 'stock', kind: 'action', label: 'Reserve stock', sublabel: 'compensable', x: 440, y: 80 },
-    { id: 'pay', kind: 'action', label: 'Charge card', sublabel: 'compensable', x: 440, y: 200 },
-    { id: 'courier', kind: 'action', label: 'Book courier', sublabel: 'fails', x: 440, y: 320 },
-    { id: 'refund', kind: 'action', label: 'Refund card', sublabel: 'compensation', x: 760, y: 200 },
-    { id: 'release', kind: 'action', label: 'Release stock', sublabel: 'compensation', x: 760, y: 80 },
-    { id: 'human', kind: 'human', label: 'Operator', sublabel: 'last resort', x: 760, y: 420 },
+    { id: 'orch', kind: 'scope', label: 'Order workflow', sublabel: 'in charge', x: 120, y: 250 },
+    { id: 'stock', kind: 'action', label: 'Reserve stock', sublabel: 'compensable', x: 450, y: 55 },
+    { id: 'pay', kind: 'action', label: 'Charge card', sublabel: 'compensable', x: 450, y: 135 },
+    { id: 'courier', kind: 'action', label: 'Book courier', sublabel: 'fails', x: 450, y: 215 },
+    { id: 'refund', kind: 'action', label: 'Refund card', sublabel: 'compensation', x: 760, y: 300 },
+    { id: 'release', kind: 'action', label: 'Release stock', sublabel: 'compensation', x: 760, y: 380 },
+    { id: 'human', kind: 'human', label: 'Operator', sublabel: 'last resort', x: 760, y: 460 },
   ],
   edges: [
     { id: 'orch-stock', from: 'orch', to: 'stock' },
@@ -42,7 +42,13 @@ export const scene: Scene = {
     flow: {
       visible: [...fwd, ...comp],
       failed: ['courier'],
-      tokens: [{ id: 'f1', edge: 'orch-stock', tone: 'ok' }, { id: 'f2', edge: 'orch-pay', tone: 'ok' }, { id: 'f3', edge: 'orch-courier', tone: 'fail' }],
+      tokens: [
+        { id: 'f1', edge: 'orch-stock', tone: 'info' },
+        { id: 'f2', edge: 'orch-pay', tone: 'info' },
+        { id: 'f3', edge: 'orch-courier', tone: 'fail' },
+        { id: 'f4', edge: 'orch-refund', tone: 'ok' },
+        { id: 'f5', edge: 'orch-release', tone: 'ok' },
+      ],
       chips: [{ label: '1-2', value: 'stock, card done' }, { label: '3', value: 'courier fails', tone: 'fail' }, { label: '4', value: 'refund, release' }],
     },
     build: {
@@ -70,12 +76,12 @@ export const scene: Scene = {
     },
     when: {
       visible: [...fwd, ...comp],
-      chips: [{ label: 'use', value: 'multi-service operations' }, { label: 'skip', value: 'if retries suffice' }],
+      chips: [{ label: 'use', value: 'multi-service operations' }, { label: 'skip when', value: 'tightly coupled' }],
     },
     recap: {
       visible: [...fwd, ...comp, 'human', 'orch-human'],
       chips: [{ label: 'no rollback', value: 'compensate' }],
     },
   },
-  legend: [{ tone: 'ok', label: 'compensation' }, { tone: 'failed', label: 'failed step' }],
+  legend: [{ tone: 'info', label: 'forward step' }, { tone: 'ok', label: 'compensation' }, { tone: 'failed', label: 'failed step' }],
 };

@@ -11,6 +11,8 @@ export const scene: Scene = {
     { id: 'w2', kind: 'trigger', label: 'Raise invoice', sublabel: 'Request · Resp.', x: 680, y: 340 },
     { id: 'auth', kind: 'keyvault', label: 'MCP auth', sublabel: 'OAuth or key', x: 380, y: 80 },
     { id: 'foundry', kind: 'llm-agent', label: 'Foundry agent', sublabel: 'preview', x: 110, y: 410 },
+    { id: 'apic', kind: 'hosting-plan', label: 'API Center', sublabel: 'MCP server', x: 380, y: 240 },
+    { id: 'mconn', kind: 'connector-managed', label: 'Managed conn.', sublabel: '1 action/tool', x: 680, y: 240 },
   ],
   edges: [
     { id: 'agent-mcp', from: 'agent', to: 'mcp' },
@@ -18,6 +20,8 @@ export const scene: Scene = {
     { id: 'mcp-w2', from: 'mcp', to: 'w2' },
     { id: 'auth-mcp', from: 'auth', to: 'mcp', style: 'dashed' },
     { id: 'foundry-w2', from: 'foundry', to: 'w2', style: 'dashed' },
+    { id: 'agent-apic', from: 'agent', to: 'apic' },
+    { id: 'apic-mconn', from: 'apic', to: 'mconn' },
   ],
   steps: {
     problem: {
@@ -53,7 +57,9 @@ export const scene: Scene = {
       chips: [{ label: 'transports', value: 'Streamable HTTP · SSE' }, { label: 'SSE needs', value: 'VNet + host.json', tone: 'warn' }],
     },
     apicenter: {
-      visible: [...core],
+      visible: ['agent', 'apic', 'mconn', 'agent-apic', 'apic-mconn'],
+      highlight: ['apic', 'mconn'],
+      tokens: [{ id: 'ac1', edge: 'agent-apic', tone: 'info' }, { id: 'ac2', edge: 'apic-mconn', tone: 'ok' }],
       chips: [{ label: 'API Center', value: 'one managed connector' }, { label: 'status', value: 'preview', tone: 'warn' }],
     },
     foundry: {
@@ -68,7 +74,7 @@ export const scene: Scene = {
     },
   },
   legend: [
-    { tone: 'info', label: 'tool call' },
-    { tone: 'ok', label: 'workflow runs' },
+    { tone: 'info', label: 'tool call / auth' },
+    { tone: 'ok', label: 'workflow / action' },
   ],
 };

@@ -68,7 +68,8 @@ export const scene: Scene = {
     'run-it': {
       visible: ['cls', 'ext', 'cls-ext'],
       highlight: ['cls'],
-      chips: [{ label: 'Microsoft Learn docs on running tests', value: 'silent', tone: 'warn' }],
+      failed: ['cls-ext'],
+      chips: [{ label: 'run with (ours)', value: 'dotnet test · Test Explorer', tone: 'ok' }, { label: 'generated', value: 'MSTest attributes' }],
     },
     limits: {
       visible: ['def', 'run', 'gen', 'cls', 'def-gen', 'run-gen', 'gen-cls'],

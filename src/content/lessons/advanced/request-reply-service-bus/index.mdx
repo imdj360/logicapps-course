@@ -67,14 +67,12 @@ Sessions need Service Bus **Standard or Premium**.
 Our build in Standard:
 
 **Requester workflow**
-1. **Send message**, from the **managed** Service Bus connector. It has **Message Id**, **Reply To**, **Reply To Session Id** and **Correlation Id**. Limit: **1 MB**.
+1. **Send message** (Service Bus): set **Message Id**, **Reply To**, **Reply To Session Id** and **Correlation Id**. The managed connector documents these fields (message limit **1 MB**). The built-in one shows them under **Advanced parameters** in the designer (ours: its reference lists only the queue name and the message).
 2. **Get messages from a queue session** (built-in), with **Session Id** set to your GUID.
 
 **Responder workflow** (ours)
 1. Trigger: **When messages are available in a queue (peek-lock)**.
-2. **Send message** (managed connector), with **Session Id** set to the request's Reply To Session Id.
-
-The built-in **Send message** lists only the queue name and the message.
+2. **Send message**, with **Session Id** set to the request's Reply To Session Id and **Correlation Id** set to its Message Id.
 </Step>
 
 <Step id="wait" name="Wait, with a deadline">
@@ -107,7 +105,7 @@ Plan for the quote that never arrives, or arrives late (ours):
 - Send the **request** as a message. Read the **reply** from a queue.
 - **ReplyTo** says where to answer. **CorrelationId** links reply to request.
 - **ReplyToSessionId** plus sessions let many requesters share one reply queue.
-- Standard: managed **Send message** sets the properties. Built-in **Get messages from a queue session** reads the reply.
+- Standard: **Send message** sets the properties (check Advanced parameters). Built-in **Get messages from a queue session** reads the reply.
 - Always design for a reply that never comes.
 </Step>
 
@@ -122,5 +120,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (outbound request 225 sec default, single-tenant)
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-control-flow-loops (Until defaults count 60, timeout PT1H)
 Fact-checked verbatim 2026-11-24.
-Ours, not on Learn: the pricing-engine scenario, the responder workflow, the Until + Delay wait design, late-reply and idempotency advice, the return-address analogy. Not claimed: that built-in Send message exposes ReplyTo, ReplyToSessionId, SessionId or CorrelationId (the built-in reference doesn't list them). Learn gives no end-to-end Logic Apps request-reply recipe.
+Ours, not on Learn: the pricing-engine scenario, the responder workflow, the Until + Delay wait design, late-reply and idempotency advice, the return-address analogy. Ours (Daniel, from the designer): built-in Send message shows Message Id, Reply To, Reply To Session Id, Session Id and Correlation Id under Advanced parameters; the built-in reference lists only entityName and message. Learn gives no end-to-end Logic Apps request-reply recipe.
 */}

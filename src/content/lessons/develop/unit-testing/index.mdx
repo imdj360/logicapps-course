@@ -22,6 +22,8 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-definitions-visual-studio-code
   - title: "Create Unit Tests from Standard Workflow Runs with Visual Studio Code"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-runs-visual-studio-code
+  - title: "Standard Automated Test SDK"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/automated-test-sdk
 reviewStatus: draft
 ---
 
@@ -85,9 +87,9 @@ Each sample test prepares mocks, runs the workflow with `RunWorkflowAsync`, and 
 </Step>
 
 <Step id="run-it" name="Running the tests">
-The Microsoft Learn two articles show how to create and edit the tests. They **don't describe how to run them**, in Test Explorer, with `dotnet test` or in a pipeline, and they don't call the feature preview or give a test framework name.
+The two VS Code tutorials cover generating and editing tests, not running them. The test classes come from the Test SDK (namespace `Microsoft.Azure.Workflows.UnitTesting`), and the generated class uses MSTest-style attributes (`[TestClass]`, `[TestMethod]`, `[TestInitialize]`).
 
-Our inference: the generated class uses `[TestClass]`, `[TestMethod]` and `[TestInitialize]`, which look like MSTest attributes, so ordinary .NET test tooling should apply. Check that in your own project before relying on it in CI.
+So you run them like any .NET test project: **`dotnet test`** or **Test Explorer**, locally or in CI (ours).
 </Step>
 
 <Step id="limits" name="Current limits" tag="TIP">
@@ -98,7 +100,7 @@ The Microsoft Learn docs list limits for **this release**:
 - integration account actions and EDI encode and decode actions aren't supported;
 - for run-based tests, Data Mapper, custom code, XML and Liquid actions aren't supported either.
 
-If your workflow uses XML maps or Liquid, plan for that gap.
+To test maps on their own, the Test SDK has **DataMapTestExecutor** (Data Mapper maps, run as XSLT) and **LiquidDataMapTestExecutor** (Liquid maps).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -106,7 +108,7 @@ If your workflow uses XML maps or Liquid, plan for that gap.
 - Create them from a **definition** (designer) or from a **local run** (run history).
 - VS Code generates a **Tests** folder with `MockOutputs` classes and a sample C# test class.
 - Run-based tests add a `*-mock.json` file.
-- the Microsoft Learn docs are silent on running tests and CI; the release only supports **C#** and fully mocked paths.
+- Run them with `dotnet test` or **Test Explorer** (ours); the release only supports **C#** and fully mocked paths.
 </Step>
 
 {/*
@@ -114,5 +116,5 @@ Sources (checked 2026-11-24, raw page text; both pages "Last updated 2025-06-09"
 - https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-definitions-visual-studio-code
 - https://learn.microsoft.com/en-us/azure/logic-apps/testing-framework/create-unit-tests-standard-workflow-runs-visual-studio-code
 Fact-checked verbatim 2026-11-24. Key quotes: "without needing connections to any external services, systems, or APIs"; "This definition mocks the external calls from each workflow operation without changing the workflow logic"; "select Create unit test"; "select Create unit test from run"; "This release currently supports only C# for creating unit tests."; "This release doesn't support non-mocked actions. Make sure that all actions in the workflow execution path are mocked."
-Not claimed: Learn does not mention preview status, MSTest, Test Explorer, dotnet test, CI or any package name (searched both pages). The MSTest remark and tooling advice on the "Running the tests" step is ours. The order-intake scenario is ours (Learn's sample uses a Service Bus queue trigger and Call_External_API).
+Not claimed: the Microsoft Learn docs don't mention preview status, MSTest, NUnit, xUnit, Test Explorer, dotnet test or CI (searched both tutorials, the Automated Test SDK page and the UnitTestExecutor page). The tooling advice on the "Running the tests" step is ours. Verified 2026-11-25: namespace Microsoft.Azure.Workflows.UnitTesting; DataMapTestExecutor "compiles, generates XSLT, and executes data map tests"; LiquidDataMapTestExecutor "execute[s] Liquid data map transformations during unit testing" (testing-framework/*-class-definition pages). The order-intake scenario is ours (Learn's sample uses a Service Bus queue trigger and Call_External_API).
 */}

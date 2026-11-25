@@ -1,7 +1,7 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 const core = ['order', 'hook', 'finance', 'order-hook', 'hook-finance', 'finance-hook'];
-const split = ['order', 'finance', 'state', 'second', 'order-state', 'finance-second', 'second-state'];
+const split = ['order', 'finance', 'state', 'second', 'order-finance', 'order-state', 'finance-second', 'second-state'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -61,7 +61,12 @@ export const scene: Scene = {
     split: {
       visible: [...split],
       highlight: ['state', 'second'],
-      tokens: [{ id: 'p1', edge: 'finance-second', tone: 'ok' }, { id: 'p2', edge: 'second-state', tone: 'info' }],
+      tokens: [
+        { id: 'p0', edge: 'order-finance', tone: 'info' },
+        { id: 'p0b', edge: 'order-state', tone: 'info' },
+        { id: 'p1', edge: 'finance-second', tone: 'ok' },
+        { id: 'p2', edge: 'second-state', tone: 'info' },
+      ],
       chips: [{ label: 'design (ours)', value: 'two flows, shared state' }],
     },
     timeout: {

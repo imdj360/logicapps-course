@@ -1,7 +1,7 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 const core = ['req', 'auto', 'req-auto'];
-const all = ['req', 'auto', 'tools', 'conn', 'human', 'req-auto', 'auto-tools', 'auto-conn', 'auto-human'];
+const all = ['req', 'auto', 'conn', 'human', 'req-auto', 'auto-conn', 'auto-human'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -9,16 +9,20 @@ export const scene: Scene = {
     { id: 'req', kind: 'user', label: 'Supplier email', sublabel: 'unstructured', x: 110, y: 240 },
     { id: 'fixed', kind: 'action', label: 'Fixed workflow', sublabel: 'known steps', x: 380, y: 420 },
     { id: 'auto', kind: 'llm-agent', label: 'Automation', sublabel: 'picks next step', x: 380, y: 240 },
-    { id: 'tools', kind: 'mcp-server', label: 'MCP servers', sublabel: 'tools', x: 680, y: 100 },
-    { id: 'conn', kind: 'connector-managed', label: 'Connectors', sublabel: '1,400+', x: 680, y: 240 },
-    { id: 'human', kind: 'human', label: 'Human approval', sublabel: 'when needed', x: 680, y: 380 },
+    { id: 'conn', kind: 'connector-managed', label: 'Connectors', sublabel: '1,400+', x: 680, y: 170 },
+    { id: 'human', kind: 'human', label: 'Human approval', sublabel: 'when needed', x: 680, y: 330 },
+    { id: 'ai', kind: 'llm-agent', label: 'AI assistant', sublabel: 'prompts', x: 110, y: 100 },
+    { id: 'designer', kind: 'action', label: 'Designer', sublabel: 'visual canvas', x: 110, y: 240 },
+    { id: 'templates', kind: 'scope', label: 'Templates', sublabel: 'prebuilt start', x: 110, y: 380 },
   ],
   edges: [
     { id: 'req-auto', from: 'req', to: 'auto' },
     { id: 'req-fixed', from: 'req', to: 'fixed', style: 'dashed' },
-    { id: 'auto-tools', from: 'auto', to: 'tools' },
     { id: 'auto-conn', from: 'auto', to: 'conn' },
     { id: 'auto-human', from: 'auto', to: 'human' },
+    { id: 'ai-auto', from: 'ai', to: 'auto' },
+    { id: 'designer-auto', from: 'designer', to: 'auto' },
+    { id: 'templates-auto', from: 'templates', to: 'auto' },
   ],
   steps: {
     problem: {
@@ -35,7 +39,7 @@ export const scene: Scene = {
     runtime: {
       visible: all,
       highlight: ['auto'],
-      tokens: [{ id: 'r1', edge: 'auto-tools', tone: 'info' }, { id: 'r2', edge: 'auto-human', tone: 'ok' }],
+      tokens: [{ id: 'r1', edge: 'auto-conn', tone: 'info' }, { id: 'r2', edge: 'auto-human', tone: 'ok' }],
       chips: [{ label: 'approach', value: 'probabilistic, agentic' }, { label: 'last task', value: 'human approval where needed' }],
     },
     pick: {
@@ -59,8 +63,8 @@ export const scene: Scene = {
       chips: [{ label: 'Automation compute', value: 'dedicated, scales to zero' }, { label: 'Standard compute', value: 'dedicated, you manage' }],
     },
     browser: {
-      visible: all,
-      highlight: ['conn', 'tools', 'human'],
+      visible: ['ai', 'designer', 'templates', 'auto', 'conn', 'human', 'ai-auto', 'designer-auto', 'templates-auto', 'auto-conn', 'auto-human'],
+      highlight: ['ai', 'designer', 'templates'],
       chips: [{ label: 'build · test · monitor', value: 'in your browser' }, { label: 'install', value: 'none for browser use' }],
     },
     preview: {
@@ -73,7 +77,7 @@ export const scene: Scene = {
     },
   },
   legend: [
-    { tone: 'info', label: 'request' },
+    { tone: 'info', label: 'request / step' },
     { tone: 'ok', label: 'approval' },
   ],
 };

@@ -6,6 +6,7 @@ const tools = ['t1', 't2', 'agent-t1', 'agent-t2'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
+    { id: 'chat', kind: 'user', label: 'Chat session', sublabel: 'conversational', x: 110, y: 100 },
     { id: 'trigger', kind: 'trigger', label: 'Complaint email', sublabel: 'free text', x: 110, y: 240 },
     { id: 'paid', kind: 'trigger', label: 'Order paid', sublabel: 'same steps', x: 110, y: 420 },
     { id: 'agent', kind: 'llm-agent', label: 'Agent', sublabel: 'think · act', x: 380, y: 240 },
@@ -15,6 +16,7 @@ export const scene: Scene = {
     { id: 'fixed', kind: 'action', label: 'Fixed workflow', sublabel: 'known steps', x: 380, y: 420 },
   ],
   edges: [
+    { id: 'chat-agent', from: 'chat', to: 'agent' },
     { id: 'trig-agent', from: 'trigger', to: 'agent' },
     { id: 'agent-model', from: 'agent', to: 'model' },
     { id: 'agent-t1', from: 'agent', to: 't1' },
@@ -51,8 +53,9 @@ export const scene: Scene = {
       chips: [{ label: 'tool', value: 'actions, no trigger' }, { label: 'guideline', value: 'about 10, varies' }],
     },
     types: {
-      visible: [...core, ...tools],
-      highlight: ['trigger'],
+      visible: [...core, ...tools, 'chat', 'chat-agent'],
+      highlight: ['trigger', 'chat'],
+      tokens: [{ id: 'ty1', edge: 'trig-agent', tone: 'info' }, { id: 'ty2', edge: 'chat-agent', tone: 'info' }],
       chips: [{ label: 'autonomous', value: 'any trigger' }, { label: 'conversational', value: 'chat session' }],
     },
     where: {
@@ -75,7 +78,7 @@ export const scene: Scene = {
     },
   },
   legend: [
-    { tone: 'info', label: 'to the model' },
-    { tone: 'ok', label: 'tool call' },
+    { tone: 'info', label: 'input / model' },
+    { tone: 'ok', label: 'action / tool' },
   ],
 };

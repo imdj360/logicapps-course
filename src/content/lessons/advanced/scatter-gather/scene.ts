@@ -2,15 +2,22 @@ import type { Scene } from '../../../../lessons/scene-types';
 
 const scatter = ['req', 's1', 's2', 's3', 'req-s1', 'req-s2', 'req-s3'];
 const gather = ['join', 's1-join', 's2-join', 's3-join'];
+const topicFlow = [
+  'req', 'topic', 's1', 's2', 's3', 'replyq', 'join',
+  'req-topic', 'topic-s1', 'topic-s2', 'topic-s3',
+  's1-replyq', 's2-replyq', 's3-replyq', 'replyq-join',
+];
 
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'req', kind: 'trigger', label: 'Quote request', sublabel: 'large order', x: 110, y: 240 },
-    { id: 's1', kind: 'user', label: 'Supplier A', sublabel: '2 s', x: 420, y: 90 },
-    { id: 's2', kind: 'user', label: 'Supplier B', sublabel: '5 s', x: 420, y: 240 },
-    { id: 's3', kind: 'user', label: 'Supplier C', sublabel: 'no answer', x: 420, y: 390 },
-    { id: 'join', kind: 'action', label: 'Pick cheapest', sublabel: 'gather', x: 740, y: 240 },
+    { id: 'req', kind: 'trigger', label: 'Quote request', sublabel: 'large order', x: 84, y: 240 },
+    { id: 'topic', kind: 'servicebus', label: 'RFQ topic', sublabel: 'subscriptions', x: 267, y: 240 },
+    { id: 's1', kind: 'user', label: 'Supplier A', sublabel: '2 s', x: 450, y: 90 },
+    { id: 's2', kind: 'user', label: 'Supplier B', sublabel: '5 s', x: 450, y: 240 },
+    { id: 's3', kind: 'user', label: 'Supplier C', sublabel: 'no answer', x: 450, y: 390 },
+    { id: 'replyq', kind: 'servicebus', label: 'Replies queue', sublabel: 'CorrelationId', x: 633, y: 240 },
+    { id: 'join', kind: 'action', label: 'Pick cheapest', sublabel: 'gather', x: 816, y: 240 },
   ],
   edges: [
     { id: 'req-s1', from: 'req', to: 's1' },
@@ -19,6 +26,14 @@ export const scene: Scene = {
     { id: 's1-join', from: 's1', to: 'join' },
     { id: 's2-join', from: 's2', to: 'join' },
     { id: 's3-join', from: 's3', to: 'join', style: 'dashed' },
+    { id: 'req-topic', from: 'req', to: 'topic' },
+    { id: 'topic-s1', from: 'topic', to: 's1' },
+    { id: 'topic-s2', from: 'topic', to: 's2' },
+    { id: 'topic-s3', from: 'topic', to: 's3' },
+    { id: 's1-replyq', from: 's1', to: 'replyq' },
+    { id: 's2-replyq', from: 's2', to: 'replyq' },
+    { id: 's3-replyq', from: 's3', to: 'replyq', style: 'dashed' },
+    { id: 'replyq-join', from: 'replyq', to: 'join' },
   ],
   steps: {
     problem: {
@@ -48,13 +63,24 @@ export const scene: Scene = {
       chips: [{ label: 'join run after', value: '+ Has failed, Has timed out' }, { label: 'HTTP timeout', value: 'max 225 s', tone: 'warn' }],
     },
     topic: {
-      visible: [...scatter, ...gather],
-      highlight: ['req'],
+      visible: [...topicFlow],
+      highlight: ['topic', 'req-topic', 'topic-s1', 'topic-s2', 'topic-s3'],
+      tokens: [
+        { id: 't1', edge: 'req-topic', tone: 'info' },
+        { id: 't2', edge: 'topic-s1', tone: 'info' },
+        { id: 't3', edge: 'topic-s2', tone: 'info' },
+        { id: 't4', edge: 'topic-s3', tone: 'info' },
+      ],
       chips: [{ label: 'scatter', value: 'Send message to topic' }, { label: 'replies', value: 'match CorrelationId' }],
     },
     gather: {
-      visible: [...scatter, ...gather],
-      highlight: ['join'],
+      visible: [...topicFlow],
+      highlight: ['replyq', 'join', 'replyq-join'],
+      tokens: [
+        { id: 'g1', edge: 's1-replyq', tone: 'ok' },
+        { id: 'g2', edge: 's2-replyq', tone: 'ok' },
+        { id: 'g3', edge: 'replyq-join', tone: 'ok' },
+      ],
       chips: [{ label: 'collect', value: 'Until all or deadline' }, { label: 'Until default', value: '60 loops / 1 hour' }],
     },
     watch: {

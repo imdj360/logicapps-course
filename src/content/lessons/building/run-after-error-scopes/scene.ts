@@ -52,7 +52,7 @@ export const scene: Scene = {
       chips: [{ label: 'Notify team runs after', value: 'Charge card has failed' }],
     },
     scope: {
-      visible: [...flow, ...tryScope, ...catchScope],
+      visible: [...flow, ...tryScope, 'catchBox', 'try-catch'],
       failed: ['charge'],
       skipped: ['confirm'],
       highlight: ['tryBox', 'catchBox', 'try-catch'],
@@ -60,7 +60,7 @@ export const scene: Scene = {
       chips: [{ label: 'Try box', value: 'Failed (one action failed)', tone: 'fail' }, { label: 'Catch runs after Try', value: 'has failed · timed out' }],
     },
     result: {
-      visible: [...flow, ...tryScope, ...catchScope],
+      visible: [...flow, ...tryScope, 'catchBox', 'try-catch', 'filter'],
       failed: ['charge'],
       skipped: ['confirm'],
       highlight: ['filter'],
@@ -88,7 +88,7 @@ export const scene: Scene = {
   },
   legend: [
     { tone: 'info', label: 'handling' },
-    { tone: 'ok', label: 'always runs' },
+    { tone: 'ok', label: 'after Succeeded' },
     { tone: 'fail', label: 'failure' },
   ],
 };

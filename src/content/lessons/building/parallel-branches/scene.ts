@@ -54,7 +54,8 @@ export const scene: Scene = {
     fail: {
       visible: [...split, ...join],
       failed: ['stock'],
-      tokens: [{ id: 'f1', edge: 'trig-stock', tone: 'fail' }, { id: 'f2', edge: 'email-ready', tone: 'ok' }],
+      skipped: ['ready'],
+      tokens: [{ id: 'f1', edge: 'trig-stock', tone: 'fail' }, { id: 'f2', edge: 'email-ready', tone: 'ok' }, { id: 'f3', edge: 'wh-ready', tone: 'ok' }],
       chips: [{ label: 'Reserve stock', value: 'Failed', tone: 'fail' }, { label: 'Mark ready', value: 'Skipped', tone: 'warn' }, { label: 'run', value: 'Failed', tone: 'fail' }],
     },
     handle: {

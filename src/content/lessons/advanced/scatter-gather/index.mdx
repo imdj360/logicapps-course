@@ -68,7 +68,7 @@ Supplier C is down. Without care, one failed branch stops the join.
 Use this when suppliers answer **minutes later**, or come and go.
 
 **Scatter workflow**
-1. **Send message** to a **topic**, from the **managed** Service Bus connector (the built-in one has no Message Id field).
+1. **Send message** to a **topic**, setting **Message Id**: documented on the managed connector; the built-in one shows it under **Advanced parameters** in the designer (ours).
 2. Each supplier has its own **subscription** and replies to a **reply queue**, copying the request ID into the reply's **CorrelationId**.
 
 One request, several replies: Service Bus calls this **multicast request/reply**. Adding a supplier is a new subscription, not a workflow change (ours).

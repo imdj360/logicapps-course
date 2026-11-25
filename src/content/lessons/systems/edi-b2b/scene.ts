@@ -10,6 +10,8 @@ export const scene: Scene = {
     { id: 'x12', kind: 'connector-builtin', label: 'Decode X12', sublabel: 'TA1 · 997', x: 460, y: 240 },
     { id: 'map', kind: 'action', label: 'Transform', sublabel: 'XSLT map', x: 640, y: 240 },
     { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'its XML', x: 810, y: 240 },
+    { id: 'enc-x12', kind: 'connector-builtin', label: 'Encode X12', sublabel: 'XML → flat file', x: 560, y: 240 },
+    { id: 'enc-as2', kind: 'connector-builtin', label: 'AS2 Encode', sublabel: 'sign · encrypt', x: 330, y: 240 },
     { id: 'ia', kind: 'storage', label: 'Integration acct', sublabel: 'partners', x: 370, y: 410 },
     { id: 'bad', kind: 'action', label: 'badMessages', sublabel: 'rejected', x: 460, y: 80 },
   ],
@@ -18,8 +20,13 @@ export const scene: Scene = {
     { id: 'as2-x12', from: 'as2', to: 'x12' },
     { id: 'x12-map', from: 'x12', to: 'map' },
     { id: 'map-erp', from: 'map', to: 'erp' },
+    { id: 'erp-encx12', from: 'erp', to: 'enc-x12' },
+    { id: 'encx12-encas2', from: 'enc-x12', to: 'enc-as2' },
+    { id: 'encas2-retailer', from: 'enc-as2', to: 'retailer' },
     { id: 'ia-as2', from: 'ia', to: 'as2', style: 'dashed' },
     { id: 'ia-x12', from: 'ia', to: 'x12', style: 'dashed' },
+    { id: 'ia-encx12', from: 'ia', to: 'enc-x12', style: 'dashed' },
+    { id: 'ia-encas2', from: 'ia', to: 'enc-as2', style: 'dashed' },
     { id: 'x12-bad', from: 'x12', to: 'bad', style: 'dashed' },
   ],
   steps: {
@@ -56,8 +63,13 @@ export const scene: Scene = {
       chips: [{ label: 'map', value: 'XSLT · Data Mapper' }],
     },
     outbound: {
-      visible: [...flow],
-      highlight: ['as2', 'x12'],
+      visible: ['erp', 'enc-x12', 'enc-as2', 'retailer', 'ia', 'erp-encx12', 'encx12-encas2', 'encas2-retailer', 'ia-encx12', 'ia-encas2'],
+      highlight: ['enc-x12', 'enc-as2'],
+      tokens: [
+        { id: 'o1', edge: 'erp-encx12', tone: 'info' },
+        { id: 'o2', edge: 'encx12-encas2', tone: 'info' },
+        { id: 'o3', edge: 'encas2-retailer', tone: 'info' },
+      ],
       chips: [{ label: 'out', value: 'Encode X12 · AS2 Encode' }, { label: 'EDIFACT acks', value: 'CONTRL' }],
     },
     tracking: {
@@ -69,5 +81,5 @@ export const scene: Scene = {
       chips: [{ label: 'flow', value: 'decode → validate → transform' }],
     },
   },
-  legend: [{ tone: 'info', label: 'EDI in' }, { tone: 'ok', label: 'to ERP' }, { tone: 'fail', label: 'rejected' }],
+  legend: [{ tone: 'info', label: 'EDI flow' }, { tone: 'ok', label: 'to ERP' }, { tone: 'fail', label: 'rejected' }],
 };

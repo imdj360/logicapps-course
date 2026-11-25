@@ -7,6 +7,7 @@ export const scene: Scene = {
   nodes: [
     { id: 'wf', kind: 'trigger', label: 'Order runs', sublabel: 'many', x: 120, y: 240 },
     { id: 'breaker', kind: 'condition', label: 'Breaker', sublabel: 'ask first', x: 420, y: 240 },
+    { id: 'queue', kind: 'servicebus', label: 'Work queue', sublabel: 'buffers load', x: 420, y: 240 },
     { id: 'api', kind: 'user', label: 'Partner API', sublabel: 'down 2 h', x: 740, y: 240 },
     { id: 'state', kind: 'storage', label: 'Breaker state', sublabel: 'table', x: 420, y: 80 },
     { id: 'park', kind: 'servicebus', label: 'Parked work', sublabel: 'retry later', x: 420, y: 410 },
@@ -15,6 +16,8 @@ export const scene: Scene = {
     { id: 'wf-api', from: 'wf', to: 'api' },
     { id: 'wf-breaker', from: 'wf', to: 'breaker' },
     { id: 'breaker-api', from: 'breaker', to: 'api' },
+    { id: 'wf-queue', from: 'wf', to: 'queue' },
+    { id: 'queue-api', from: 'queue', to: 'api' },
     { id: 'state-breaker', from: 'state', to: 'breaker', style: 'dashed' },
     { id: 'breaker-park', from: 'breaker', to: 'park', style: 'dashed' },
   ],
@@ -39,7 +42,7 @@ export const scene: Scene = {
     sequence: {
       visible: [...core],
       highlight: ['breaker'],
-      tokens: [{ id: 's1', edge: 'wf-breaker', tone: 'info' }, { id: 's2', edge: 'breaker-api', tone: 'ok' }],
+      tokens: [{ id: 's1', edge: 'wf-breaker', tone: 'info' }, { id: 's2', edge: 'breaker-api', tone: 'info' }],
       chips: [{ label: '1', value: 'ask the breaker' }, { label: '3', value: 'too many failures: open', tone: 'warn' }, { label: '4', value: 'test calls, then close' }],
     },
     build: {
@@ -53,7 +56,9 @@ export const scene: Scene = {
       chips: [{ label: 'retry', value: 'short glitches' }, { label: 'breaker', value: 'long outages' }],
     },
     notneeded: {
-      visible: [...core, 'park', 'breaker-park'],
+      visible: ['wf', 'queue', 'api', 'wf-queue', 'queue-api'],
+      highlight: ['queue'],
+      tokens: [{ id: 'n1', edge: 'wf-queue', tone: 'info' }, { id: 'n2', edge: 'queue-api', tone: 'info' }],
       chips: [{ label: 'behind a queue', value: 'might not be suitable' }, { label: 'already has', value: 'dead-letter + retries' }],
     },
     fallback: {
@@ -69,5 +74,5 @@ export const scene: Scene = {
       chips: [{ label: 'stop', value: 'hammering a down service' }],
     },
   },
-  legend: [{ tone: 'info', label: 'state check' }, { tone: 'ok', label: 'parked' }],
+  legend: [{ tone: 'info', label: 'request / check' }, { tone: 'ok', label: 'parked' }, { tone: 'fail', label: 'failed call' }],
 };

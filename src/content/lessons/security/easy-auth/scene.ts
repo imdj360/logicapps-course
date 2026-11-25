@@ -17,6 +17,7 @@ export const scene: Scene = {
     { id: 'easy-wf', from: 'easy', to: 'wf' },
     { id: 'entra-easy', from: 'entra', to: 'easy', style: 'dashed' },
     { id: 'sas-wf', from: 'sas', to: 'wf', style: 'dashed' },
+    { id: 'sas-easy', from: 'sas', to: 'easy', style: 'dashed' },
     { id: 'wf-claims', from: 'wf', to: 'claims' },
   ],
   steps: {
@@ -43,7 +44,7 @@ export const scene: Scene = {
       chips: [{ label: 'portal', value: 'Settings > Authentication' }, { label: 'accounts', value: 'single tenant' }],
     },
     request: {
-      visible: [...core, 'sas', 'sas-wf'],
+      visible: [...core, 'sas', 'sas-easy'],
       highlight: ['wf'],
       chips: [{ label: 'Microsoft Learn docs', value: 'one sentence + a blog', tone: 'warn' }, { label: 'SAS', value: 'can stay on' }],
     },

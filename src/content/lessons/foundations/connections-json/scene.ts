@@ -6,7 +6,7 @@ const kinds = ['sp', 'mg', 'fn', 'cj-sp', 'cj-mg', 'cj-fn'];
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'wf', kind: 'action', label: 'workflow.json', sublabel: 'connectionName', x: 110, y: 240 },
+    { id: 'wf', kind: 'action', label: 'workflow.json', sublabel: 'action refs', x: 110, y: 240 },
     { id: 'cj', kind: 'storage', label: 'connections.json', sublabel: 'project', x: 350, y: 240 },
     { id: 'sp', kind: 'connector-builtin', label: 'Service Bus', sublabel: 'serviceProvider', x: 600, y: 90 },
     { id: 'mg', kind: 'connector-managed', label: 'Office 365', sublabel: 'managedApi', x: 600, y: 240 },

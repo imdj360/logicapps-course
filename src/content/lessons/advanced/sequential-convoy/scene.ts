@@ -78,5 +78,5 @@ export const scene: Scene = {
       chips: [{ label: 'order', value: 'per session' }],
     },
   },
-  legend: [{ tone: 'ok', label: 'in order' }, { tone: 'info', label: 'lock renewal' }, { tone: 'fail', label: 'poison' }],
+  legend: [{ tone: 'ok', label: 'in order' }, { tone: 'info', label: 'message / renew' }, { tone: 'fail', label: 'out of order / DLQ' }],
 };

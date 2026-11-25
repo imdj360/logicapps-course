@@ -5,6 +5,8 @@ const core = ['test', 'trig', 'api', 'done', 'test-trig', 'trig-api', 'api-done'
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
+    { id: 'real-trig', kind: 'servicebus', label: 'Service Bus', sublabel: 'real queue', x: 180, y: 240 },
+    { id: 'real-api', kind: 'connector-managed', label: 'Partner API', sublabel: 'real service', x: 540, y: 240 },
     { id: 'test', kind: 'action', label: 'Unit test', sublabel: 'TestExecutor', x: 110, y: 240 },
     { id: 'trig', kind: 'trigger', label: 'Trigger mock', sublabel: 'queue message', x: 340, y: 240 },
     { id: 'api', kind: 'connector-managed', label: 'Action mock', sublabel: 'external API', x: 580, y: 240 },
@@ -14,17 +16,19 @@ export const scene: Scene = {
     { id: 'result', kind: 'human', label: 'Run status', sublabel: 'Assert', x: 110, y: 420 },
   ],
   edges: [
+    { id: 'real-trig-api', from: 'real-trig', to: 'real-api' },
     { id: 'test-trig', from: 'test', to: 'trig' },
     { id: 'trig-api', from: 'trig', to: 'api' },
     { id: 'api-done', from: 'api', to: 'done' },
     { id: 'json-trig', from: 'mockjson', to: 'trig', style: 'dashed' },
     { id: 'api-scope', from: 'api', to: 'scope', style: 'dashed' },
-    { id: 'scope-result', from: 'scope', to: 'result' },
     { id: 'test-result', from: 'test', to: 'result', style: 'dashed' },
   ],
   steps: {
     problem: {
-      visible: ['trig', 'api', 'trig-api'],
+      visible: ['real-trig', 'real-api', 'real-trig-api'],
+      highlight: ['real-api'],
+      tokens: [{ id: 'p1', edge: 'real-trig-api', tone: 'info' }],
       chips: [{ label: 'real API', value: 'cannot fail on demand', tone: 'warn' }],
     },
     concepts: {
@@ -59,6 +63,7 @@ export const scene: Scene = {
       visible: [...core, 'scope', 'api-scope'],
       highlight: ['scope', 'api-scope'],
       failed: ['api'],
+      skipped: ['done'],
       tokens: [{ id: 't1', edge: 'api-scope', tone: 'fail' }],
       chips: [{ label: 'status', value: 'Failed', tone: 'fail' }, { label: 'error', value: 'TestErrorInfo', tone: 'fail' }],
     },

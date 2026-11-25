@@ -45,7 +45,7 @@ export const scene: Scene = {
       visible: [...parts, ...account],
       failed: ['cu00'],
       tokens: [{ id: 'l1', edge: 'tables-cu00', tone: 'fail' }, { id: 'l2', edge: 'blobs-cu00', tone: 'fail' }, { id: 'l3', edge: 'queues-cu00', tone: 'fail' }],
-      chips: [{ label: 'per partition', value: '2,000 requests' }, { label: 'per account', value: '20,000 req/s', tone: 'fail' }],
+      chips: [{ label: 'per partition', value: '2,000 req/s' }, { label: 'per account', value: '20,000 req/s', tone: 'fail' }],
     },
     spread: {
       visible: [...parts, ...account],

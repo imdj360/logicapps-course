@@ -1,6 +1,7 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 const flow = ['partner', 'transform', 'erp', 'partner-transform', 'transform-erp'];
+const validatedFlow = ['partner', 'validate', 'transform', 'erp', 'partner-validate', 'validate-transform', 'transform-erp'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -10,7 +11,7 @@ export const scene: Scene = {
     { id: 'transform', kind: 'connector-builtin', label: 'Transform XML', sublabel: 'XSLT map', x: 560, y: 110 },
     { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'our XML', x: 790, y: 110 },
     { id: 'maps', kind: 'storage', label: 'Artifacts/Maps', sublabel: '.xslt', x: 560, y: 280 },
-    { id: 'schemas', kind: 'storage', label: 'Schemas', sublabel: 'Artifacts · xsd', x: 330, y: 280 },
+    { id: 'schemas', kind: 'storage', label: 'Schemas', sublabel: 'XSD · JSON', x: 330, y: 280 },
     { id: 'dm', kind: 'human', label: 'Data Mapper', sublabel: 'VS Code', x: 110, y: 410 },
     { id: 'lml', kind: 'storage', label: 'MapDefinitions', sublabel: '.lml', x: 330, y: 410 },
     { id: 'dmx', kind: 'connector-builtin', label: 'Data Mapper XSLT', sublabel: 'Transform using', x: 790, y: 280 },
@@ -26,6 +27,7 @@ export const scene: Scene = {
     { id: 'dm-lml', from: 'dm', to: 'lml' },
     { id: 'lml-maps', from: 'lml', to: 'maps' },
     { id: 'maps-dmx', from: 'maps', to: 'dmx', style: 'dashed' },
+    { id: 'dmx-erp', from: 'dmx', to: 'erp' },
     { id: 'asm-maps', from: 'asm', to: 'maps', style: 'dashed' },
     { id: 'dm-schemas', from: 'dm', to: 'schemas', style: 'dashed' },
   ],
@@ -64,9 +66,14 @@ export const scene: Scene = {
       chips: [{ label: 'definition', value: '.lml' }, { label: 'runs', value: 'generated .xslt' }],
     },
     action: {
-      visible: [...flow, 'maps', 'dm', 'lml', 'dmx', 'dm-lml', 'lml-maps', 'maps-dmx', 'maps-transform'],
-      highlight: ['dmx', 'maps-dmx'],
-      tokens: [{ id: 'a1', edge: 'maps-dmx', tone: 'ok' }],
+      visible: [...flow, 'maps', 'dm', 'lml', 'dmx', 'dm-lml', 'lml-maps', 'maps-dmx', 'dmx-erp', 'maps-transform'],
+      failed: ['transform'],
+      highlight: ['dmx', 'maps-dmx', 'dmx-erp'],
+      tokens: [
+        { id: 'a0', edge: 'maps-transform', tone: 'fail' },
+        { id: 'a1', edge: 'maps-dmx', tone: 'ok' },
+        { id: 'a2', edge: 'dmx-erp', tone: 'ok' },
+      ],
       chips: [{ label: 'Data Mapper map', value: 'Transform using Data Mapper XSLT', tone: 'ok' }, { label: 'other maps', value: 'Transform XML' }],
     },
     code: {
@@ -76,18 +83,19 @@ export const scene: Scene = {
       chips: [{ label: 'map calls', value: '.NET assembly' }, { label: 'Standard', value: '.NET Framework · .NET 8' }],
     },
     validate: {
-      visible: [...flow, 'validate', 'schemas', 'partner-validate', 'validate-transform', 'schemas-validate'],
+      visible: [...validatedFlow, 'schemas', 'schemas-validate'],
       highlight: ['validate', 'schemas-validate'],
       tokens: [{ id: 'v1', edge: 'partner-validate', tone: 'info' }, { id: 'v2', edge: 'validate-transform', tone: 'ok' }],
       chips: [{ label: 'action', value: 'Validate XML' }, { label: 'bad input', value: 'rejected before the map', tone: 'ok' }],
     },
     recap: {
-      visible: [...flow, 'validate', 'maps', 'schemas', 'dm', 'lml', 'dmx', 'asm', 'partner-validate', 'validate-transform', 'maps-transform', 'schemas-validate', 'dm-lml', 'lml-maps', 'maps-dmx', 'asm-maps', 'dm-schemas'],
+      visible: [...validatedFlow, 'maps', 'schemas', 'dm', 'lml', 'dmx', 'asm', 'maps-transform', 'schemas-validate', 'dm-lml', 'lml-maps', 'maps-dmx', 'dmx-erp', 'asm-maps', 'dm-schemas'],
       chips: [{ label: 'hand-written', value: 'Transform XML' }, { label: 'Data Mapper', value: 'its own action' }],
     },
   },
   legend: [
     { tone: 'info', label: 'message / build' },
     { tone: 'ok', label: 'transformed / valid' },
+    { tone: 'fail', label: 'wrong action' },
   ],
 };

@@ -8,8 +8,9 @@ export const scene: Scene = {
     { id: 'order', kind: 'action', label: 'Order flow', sublabel: 'requester', x: 120, y: 240 },
     { id: 'reqq', kind: 'servicebus', label: 'Request queue', sublabel: 'ReplyTo set', x: 450, y: 100 },
     { id: 'engine', kind: 'user', label: 'Pricing engine', sublabel: '3-10 min', x: 780, y: 240 },
+    { id: 'engine2', kind: 'user', label: 'Subscriber B', sublabel: 'also replies', x: 780, y: 100 },
     { id: 'repq', kind: 'servicebus', label: 'Reply queue', sublabel: 'sessions', x: 450, y: 380 },
-    { id: 'topic', kind: 'servicebus', label: 'Topic', sublabel: 'multicast', x: 120, y: 420 },
+    { id: 'topic', kind: 'servicebus', label: 'Topic', sublabel: 'multicast', x: 450, y: 100 },
   ],
   edges: [
     { id: 'order-engine', from: 'order', to: 'engine', style: 'dashed' },
@@ -17,7 +18,10 @@ export const scene: Scene = {
     { id: 'reqq-engine', from: 'reqq', to: 'engine' },
     { id: 'engine-repq', from: 'engine', to: 'repq' },
     { id: 'repq-order', from: 'repq', to: 'order' },
-    { id: 'order-topic', from: 'order', to: 'topic', style: 'dashed' },
+    { id: 'order-topic', from: 'order', to: 'topic' },
+    { id: 'topic-engine', from: 'topic', to: 'engine' },
+    { id: 'topic-engine2', from: 'topic', to: 'engine2' },
+    { id: 'engine2-repq', from: 'engine2', to: 'repq' },
   ],
   steps: {
     problem: {
@@ -49,7 +53,7 @@ export const scene: Scene = {
     build: {
       visible: [...core],
       highlight: ['order', 'engine'],
-      chips: [{ label: 'send', value: 'managed Send message' }, { label: 'read', value: 'Get messages from a queue session' }],
+      chips: [{ label: 'send', value: 'Send message (Advanced params)' }, { label: 'read', value: 'Get messages from a queue session' }],
     },
     wait: {
       visible: [...core],
@@ -57,9 +61,16 @@ export const scene: Scene = {
       chips: [{ label: 'Until (stateful)', value: '60 loops or PT1H' }, { label: 'wait', value: 'Get messages + Delay (ours)' }],
     },
     multicast: {
-      visible: [...core, 'topic', 'order-topic'],
-      highlight: ['topic', 'order-topic'],
-      tokens: [{ id: 'm1', edge: 'order-topic', tone: 'info' }],
+      visible: ['order', 'topic', 'engine', 'engine2', 'repq', 'order-topic', 'topic-engine', 'topic-engine2', 'engine-repq', 'engine2-repq', 'repq-order'],
+      highlight: ['topic', 'order-topic', 'topic-engine', 'topic-engine2'],
+      tokens: [
+        { id: 'm1', edge: 'order-topic', tone: 'info' },
+        { id: 'm2', edge: 'topic-engine', tone: 'info' },
+        { id: 'm3', edge: 'topic-engine2', tone: 'info' },
+        { id: 'm4', edge: 'engine-repq', tone: 'ok' },
+        { id: 'm5', edge: 'engine2-repq', tone: 'ok' },
+        { id: 'm6', edge: 'repq-order', tone: 'ok' },
+      ],
       chips: [{ label: 'topic', value: 'many replies' }],
     },
     watch: {
@@ -72,7 +83,7 @@ export const scene: Scene = {
       chips: [{ label: 'use', value: 'answer takes minutes' }, { label: 'skip', value: 'answer in seconds' }],
     },
     recap: {
-      visible: [...core, 'topic', 'order-topic'],
+      visible: [...core],
       chips: [{ label: 'match by', value: 'correlation or session' }],
     },
   },
