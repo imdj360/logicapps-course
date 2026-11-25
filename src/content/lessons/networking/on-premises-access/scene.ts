@@ -22,6 +22,8 @@ export const scene: Scene = {
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'installed here', x: 620, y: 440 },
     { id: 'rec', kind: 'trigger', label: 'Every 15 min', sublabel: 'Recurrence', x: 180, y: 100 },
     { id: 'createfile', kind: 'connector-managed', label: 'Create file', sublabel: 'File System', x: 180, y: 290 },
+    { id: 'fsb', kind: 'connector-builtin', label: 'Create file', sublabel: 'built-in', x: 180, y: 200 },
+    { id: 'fsm', kind: 'connector-managed', label: 'Create file', sublabel: 'managed', x: 180, y: 290 },
     { id: 'share', kind: 'storage', label: 'File share', sublabel: 'partner/OUT', x: 780, y: 360 },
     { id: 'p-sql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'not in Azure', x: 700, y: 200 },
   ],
@@ -37,6 +39,11 @@ export const scene: Scene = {
     { id: 'rec-create', from: 'rec', to: 'createfile' },
     { id: 'create-cloud', from: 'createfile', to: 'cloud' },
     { id: 'gw-share', from: 'gw', to: 'share' },
+    { id: 'rec-fsb', from: 'rec', to: 'fsb' },
+    { id: 'fsb-or-fsm', from: 'fsb', to: 'fsm', style: 'dashed', label: 'or' },
+    { id: 'fsb-subnet', from: 'fsb', to: 'subnet' },
+    { id: 'subnet-share', from: 'subnet', to: 'share', label: 'SMB 445' },
+    { id: 'fsm-cloud', from: 'fsm', to: 'cloud' },
   ],
   steps: {
     problem: {
@@ -86,6 +93,16 @@ export const scene: Scene = {
         { id: 'x3', edge: 'gw-cloud', tone: 'info' }, { id: 'x4', edge: 'gw-share', tone: 'ok' },
       ],
       chips: [{ label: 'connector', value: 'File System (managed)' }, { label: 'gateway resource', value: 'shared subscription, same tenant' }],
+    },
+    'file-share': {
+      visible: ['appBox', 'dcBox', 'rec', 'fsb', 'fsm', 'subnet', 'cloud', 'gw', 'share',
+        'rec-fsb', 'fsb-or-fsm', 'fsb-subnet', 'subnet-share', 'fsm-cloud', 'gw-cloud', 'gw-share'],
+      highlight: ['fsb', 'fsm', 'share'],
+      tokens: [
+        { id: 'f1', edge: 'rec-fsb', tone: 'info' }, { id: 'f2', edge: 'fsb-subnet', tone: 'info' }, { id: 'f3', edge: 'subnet-share', tone: 'ok' },
+        { id: 'f4', edge: 'gw-cloud', tone: 'info' }, { id: 'f5', edge: 'gw-share', tone: 'ok' },
+      ],
+      chips: [{ label: 'built-in', value: 'VNet · SMB 445 · no gateway', tone: 'ok' }, { label: 'managed', value: 'data gateway · same domain' }, { label: 'both', value: 'Windows shares · no mapped drives', tone: 'warn' }],
     },
     rules: {
       visible: [...base, ...route2],
