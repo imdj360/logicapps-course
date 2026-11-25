@@ -3,6 +3,8 @@ name: Build and deploy
 on:
   push:
     branches: [main]
+  # Manual redeploy from the Actions tab (a re-run of a Pages deploy fails on its duplicate artifact).
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
@@ -45,7 +47,7 @@ jobs:
   # Settings > Pages > Source: GitHub Actions. Rebuilt here because the base path differs from Azure.
   github-pages:
     needs: build
-    if: github.event_name == 'push' && vars.PAGES_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
