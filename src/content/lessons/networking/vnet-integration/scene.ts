@@ -1,11 +1,12 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
 // The logic app on the left, your virtual network on the right. Built-in calls go through the
-// integration subnet; the managed Outlook call goes to the managed API service outside the network.
+// integration subnet. With route-all on (the default) the managed Outlook call also leaves through the
+// subnet, on its way to the managed API service outside the network.
 const app = ['appBox', 'trig', 'http', 'sql', 'trig-http', 'http-sql'];
 const vnet = ['vnetBox', 'api', 'db'];
 const wired = ['subnet', 'http-subnet', 'sql-subnet', 'subnet-api', 'subnet-db'];
-const managed = ['mail', 'cloud', 'sql-mail', 'mail-cloud'];
+const managed = ['mail', 'cloud', 'sql-mail', 'mail-subnet', 'subnet-cloud'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -32,7 +33,8 @@ export const scene: Scene = {
     { id: 'sql-subnet', from: 'sql', to: 'subnet' },
     { id: 'subnet-api', from: 'subnet', to: 'api' },
     { id: 'subnet-db', from: 'subnet', to: 'db' },
-    { id: 'mail-cloud', from: 'mail', to: 'cloud', style: 'dashed', label: 'allow its IPs' },
+    { id: 'mail-subnet', from: 'mail', to: 'subnet' },
+    { id: 'subnet-cloud', from: 'subnet', to: 'cloud', style: 'dashed', label: 'allow its IPs' },
   ],
   steps: {
     problem: {
@@ -67,13 +69,13 @@ export const scene: Scene = {
     },
     'route-all': {
       visible: [...app, ...vnet, ...wired, ...managed],
-      highlight: ['subnet', 'http-subnet', 'sql-subnet'],
+      highlight: ['subnet', 'http-subnet', 'sql-subnet', 'mail-subnet'],
       chips: [{ label: 'default', value: 'all outbound via the VNet' }, { label: 'applies', value: 'firewall · NSG · UDR', tone: 'warn' }],
     },
     connectors: {
       visible: [...app, ...vnet, ...wired, ...managed],
       highlight: ['http', 'sql', 'mail', 'cloud'],
-      tokens: [{ id: 'c1', edge: 'sql-subnet', tone: 'info' }, { id: 'c2', edge: 'subnet-db', tone: 'ok' }, { id: 'c3', edge: 'mail-cloud', tone: 'info' }],
+      tokens: [{ id: 'c1', edge: 'sql-subnet', tone: 'info' }, { id: 'c2', edge: 'subnet-db', tone: 'ok' }, { id: 'c3', edge: 'mail-subnet', tone: 'info' }, { id: 'c4', edge: 'subnet-cloud', tone: 'info' }],
       chips: [{ label: 'built-in', value: 'through the VNet', tone: 'ok' }, { label: 'managed', value: 'allow regional IPs', tone: 'warn' }],
     },
     dns: {
