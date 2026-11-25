@@ -26,6 +26,7 @@ export const MODULES: ModuleDef[] = [
     l('expressions', 'Expressions'),
     l('inline-code', 'Inline code and .NET functions'),
     l('control-flow', 'Control flow'),
+    l('run-after-error-scopes', 'Run-after & error scopes'),
     l('parallel-branches', 'Parallel branches'),
   ] },
   { id: 'develop', number: '04', title: 'Develop & test', lessons: [
@@ -45,7 +46,6 @@ export const MODULES: ModuleDef[] = [
   { id: 'reliability', number: '06', title: 'Reliability', lessons: [
     l('retry-policies', 'Retry policies'),
     l('timeouts', 'Timeouts'),
-    l('run-after-error-scopes', 'Run-after & error scopes'),
     l('idempotency', 'Idempotency'),
     l('resubmitting-runs', 'Resubmitting runs & failure handling'),
   ] },
