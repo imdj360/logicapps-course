@@ -6,10 +6,10 @@ minutes: 9
 level: Advanced
 summary: Retries, resubmits and redelivery mean the same work can happen twice. Design workflows so that doing it twice changes nothing.
 youWillLearn:
-  - Why Logic Apps can deliver a message more than once
-  - Where duplicates come from in a workflow
-  - How Service Bus duplicate detection works
-  - How to make writes safe to repeat
+  - What idempotent means, in one sentence
+  - Where repeated runs come from
+  - How to build check-before-create in a workflow
+  - How Service Bus duplicate detection helps
 relatedArticles:
   - title: "Event Debouncing with Logic Apps and Azure Table Storage"
     url: https://dev.to/imdj/event-debouncing-with-logic-apps-and-azure-table-storage-58cd
@@ -32,59 +32,55 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="The same order twice" tag="PROBLEM">
-A customer complains: one order, two shipments. Somewhere between the shop and the warehouse, the same order was processed twice.
+A customer complains: one order, **two shipments**. The same order went through your workflow twice.
 
-Nothing was broken. In a distributed system, **repeats are normal**. The fix is to make sure a repeat does no harm.
+Nothing was broken. In integration, **repeats happen**. The fix is to make a repeat do no harm.
 </Step>
 
-<Step id="atleastonce" name="At least once">
-Microsoft is explicit: Logic Apps delivers a message **at least once**. No messages are lost, and the service **rarely** delivers one more than once.
+<Step id="idea" name="The idea: idempotent">
+**Doing it twice has the same effect as doing it once.**
 
-If your business can't handle duplicates, Microsoft says you need to implement **idempotence**: after the first execution, duplicate operations don't change the result.
+Like pressing a lift button twice: the lift still comes once. The Microsoft Learn docs put it this way: after the first execution, duplicate operations don't change the result.
 </Step>
 
-<Step id="sources" name="Where duplicates come from">
-- **Delivery**: the rare repeat delivery described above.
-- **Resubmit**: rerunning a run repeats its actions. Microsoft warns that create operations might create **duplicate data**.
-- **Retries**: a retry resends a request after a timeout or error. If the first request did reach the service, the work may now happen twice. (That's our reasoning; the Microsoft Learn docs don't spell it out.)
-- **Concurrency**: Microsoft warns that changing concurrency on the Service Bus managed connector's auto-complete trigger can cause **duplicate messages** when the workflow is throttled.
+<Step id="sources" name="Where repeats come from">
+- **Delivery**: Logic Apps delivers a message **at least once**. No messages are lost, and it **rarely** delivers one twice.
+- **Resubmit**: rerunning a run repeats its actions, and the Microsoft Learn docs warn it might create **duplicate data**.
+- **Retries**: if the first request did reach the service before it timed out, a retry does the work again (ours).
 </Step>
 
-<Step id="key" name="Use a business key">
-To spot a repeat, you need something that stays the same across repeats: a **business key**, such as the order number.
+<Step id="check" name="Check before you create" tag="FIX">
+Build the check into the workflow (our pattern):
 
-The Service Bus docs make the point for message IDs: a GUID is allowed, but anchoring the identifier to the business process "yields predictable repeatability". A fresh GUID for every attempt would defeat that.
+1. **Get order** by its order number.
+2. **Condition**: does it exist already?
+3. **Yes**: stop, there's nothing to do.
+4. **No**: *Create order*, then *Ship*.
+
+A second copy of order 4711 now finds the first one and stops. It ships once.
 </Step>
 
-<Step id="sbdedupe" name="Service Bus duplicate detection">
-Service Bus can drop repeats for you. With **duplicate detection** on a queue or topic, it remembers each **MessageId** for a time window: **10 minutes** by default, from 20 seconds to 7 days. A second message with the same MessageId is accepted and then **silently dropped**.
+<Step id="key" name="Use the order number">
+The check only works with something that **stays the same** across repeats: a business key, such as the order number.
 
-It needs the **Standard** or **Premium** tier. In Logic Apps, the Service Bus **managed** connector's **Send message** action has a **Message Id** field for this; the built-in connector's Send message takes a `message` object, so check how your version sets the message ID.
+The Microsoft Learn docs make the same point for Service Bus message IDs: a GUID works, but anchoring the ID to the business process "yields predictable repeatability". A fresh GUID per attempt would never match.
 </Step>
 
-<Step id="writes" name="Make writes safe to repeat" tag="FIX">
-Duplicate detection covers one queue. Everything else is up to your design. The Microsoft Learn docs have no Logic Apps checklist for this, so these are **our** recommendations:
+<Step id="sbdedupe" name="Let Service Bus drop repeats">
+Service Bus can drop repeats before they reach your workflow. Turn on **duplicate detection** on the queue, and send the order number as the **MessageId**.
 
-- **Upsert** instead of insert, keyed on the business key.
-- **Check before you create**: look the order up first, skip if it exists.
-- Pass an **idempotency key** to APIs that support one.
-- Make **side effects** like emails or payments check a "done" record first.
-</Step>
-
-<Step id="tracking" name="Tracking IDs are not dedupe" tag="TIP">
-The `x-ms-client-tracking-id` header, or a custom tracking ID on the trigger, **correlates** runs in your logs. It's useful for spotting duplicates after the fact, but the Microsoft Learn docs describe it only for correlation, not deduplication, so don't rely on it to **prevent** them.
+A second message with the same MessageId within the window, **10 minutes** by default (20 seconds to 7 days), is accepted and then **ignored and dropped**. The Basic tier doesn't support it.
 </Step>
 
 <Step id="unsafe" name="When a call can't be made safe" tag="TIP">
-Some calls can't be made safe to repeat. For those, consider a retry policy of **None** and handle failures explicitly, and think twice before resubmitting a run that includes them.
+Some calls, like charging a card, can't simply be checked first. If the API supports an **idempotency key**, send the order number. If not, set its retry policy to **None** and think twice before resubmitting that run (ours).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- Logic Apps delivers **at least once**: repeats are rare but possible.
-- Duplicates come from delivery, **resubmits**, **retries** and concurrency.
-- Use a **business key**, not a fresh ID per attempt, to recognise repeats.
+- **Idempotent**: twice has the same effect as once.
+- Repeats come from **at-least-once delivery**, **resubmits** and **retries**.
+- **Check before you create**, keyed on the **order number**.
 - **Service Bus duplicate detection** drops repeated MessageIds within a window.
-- Make writes safe to repeat: **upsert**, check first, idempotency keys.
 </Step>
 
 {/*
@@ -96,6 +92,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/connectors/built-in/reference/servicebus/
 - https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-workflows-collect-diagnostic-data
+Simplified 2026-11-25 (check-before-create workflow drawn); facts re-verified 2026-11-25: at least once / rarely more than once, idempotence definition, resubmit duplicate data, predictable repeatability quote, 10 min / 20 s / 7 days, ignored and dropped, Basic tier unsupported.
 Fact-checked verbatim 2026-11-24.
 Not claimed: that retries cause duplicates (Learn doesn't say so; flagged as our reasoning), that triggers fire twice, that tracking IDs deduplicate. The "Make writes safe" list and the "unsafe" advice are ours.
 */}

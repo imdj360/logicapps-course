@@ -1,72 +1,78 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
-const core = ['shop', 'queue', 'wf', 'db', 'shop-queue', 'queue-wf', 'wf-db'];
+// The Process order workflow, with the check-before-create pattern drawn inside it.
+const intake = ['shop', 'queue', 'wfBox', 'trig', 'shop-queue', 'queue-trig'];
+const naive = ['create', 'ship', 'trig-create', 'create-ship'];
+const checked = ['get', 'cond', 'skip', 'create', 'ship', 'trig-get', 'get-cond', 'cond-skip', 'cond-create', 'create-ship'];
 
 export const scene: Scene = {
   viewBox: [900, 500],
+  groups: [
+    { id: 'wfBox', label: 'Process order', x: 380, y: 50, w: 500, h: 400 },
+  ],
   nodes: [
-    { id: 'shop', kind: 'user', label: 'Shop', sublabel: 'order 4711', x: 110, y: 240 },
-    { id: 'queue', kind: 'servicebus', label: 'Orders queue', sublabel: 'dedupe on', x: 340, y: 240 },
-    { id: 'wf', kind: 'action', label: 'Process order', sublabel: 'workflow', x: 580, y: 240 },
-    { id: 'db', kind: 'storage', label: 'Orders DB', sublabel: 'upsert by key', x: 810, y: 240 },
-    { id: 'retry', kind: 'condition', label: 'Retry', sublabel: 'after timeout', x: 580, y: 90 },
-    { id: 'resubmit', kind: 'human', label: 'Resubmit', sublabel: 'same inputs', x: 580, y: 410 },
+    { id: 'shop', kind: 'user', label: 'Shop', sublabel: 'order 4711', x: 100, y: 120 },
+    { id: 'queue', kind: 'servicebus', label: 'Orders queue', sublabel: 'Service Bus', x: 280, y: 250 },
+    { id: 'trig', kind: 'trigger', label: 'Queue trigger', x: 480, y: 120 },
+    { id: 'get', kind: 'action', label: 'Get order', sublabel: 'by order no.', x: 760, y: 120 },
+    { id: 'cond', kind: 'condition', label: 'Exists already?', sublabel: 'Condition', x: 760, y: 250 },
+    { id: 'skip', kind: 'action', label: 'Stop', sublabel: 'nothing to do', x: 480, y: 250 },
+    { id: 'create', kind: 'action', label: 'Create order', x: 760, y: 380 },
+    { id: 'ship', kind: 'action', label: 'Ship', x: 480, y: 380 },
   ],
   edges: [
     { id: 'shop-queue', from: 'shop', to: 'queue' },
-    { id: 'queue-wf', from: 'queue', to: 'wf' },
-    { id: 'wf-db', from: 'wf', to: 'db' },
-    { id: 'retry-db', from: 'retry', to: 'db', style: 'dashed' },
-    { id: 'resubmit-wf', from: 'resubmit', to: 'wf', style: 'dashed' },
+    { id: 'queue-trig', from: 'queue', to: 'trig' },
+    { id: 'trig-create', from: 'trig', to: 'create' },
+    { id: 'trig-get', from: 'trig', to: 'get' },
+    { id: 'get-cond', from: 'get', to: 'cond' },
+    { id: 'cond-skip', from: 'cond', to: 'skip', label: 'yes' },
+    { id: 'cond-create', from: 'cond', to: 'create', label: 'no' },
+    { id: 'create-ship', from: 'create', to: 'ship' },
   ],
   steps: {
     problem: {
-      visible: [...core],
-      highlight: ['db'],
-      tokens: [{ id: 'p1', edge: 'wf-db', tone: 'fail' }, { id: 'p2', edge: 'wf-db', tone: 'fail' }],
+      visible: [...intake, ...naive],
+      highlight: ['ship'],
+      tokens: [{ id: 'p1', edge: 'create-ship', tone: 'fail' }, { id: 'p2', edge: 'create-ship', tone: 'fail' }],
       chips: [{ label: 'order 4711', value: 'shipped twice', tone: 'fail' }],
     },
-    atleastonce: {
-      visible: [...core],
-      highlight: ['queue-wf'],
-      chips: [{ label: 'delivery', value: 'at least once' }, { label: 'duplicates', value: 'rare', tone: 'warn' }],
+    idea: {
+      visible: [...intake, ...naive],
+      highlight: ['wfBox'],
+      chips: [{ label: 'idempotent', value: 'twice = once', tone: 'ok' }],
     },
     sources: {
-      visible: [...core, 'retry', 'resubmit', 'retry-db', 'resubmit-wf'],
-      highlight: ['retry', 'resubmit'],
-      tokens: [{ id: 's1', edge: 'retry-db', tone: 'fail' }, { id: 's2', edge: 'resubmit-wf', tone: 'fail' }],
-      chips: [{ label: 'sources', value: 'delivery · resubmit · retry · concurrency' }],
+      visible: [...intake, ...naive],
+      highlight: ['queue-trig'],
+      tokens: [{ id: 's1', edge: 'queue-trig', tone: 'info' }, { id: 's2', edge: 'queue-trig', tone: 'fail' }],
+      chips: [{ label: 'repeats from', value: 'delivery · resubmit · retry' }],
+    },
+    check: {
+      visible: [...intake, ...checked],
+      highlight: ['get', 'cond', 'cond-skip'],
+      tokens: [{ id: 'c1', edge: 'get-cond', tone: 'info' }, { id: 'c2', edge: 'cond-skip', tone: 'ok' }],
+      chips: [{ label: 'second copy of 4711', value: 'found, stops', tone: 'ok' }, { label: 'ships', value: 'once', tone: 'ok' }],
     },
     key: {
-      visible: [...core],
-      highlight: ['shop'],
-      chips: [{ label: 'key', value: 'order number', tone: 'ok' }, { label: 'better than', value: 'a fresh GUID', tone: 'warn' }],
+      visible: [...intake, ...checked],
+      highlight: ['get', 'shop'],
+      chips: [{ label: 'look up by', value: 'order number', tone: 'ok' }, { label: 'not', value: 'a fresh GUID', tone: 'warn' }],
     },
     sbdedupe: {
-      visible: [...core],
+      visible: [...intake, ...checked],
       highlight: ['queue'],
       tokens: [{ id: 'd1', edge: 'shop-queue', tone: 'info' }, { id: 'd2', edge: 'shop-queue', tone: 'fail' }],
-      chips: [{ label: 'window', value: '10 min default' }, { label: 'same MessageId', value: 'dropped', tone: 'ok' }, { label: 'tiers', value: 'Standard · Premium' }],
-    },
-    writes: {
-      visible: [...core],
-      highlight: ['db', 'wf-db'],
-      tokens: [{ id: 'w1', edge: 'wf-db', tone: 'ok' }],
-      chips: [{ label: 'write', value: 'upsert by key', tone: 'ok' }, { label: 'side effects', value: 'check "done" first' }],
-    },
-    tracking: {
-      visible: [...core],
-      highlight: ['wf'],
-      chips: [{ label: 'tracking ID', value: 'correlates' }, { label: 'Microsoft Learn docs say', value: 'correlation only', tone: 'warn' }],
+      chips: [{ label: 'MessageId', value: 'order number' }, { label: 'repeat in window', value: 'dropped', tone: 'ok' }, { label: 'window', value: '10 min default' }],
     },
     unsafe: {
-      visible: [...core, 'retry', 'retry-db'],
-      highlight: ['retry'],
-      chips: [{ label: 'unsafe call', value: 'retry None' }],
+      visible: [...intake, ...checked],
+      highlight: ['create'],
+      chips: [{ label: 'API supports it', value: 'idempotency key' }, { label: 'otherwise', value: 'retry None' }],
     },
     recap: {
-      visible: [...core, 'retry', 'resubmit', 'retry-db', 'resubmit-wf'],
-      chips: [{ label: 'twice', value: 'changes nothing' }],
+      visible: [...intake, ...checked],
+      chips: [{ label: 'twice', value: 'changes nothing', tone: 'ok' }],
     },
   },
   legend: [
