@@ -6,7 +6,7 @@ export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
     { id: 'wf', kind: 'trigger', label: 'Order runs', sublabel: 'many', x: 120, y: 240 },
-    { id: 'breaker', kind: 'condition', label: 'Breaker', sublabel: 'closed', x: 420, y: 240 },
+    { id: 'breaker', kind: 'condition', label: 'Breaker', sublabel: 'ask first', x: 420, y: 240 },
     { id: 'api', kind: 'user', label: 'Partner API', sublabel: 'down 2 h', x: 740, y: 240 },
     { id: 'state', kind: 'storage', label: 'Breaker state', sublabel: 'table', x: 420, y: 80 },
     { id: 'park', kind: 'servicebus', label: 'Parked work', sublabel: 'retry later', x: 420, y: 410 },

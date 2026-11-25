@@ -35,8 +35,8 @@ Like a shop till: if the card is declined after the items are scanned, the cashi
 
 <Step id="kinds" name="Three kinds of step">
 - **Compensable**: can be undone by an opposite step. Reserve stock, charge the card.
-- **Pivot**: the point of no return. Handing the parcel to the courier.
-- **Retryable**: steps after the pivot. They must be safe to repeat (**idempotent**) and are retried until they succeed.
+- **Pivot**: the point of no return. Booking the courier.
+- **Retryable**: steps after the pivot. They must be safe to repeat (**idempotent**) and are retried if they fail temporarily.
 
 Put risky steps **before** the pivot (ours).
 </Step>
@@ -61,7 +61,7 @@ A scope gets its own status, such as Succeeded, Failed or TimedOut, so Catch can
 </Step>
 
 <Step id="orchestration" name="Who is in charge? (option)">
-- **Orchestration**: one central **orchestrator** tells each service what to do. Good for complex flows. The orchestrator is a single point of failure.
+- **Orchestration**: one central **orchestrator** tells each service what to do. Good for complex flows. The orchestrator is a point of failure, because it manages the whole flow.
 - **Choreography**: services react to each other's events, with no boss. Good for simple flows with few services.
 
 The workflow above is an orchestrator (ours).
@@ -86,7 +86,7 @@ If that's unacceptable, a saga is the wrong tool.
 <Step id="when" name="When to use it">
 **Use it** when one business operation spans several services and must be undone if a later step fails.
 
-**Skip it** when the transactions are tightly coupled, when retries alone are enough, or when the system can't tolerate temporary inconsistency.
+**Skip it** when the transactions are tightly coupled, when compensations would have to run in earlier steps, or when services depend on each other in a cycle (the Microsoft Learn docs list these three). If you can't tolerate even brief inconsistency, a saga is the wrong tool (ours).
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

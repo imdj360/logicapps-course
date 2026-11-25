@@ -77,9 +77,9 @@ Then a separate workflow (ours) can alert someone and repair it.
 <Step id="priority" name="Give urgent work its own lane">
 Microsoft's **Priority Queue** example uses a Service Bus **topic**:
 
-1. The sender sets a **Priority** property on each message.
+1. The sender sets a **Priority** value on each message.
 2. **SQL filters** route urgent and normal messages to separate **subscriptions**.
-3. Each subscription has its own workers, more of them for urgent.
+3. Each subscription has its own pool of workers. Give the urgent pool more workers (ours).
 
 In Logic Apps (ours): one workflow per subscription, using **When messages are available in a topic subscription (peek-lock)**.
 </Step>
@@ -87,7 +87,7 @@ In Logic Apps (ours): one workflow per subscription, using **When messages are a
 <Step id="starvation" name="Don't starve the rest" tag="TIP">
 If one pool favours urgent work, normal messages can be **delayed for a long time, or never processed**.
 
-Two fixes from Microsoft: **raise the priority of old messages** over time, or give each priority its own pool of workers.
+The Microsoft Learn docs suggest **raising the priority of old messages** over time. Giving each priority its own pool of workers also helps (ours), because no single pool serves urgent work first.
 </Step>
 
 <Step id="when" name="When to use it">
@@ -103,7 +103,7 @@ Priority lanes fit different service levels, such as premium and standard custom
 - Build: peek-lock trigger, then **Complete** or **Abandon** the message.
 - Scale with trigger concurrency (1 to 100) or more instances.
 - No ordering, at-least-once delivery: be **idempotent**. Poison messages go to the dead-letter queue.
-- Urgent lane: topic, **Priority** property, SQL filters.
+- Urgent lane: topic, **Priority** value, SQL filters.
 </Step>
 
 {/*
