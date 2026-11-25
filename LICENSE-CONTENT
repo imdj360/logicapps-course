@@ -1,0 +1,18 @@
+Lesson content: Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Daniel Jonathan
+
+The lesson text, diagrams (scene definitions) and their wording, under
+src/content/lessons/ and parked/, are licensed under CC BY 4.0.
+
+You may share and adapt them for any purpose, including commercially, as long
+as you give appropriate credit ("Logic Apps — a visual, interactive learning
+course, by Daniel Jonathan"), link to the licence, and indicate if you made
+changes.
+
+Full licence: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Facts in the lessons are checked against the Microsoft Learn docs, which are
+Microsoft's own and keep their own terms. This course is not affiliated with or
+endorsed by Microsoft. Azure and Logic Apps are trademarks of Microsoft.
+The site's code is licensed separately: see LICENSE (MIT).

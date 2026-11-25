@@ -1,4 +1,4 @@
-# Logic Apps — an interactive course
+# Logic Apps — a visual, interactive learning course
 
 A free course that teaches Azure Logic Apps through animated, step-by-step lessons.
 Static site: Astro + React islands, deployed to Azure Static Web Apps.
@@ -91,3 +91,10 @@ The Static Web Apps config lives in `public/staticwebapp.config.json` so it ends
 - [ ] Optional: create a Plausible site, set `PUBLIC_PLAUSIBLE_DOMAIN`
 - [ ] Set `PUBLIC_DEVTO_URL` (and optionally `PUBLIC_CONTACT_EMAIL`)
 - [ ] Review and approve the four launch lessons
+
+## Licence
+
+- Code: [MIT](LICENSE)
+- Lesson content (text and diagrams under `src/content/lessons/`): [CC BY 4.0](LICENSE-CONTENT)
+
+Not affiliated with or endorsed by Microsoft. Azure and Logic Apps are trademarks of Microsoft.
