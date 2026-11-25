@@ -135,7 +135,7 @@ Loop over arrays in Bicep (`[for cfg in sftpConnections: ...]`) to stamp out mul
 </Step>
 
 <Step id="access-policy" name="Infra 5: the access policy" tag="PROBLEM">
-Deploying a `V2` API connection is only half the job. Without an **access policy**, the portal warns *"Access Policies are missing"* and workflows fail at runtime (from Daniel's deployments; see his article under References).
+Deploying a `V2` API connection is only half the job. Without an **access policy**, the portal warns *"Access Policies are missing"* and workflows fail at runtime (ours, from real deployments; see the related article under References).
 
 Add **`Microsoft.Web/connections/accessPolicies`** to grant the logic app's managed identity access:
 
@@ -190,5 +190,5 @@ Sources (checked 2026-11-25):
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://azure.github.io/Azure-Verified-Modules/
 Verified 2026-11-25 on authenticate-with-managed-identity: Microsoft.Web/sites kind "functionapp,workflowapp" with identity SystemAssigned; Microsoft.Web/connections with "kind": "V2" for Standard (V1 for Consumption) and api.id subscriptionResourceId('Microsoft.Web/locations/managedApis', ...); Microsoft.Web/connections/accessPolicies with principal type ActiveDirectory, tenantId and objectId; Learn uses providers(...).apiVersions[0], not pinned versions. edit-app-settings-host-settings: APP_KIND workflowApp, FUNCTIONS_EXTENSION_VERSION ~4, AzureWebJobsStorage, WEBSITE_CONTENTAZUREFILECONNECTIONSTRING, WEBSITE_CONTENTSHARE; extension bundle id Microsoft.Azure.Functions.ExtensionBundle.Workflows (shown in host.json). logic-apps-pricing: WS1-WS3. devops page: raw keys expire after seven days.
-Not on the Learn pages checked, so ours: the WorkflowStandard tier name, maximumElasticWorkerCount, the AzureFunctionsJobHost__extensionBundle__id app-setting form, APPLICATIONINSIGHTS_CONNECTION_STRING, StorageV2 / Standard_ZRS, pinned API versions, the "Access Policies are missing" portal warning (Daniel's article), the infra-vs-code Bicep layout, array loops and AVM composition.
+Not on the Learn pages checked, so ours: the WorkflowStandard tier name, maximumElasticWorkerCount, the AzureFunctionsJobHost__extensionBundle__id app-setting form, APPLICATIONINSIGHTS_CONNECTION_STRING, StorageV2 / Standard_ZRS, pinned API versions, the "Access Policies are missing" portal warning (the author's article), the infra-vs-code Bicep layout, array loops and AVM composition.
 */}
