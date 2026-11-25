@@ -7,7 +7,7 @@ export const scene: Scene = {
   nodes: [
     { id: 'repo', kind: 'storage', label: 'Repository', sublabel: 'workflows', x: 110, y: 240 },
     { id: 'pipe', kind: 'condition', label: 'Pipeline', sublabel: 'build · zip', x: 360, y: 240 },
-    { id: 'infra', kind: 'storage', label: 'Templates', sublabel: 'ARM · Bicep', x: 360, y: 80 },
+    { id: 'infra', kind: 'storage', label: 'Templates', sublabel: 'ARM templates', x: 360, y: 80 },
     { id: 'test', kind: 'hosting-plan', label: 'Test', sublabel: 'parameters', x: 640, y: 140 },
     { id: 'prod', kind: 'hosting-plan', label: 'Production', sublabel: 'slot swap', x: 640, y: 340 },
     { id: 'conn', kind: 'keyvault', label: 'API connection', sublabel: 'access policy', x: 360, y: 420 },

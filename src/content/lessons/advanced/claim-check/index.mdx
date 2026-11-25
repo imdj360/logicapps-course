@@ -35,7 +35,7 @@ Like a coat check at a theatre: you hand in the coat and get a small ticket. The
 </Step>
 
 <Step id="limits" name="Why the queue says no">
-- Service Bus Standard: **256 KB** per message. Premium: up to **100 MB** (over AMQP).
+- Service Bus Standard: **256 KB** per message. Premium: **1 MB** by default, raise it up to **100 MB** per queue or topic (over AMQP).
 - The **managed** Service Bus connector: **1 MB**, even on Premium. Large messages need the **built-in** connector.
 - Big messages also slow a queue down, even when they fit.
 </Step>
@@ -66,7 +66,7 @@ In Standard, the built-in trigger **When a blob is added or updated** is a simpl
 </Step>
 
 <Step id="lifecycle" name="Who deletes the file?" tag="PROBLEM">
-The message disappears once it's read. The file doesn't.
+The message leaves the queue once it's completed. The file doesn't.
 
 Decide **which workflow deletes it**, for example the receiver with **Delete a blob** when it's done (ours). And never delete a file that a waiting message still points to.
 </Step>

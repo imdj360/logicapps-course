@@ -33,7 +33,7 @@ export const scene: Scene = {
     limits: {
       visible: [...core],
       highlight: ['queue'],
-      chips: [{ label: 'Standard', value: '256 KB' }, { label: 'Premium', value: 'up to 100 MB (AMQP)' }, { label: 'managed connector', value: '1 MB', tone: 'warn' }],
+      chips: [{ label: 'Standard', value: '256 KB' }, { label: 'Premium', value: '1 MB, up to 100 MB' }, { label: 'managed connector', value: '1 MB', tone: 'warn' }],
     },
     sequence: {
       visible: [...core],
@@ -50,12 +50,12 @@ export const scene: Scene = {
       visible: [...core, 'eg', 'blob-eg'],
       highlight: ['eg', 'blob-eg'],
       tokens: [{ id: 'e1', edge: 'blob-eg', tone: 'info' }],
-      chips: [{ label: 'claim check', value: 'blob URL in event' }, { label: 'expect', value: 'late · duplicate events', tone: 'warn' }],
+      chips: [{ label: 'claim check', value: 'blob URL in event' }, { label: 'expect', value: 'duplicate events', tone: 'warn' }],
     },
     lifecycle: {
       visible: [...core],
       highlight: ['blob'],
-      chips: [{ label: 'message', value: 'gone after reading' }, { label: 'file', value: 'stays until deleted', tone: 'warn' }],
+      chips: [{ label: 'message', value: 'removed once done' }, { label: 'file', value: 'stays until deleted', tone: 'warn' }],
     },
     security: {
       visible: [...core],

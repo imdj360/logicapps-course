@@ -72,7 +72,7 @@ Our build in Standard:
 
 **Responder workflow** (ours)
 1. Trigger: **When messages are available in a queue (peek-lock)**.
-2. **Send message**, with **Session Id** set to the request's Reply To Session Id.
+2. **Send message** (managed connector), with **Session Id** set to the request's Reply To Session Id.
 
 The built-in **Send message** lists only the queue name and the message.
 </Step>
@@ -80,7 +80,7 @@ The built-in **Send message** lists only the queue name and the message.
 <Step id="wait" name="Wait, with a deadline">
 Our design for waiting: put **Get messages from a queue session** inside an **Until** loop, with a **Delay** between tries.
 
-Until stops after **60 iterations** or **PT1H**, whichever comes first. Both are defaults. Set limits that match your longest expected quote (ours).
+In a stateful workflow, Until stops after **60 iterations** or **PT1H** by default, whichever comes first (stateless: **PT5M**). Set limits that match your longest expected quote (ours).
 </Step>
 
 <Step id="multicast" name="Several answers (option)" tag="TIP">

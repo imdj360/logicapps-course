@@ -40,7 +40,7 @@ Grant access on the resource itself: if the identity can't see the higher-level 
 </Step>
 
 <Step id="builtin" name="Built-in connectors">
-In Standard, these built-in connectors support managed identity: Azure Automation, Blob Storage, Event Hubs, Service Bus, Queues, Tables, HTTP, HTTP + Webhook and SQL Server.
+In Standard, built-in connectors that support managed identity include, for example: Azure Automation, Blob Storage, Event Hubs, Service Bus, Queues, Tables, HTTP, HTTP + Webhook and SQL Server.
 
 One limit: apart from **SQL Server** and **HTTP**, most built-in service provider connectors currently support only the **system-assigned** identity.
 </Step>
@@ -48,7 +48,7 @@ One limit: apart from **SQL Server** and **HTTP**, most built-in service provide
 <Step id="managed" name="Managed connectors">
 Managed connectors that support Microsoft Entra OAuth, such as Key Vault, Cosmos DB, Event Grid and Azure Resource Manager, can create a **managed identity** connection, which uses the logic app's identity at run time.
 
-In Standard, such a connection actually uses two connections: one to an internal token store and one to the target resource. The first uses the system-assigned identity by default.
+In Standard, such a connection actually uses two connections: one to an internal token store and one to the target resource. The first authenticates to the token store with a managed identity.
 </Step>
 
 <Step id="http" name="HTTP with managed identity">

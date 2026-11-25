@@ -54,7 +54,7 @@ export const scene: Scene = {
     wait: {
       visible: [...core],
       highlight: ['order', 'repq-order'],
-      chips: [{ label: 'Until default', value: '60 loops or PT1H' }, { label: 'wait', value: 'Get messages + Delay (ours)' }],
+      chips: [{ label: 'Until (stateful)', value: '60 loops or PT1H' }, { label: 'wait', value: 'Get messages + Delay (ours)' }],
     },
     multicast: {
       visible: [...core, 'topic', 'order-topic'],
