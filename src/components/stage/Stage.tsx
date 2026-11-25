@@ -19,13 +19,17 @@ const EMPTY = { visible: [] as string[], chips: [] };
 interface Box { x: number; y: number; hw: number; hh: number }
 
 /** Point where the line from a's centre towards b leaves a's box. */
+// Hit the box edge exactly, then back off a fixed gap along the line, so diagonal
+// arrows end as close to the box as straight ones (per-axis padding left them short).
+const EDGE_GAP = 4;
 function anchor(a: Box, b: Box): [number, number] {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
-  if (dx === 0 && dy === 0) return [a.x, a.y];
-  const sx = Math.abs(dx) > 0 ? (a.hw + 6) / Math.abs(dx) : Infinity;
-  const sy = Math.abs(dy) > 0 ? (a.hh + 6) / Math.abs(dy) : Infinity;
-  const s = Math.min(sx, sy);
+  const len = Math.hypot(dx, dy);
+  if (len === 0) return [a.x, a.y];
+  const sx = dx !== 0 ? a.hw / Math.abs(dx) : Infinity;
+  const sy = dy !== 0 ? a.hh / Math.abs(dy) : Infinity;
+  const s = Math.min(sx, sy) + EDGE_GAP / len;
   return [a.x + dx * s, a.y + dy * s];
 }
 
@@ -37,7 +41,7 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
   const highlight = new Set(step.highlight ?? []);
   const boxes = new Map<string, Box>([
     ...scene.nodes.map((n): [string, Box] => [n.id, { x: n.x, y: n.y, hw: NODE_W / 2, hh: NODE_H / 2 }]),
-    ...(scene.groups ?? []).map((g): [string, Box] => [g.id, { x: g.x + g.w / 2, y: g.y + g.h / 2, hw: g.w / 2 - 6, hh: g.h / 2 - 6 }]),
+    ...(scene.groups ?? []).map((g): [string, Box] => [g.id, { x: g.x + g.w / 2, y: g.y + g.h / 2, hw: g.w / 2, hh: g.h / 2 }]),
   ]);
   const [w, h] = scene.viewBox;
 
