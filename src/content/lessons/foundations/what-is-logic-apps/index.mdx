@@ -1,0 +1,116 @@
+---
+title: What is Azure Logic Apps?
+module: foundations
+order: 0
+minutes: 7
+level: Beginner
+summary: A cloud service that runs your business process as a workflow, with little or no code. Meet the trigger, the actions and the connectors, then pick the kind of logic app this course uses.
+youWillLearn:
+  - What Azure Logic Apps is for, in one sentence
+  - How a trigger and actions make a workflow
+  - What connectors are, and the two kinds
+  - How Logic Apps grew from Consumption (2016) to Standard (2021)
+  - How Standard and Consumption logic apps differ, in short
+learnLinks:
+  - title: "What is Azure Logic Apps?"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+  - title: "Differences between Standard and Consumption logic apps"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+  - title: "Azure Logic Apps Reaches General Availability (2016)"
+    url: https://learn.microsoft.com/en-us/archive/blogs/logicapps/azure-logic-apps-reaches-general-availability
+  - title: "Create example Standard workflow in Azure portal"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/create-single-tenant-workflows-azure-portal
+reviewStatus: draft
+---
+
+<Step id="problem" name="Orders handled by hand" tag="PROBLEM">
+Orders arrive from the website all day. An order clerk opens each one, types it into the ERP, and emails a reviewer whenever the total is above the review limit.
+
+It's slow, it stops when the clerk is away, and a typo goes straight into the ERP.
+</Step>
+
+<Step id="idea" name="The idea">
+**Azure Logic Apps is a cloud service for automating business processes and connecting systems, with little or no code.**
+
+Think of the clerk's routine written down as a checklist, except the checklist starts itself when an order arrives and does the steps for you. Azure hosts, scales and monitors it.
+</Step>
+
+<Step id="trigger" name="It starts with a trigger">
+That checklist is a **workflow**. Every workflow starts with **exactly one trigger**: the condition that must be met before anything else runs.
+
+Here the trigger is **When an HTTP request is received**: the website sends each order to the workflow. Other triggers fire on a new email, a new file or a message in a queue, and many can also run on a schedule.
+</Step>
+
+<Step id="actions" name="Then come the actions">
+After the trigger fires, **one or more actions** run in order. This is Microsoft's own example from the overview:
+
+1. The trigger receives the order.
+2. A **Condition** compares the order total with the review limit.
+3. Under the limit: **Create order** in the ERP.
+4. Over the limit: **Send an email (V2)** to a reviewer.
+
+The trigger and every action are called **operations**.
+</Step>
+
+<Step id="connectors" name="Connectors do the talking">
+Each operation comes from a **connector**. Azure Logic Apps has **1,400+ prebuilt connectors**, in two kinds:
+
+- **Built-in** connectors run natively on the Logic Apps runtime, for faster performance. Here: the Request trigger, the Condition, and HTTP to the ERP.
+- **Managed** connectors are Microsoft-managed proxies for a service's API, and most need an authenticated connection. Here: **Office 365 Outlook** for the email.
+
+A later lesson compares the two kinds in detail.
+</Step>
+
+<Step id="definition" name="Designed visually, saved as JSON">
+You build the workflow in the **designer**, in the Azure portal or Visual Studio Code. Underneath, every workflow has a **JSON definition** that you can also edit directly. In Standard it's a file named `workflow.json`.
+
+For automated deployment, Azure Logic Apps supports **Azure Resource Manager templates**. The Security & delivery module covers that.
+</Step>
+
+<Step id="history" name="Consumption first, then Standard">
+- **2016**: Azure Logic Apps became generally available on **July 27, 2016**, as a multitenant cloud service. That original model is what's now called **Consumption**.
+- **2021**: Microsoft made **Logic Apps Standard** generally available on **May 25, 2021**, calling it "our new single-tenant offering".
+
+Standard runs on a **redesigned single-tenant runtime**, hosted as an **extension on the Azure Functions runtime**. Per the Microsoft Learn docs, that design gives it portability and more performance. That's why Standard can run in Azure, in an App Service Environment v3, or on your own infrastructure.
+</Step>
+
+<Step id="resources" name="Standard or Consumption">
+The workflow lives in a **logic app**, the Azure resource you create. There are two kinds:
+
+- **Consumption**: one workflow per logic app, in shared multitenant Azure. Easiest to get started, and you pay per execution.
+- **Standard**: many **stateful and stateless** workflows per logic app, on the single-tenant runtime with a hosting plan. It has more built-in connectors and integrated support for virtual networks and private endpoints.
+
+**This course teaches Standard.** Consumption appears only as asides. The next lesson shows where a Standard logic app can run.
+</Step>
+
+<Step id="when" name="When to use it" tag="TIP">
+Microsoft's own comparison of automation services:
+
+- **Azure Logic Apps**: designer-first orchestration of business processes across services, systems, apps and data.
+- **Azure Functions**: code-first orchestration with Durable Functions. The two can call each other.
+- **Power Automate**: codeless automation for business users.
+- **Azure Automation runbooks**: infrastructure tasks, such as restarting virtual machines.
+
+One watch-out from day one: Logic Apps delivers each message **at least once**. Rarely, a message arrives twice, so steps that create things should be safe to repeat. The Reliability module shows how.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Azure Logic Apps automates business processes with little or no code.
+- A **workflow** is one **trigger** followed by one or more **actions**.
+- **Connectors** (1,400+) supply the operations: **built-in** run on the runtime; **managed** are Microsoft-hosted proxies.
+- You design visually; the workflow is saved as **JSON**.
+- **Consumption** came first (2016); **Standard** (2021) runs on a redesigned single-tenant runtime.
+- **Standard** holds many workflows on a hosting plan. This course is Standard-first.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- logic-apps-overview: "cloud service and platform for automating enterprise business process workflows and integrating services, systems, apps, and data across cloud, on-premises, and hybrid environments with little or no code"; "1,400+ prebuilt connectors"; sample workflow "route an incoming order for manual review when the cost exceeds a specified threshold" with the steps "The trigger receives an order. A condition compares the order cost with the review threshold. Orders below the threshold continue processing. Orders above the threshold require sending email for manual review."; "Each workflow always starts with a single trigger operation, after which you must add one or more action operations"; "Many triggers include scheduling capabilities"; built-in "runs natively on the Azure Logic Apps runtime for faster performance"; managed "a Microsoft-managed proxy for a service or system API. Most managed connectors require an authenticated connection"; "graphical workflow designer in the Azure portal or Visual Studio Code"; "underlying definition that's defined in JavaScript Object Notation (JSON) format ... you can edit workflows by changing this JSON definition"; "Azure Resource Manager templates"; "Azure fully manages Azure Logic Apps, which frees you from worrying about hosting, scaling, managing, monitoring"; Consumption "Easiest to get started - Pay for what you use", "A single logic app resource can have only one workflow", pricing "Consumption (pay-per-execution)"; delivers a message "at least once" ... "rarely does the service deliver a message more than once" ... "implement idempotence"; comparison table (Logic Apps designer-first, Functions code-first with Durable Functions, Power Automate codeless for business users, Automation Runbooks infrastructure management such as restarting virtual machines).
+- single-tenant-overview-compare: Standard "A single logic app resource can have multiple stateful and stateless workflows", "More built-in connectors hosted on the single-tenant runtime", "Integrated support for virtual networks and private endpoints", "based on a hosting plan with a selected pricing tier".
+- connectors/office365: action "Send an email (V2)".
+- learn.microsoft.com/archive/blogs/logicapps/azure-logic-apps-reaches-general-availability (ms.date 2016-07-27): "announce Azure Logic Apps has reached General Availability".
+- techcommunity.microsoft.com/blog/azuredevcommunityblog/azure-logic-apps-announcement-%e2%80%93-ga-of-single-tenant-standard-sku/2382460 (Jon Fancey, May 25, 2021): "Today marks a new chapter for integration at Microsoft - the General Availability (GA) of Logic Apps Standard - our new single-tenant offering."
+- single-tenant-overview-compare: "powered by the redesigned single-tenant Azure Logic Apps runtime. This runtime uses the Azure Functions extensibility model and is hosted as an extension on the Azure Functions runtime. This design provides portability, flexibility, and more performance".
+- create-model-context-protocol-server-standard: trigger name "When an HTTP request is received".
+Ours: "that original model is what's now called Consumption" (the 2016 service was the multitenant one; the Consumption name is today's Learn term), the order-clerk story, the checklist analogy, "operations" grouping wording, workflow.json as the Standard file name (covered in the connections.json lesson).
+*/}

@@ -9,6 +9,7 @@ const l = (slug: string, title: string) => ({ slug, title });
 
 export const MODULES: ModuleDef[] = [
   { id: 'foundations', number: '01', title: 'Foundations', lessons: [
+    l('what-is-logic-apps', 'What is Azure Logic Apps?'),
     l('where-logic-apps-run', 'Where Logic Apps run'),
     l('follow-an-order', 'Follow an order through a run'),
     l('stateful-vs-stateless', 'Stateful vs stateless'),
