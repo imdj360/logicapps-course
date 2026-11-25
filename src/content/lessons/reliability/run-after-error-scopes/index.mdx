@@ -53,7 +53,7 @@ This is the whole trick, on one action.
 <Step id="scope" name="Many actions? Use a box">
 Doing that for every action gets messy. Instead, put the work in a **scope**: a box around several actions. The box gets **one status**: if any action inside fails, the box is **Failed**.
 
-Call that box **Try**. After it, add a second scope, **Catch**, with run after set to **Has failed** and **Has timed out** on Try. Now one Catch watches *Reserve stock* and *Charge card* together, and *Confirm order* runs after Try **is successful**.
+Put all the work, *Reserve stock*, *Charge card* and *Confirm order*, in a box called **Try**. After it, add a second scope, **Catch**, with run after set to **Has failed** and **Has timed out** on Try. Now one Catch watches all three actions: whichever fails, Catch runs.
 </Step>
 
 <Step id="result" name="Which step broke?">
