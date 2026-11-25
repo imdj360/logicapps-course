@@ -1,0 +1,95 @@
+---
+title: "Reaching on-premises systems"
+module: networking
+order: 4
+minutes: 9
+level: Advanced
+summary: The ERP's database lives in the company datacenter. Reach it from a Standard workflow with a built-in connector over the network, or with a managed connector through the on-premises data gateway.
+youWillLearn:
+  - The two ways a Standard workflow reaches on-premises data
+  - When you must use the on-premises data gateway
+  - How the gateway connects and how to set it up
+  - The gateway rules that trip people up
+learnLinks:
+  - title: "Connect to On-premises Data Sources"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
+  - title: "Install On-premises Data Gateway"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/install-on-premises-data-gateway-workflows
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+reviewStatus: draft
+---
+
+<Step id="problem" name="The ERP is in the datacenter" tag="PROBLEM">
+Each order must be written to the ERP's **SQL Server**. It runs in the company datacenter, not in Azure.
+
+The logic app runs in Azure. How does a workflow reach a database it can't see?
+</Step>
+
+<Step id="two-routes" name="Two routes">
+For a Standard workflow, there are two ways in:
+
+1. A **built-in** service provider connector, such as **SQL Server**, reaches the database **directly over the network**, with **no gateway**.
+2. A **managed** connector reaches it through the **on-premises data gateway**.
+
+The rule from Microsoft: if a **built-in** connector isn't available for your data source but a **managed** one is, you **have to** use the gateway.
+</Step>
+
+<Step id="built-in" name="Route 1: built-in, over the network">
+Built-in connectors run inside the logic app, so they need a network path to the datacenter:
+
+- **VNet integration** sends the app's outbound calls into your virtual network (the first lesson in this module).
+- Your virtual network reaches the datacenter, typically over a **VPN** or **ExpressRoute** link (ours: that link is Azure networking, not a Logic Apps setting).
+
+You then authenticate to the data source directly in the connection.
+</Step>
+
+<Step id="gateway" name="Route 2: the data gateway">
+The **on-premises data gateway** is software you install on a computer in your network. It supports on-premises connectors for these data sources:
+
+Apache Impala, BizTalk Server, File System, HTTP with Microsoft Entra ID, IBM DB2, IBM Informix, IBM MQ, MySQL, Oracle Database, PostgreSQL, SAP, SharePoint Server, SQL Server and Teradata.
+
+You can also build custom connectors over HTTP or HTTPS that use it.
+</Step>
+
+<Step id="how" name="How the gateway connects">
+The gateway uses **Azure Service Bus messaging** to make **outbound** connections to its Azure region.
+
+So if your network forces internet traffic through a **proxy or firewall**, that can stop the gateway from reaching its cloud service. Check its communication settings first when a new gateway won't connect.
+</Step>
+
+<Step id="setup" name="Set it up">
+1. **Install** the gateway on a local computer. Only **one** gateway per computer.
+2. In the Azure portal, create an **On-premises data gateway** resource with the **same Azure account** you used to install it, in the **same region** as the installation.
+3. In a trigger or action that needs the gateway, pick that gateway resource for the connection.
+
+Each gateway resource links to **exactly one** installation.
+</Step>
+
+<Step id="rules" name="Rules that trip people up" tag="TIP">
+- Only the **gateway administrator** can create the Azure gateway resource; **service principals** aren't supported.
+- The logic app and gateway resource can be in **different subscriptions**, but only in the **same Microsoft Entra tenant**.
+- You **can't share** a gateway resource or installation across subscriptions.
+- Save the **recovery key** you set at install. You need it to move, recover or change ownership of the gateway.
+</Step>
+
+<Step id="ha" name="High availability and cost" tag="TIP">
+Install more gateways on **other computers** and add them to the same **gateway cluster**. All connectors that use the gateway support high availability.
+
+The gateway itself costs nothing extra; normal Logic Apps pricing applies to the operations. Operations through the gateway have **payload size limits**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Built-in** connector + a network path (VNet integration, then VPN or ExpressRoute): **no gateway**.
+- **Managed** connector only: you need the **on-premises data gateway**.
+- The gateway connects **outbound** over Service Bus messaging; proxies and firewalls can block it.
+- One gateway per computer; one installation per gateway resource; same account and region.
+- Use a **cluster** for high availability, and keep the **recovery key** safe.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway. Instead, you provide information that authenticates your identity and authorizes access to your data source. If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."; supported data sources list (Apache Impala, BizTalk Server, File System, HTTP with Microsoft Entra ID, IBM DB2, IBM Informix, IBM MQ, MySQL, Oracle Database, PostgreSQL, SAP, SharePoint Server, SQL Server, Teradata); custom connectors over HTTP/HTTPS with REST or SOAP; "a gateway itself doesn't incur extra costs, the Azure Logic Apps pricing model applies"; payload size limits; "You can install only one data gateway per local computer"; same Azure account and subscription; "only the gateway administrator can create the gateway resource in Azure. Service principals currently aren't supported."; "Each gateway resource can link to only one gateway installation"; logic app and gateway resource can be in different subscriptions in the same Microsoft Entra tenant; "you can't share a data gateway resource or installation across multiple subscriptions"; create the resource in the same region as the installation.
+- install-on-premises-data-gateway-workflows: "The on-premises data gateway depends on Service Bus messaging to provide cloud connectivity and to establish the corresponding outbound connections to the gateway's associated Azure region. If your work environment requires that traffic goes through a proxy or firewall to access the internet, this restriction might prevent the on-premises data gateway from connecting"; gateway cluster, "install each additional gateway that's in the cluster on a different computer", "All the connectors that work with the on-premises data gateway support high availability"; recovery key "You need this key to move, recover, change ownership, or change the location for the gateway installation".
+Ours: the ERP story; VPN or ExpressRoute as the typical link from the virtual network to the datacenter (Azure networking, not stated on the Logic Apps pages); "check its communication settings first" as advice.
+*/}

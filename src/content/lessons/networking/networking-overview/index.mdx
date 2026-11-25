@@ -1,0 +1,98 @@
+---
+title: "Networking at a glance"
+module: networking
+order: 0
+minutes: 6
+level: Intermediate
+summary: One map of a private Standard logic app. See how inbound, outbound, storage, managed connectors and on-premises fit together, and which lesson covers each part.
+youWillLearn:
+  - The five network paths around a Standard logic app
+  - Which feature handles inbound and which handles outbound
+  - Why the storage account and managed connectors need their own care
+  - Two ways to reach on-premises systems
+learnLinks:
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+  - title: "Deploy Standard Logic Apps to Private Storage Accounts"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account
+  - title: "Connect to On-premises Data Sources"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
+reviewStatus: draft
+---
+
+<Step id="problem" name="Two rules from security" tag="PROBLEM">
+The security team sets two rules for the order logic app:
+
+1. **Nothing public.** No public endpoint on the app or its storage account.
+2. **Reach the ERP.** The ERP's SQL Server sits in the company datacenter.
+
+Right now the app is public, its storage is public, and it can't see the datacenter at all.
+</Step>
+
+<Step id="map" name="The whole map">
+Here's where we're heading: the same logic app, with everything private.
+
+- Callers come in through a **private endpoint** in your virtual network.
+- The app's calls go out through an **integration subnet** in the same network.
+- Its **storage account** is reached through four private endpoints.
+- **Managed connectors** still run in Azure, outside your network.
+- The **datacenter** is reached over the network, or through the **on-premises data gateway**.
+
+The next steps take one path at a time.
+</Step>
+
+<Step id="inbound" name="Path 1: calls in">
+A **private endpoint** gives the logic app a private address inside your virtual network. Callers on the network use it; from outside, calls get **403 Forbidden**.
+
+Lesson: *Lock down inbound: private endpoints*.
+</Step>
+
+<Step id="outbound" name="Path 2: calls out">
+**VNet integration** routes the app's outbound calls through a subnet in your network, so it can reach private addresses such as an internal API.
+
+Inbound and outbound are **independent** features: you can use either one or both.
+
+Lesson: *Reach private systems: VNet integration*.
+</Step>
+
+<Step id="storage" name="Path 3: its own storage">
+A Standard logic app **requires** a storage account for its artifacts. To make it private, the storage account gets **separate private endpoints for Table, Queue, Blob and File**, and the app reaches them through VNet integration.
+
+Lesson: *The storage account on a private network*.
+</Step>
+
+<Step id="managed" name="Path 4: managed connectors">
+**Managed** connectors run in Azure, outside your network. If a firewall, NSG or route table controls the app's outbound traffic, allow outbound connections to the **managed connector IP addresses** for your region.
+
+And with a private inbound endpoint, **managed webhook triggers** can't call back in.
+
+Lessons: *VNet integration* and *private endpoints*.
+</Step>
+
+<Step id="onprem" name="Path 5: the datacenter">
+Two routes:
+
+- **Built-in** service provider connectors, such as SQL Server, reach on-premises data sources **directly**, without the gateway, as long as the network reaches them. A VPN or ExpressRoute link from your virtual network to the datacenter is the usual path (ours).
+- If there's **no built-in** connector but a **managed** one exists, you need the **on-premises data gateway**.
+
+Lesson: *Reaching on-premises systems*.
+</Step>
+
+<Step id="order" name="Where to start" tag="TIP">
+A practical order (ours): VNet integration first, because the storage and on-premises paths depend on it; then private storage; then the inbound private endpoint last, because it changes how you deploy and test.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Inbound**: private endpoint. **Outbound**: VNet integration. They're independent.
+- **Storage**: four private endpoints, reached through VNet integration.
+- **Managed connectors**: outside your network; allow their IP addresses.
+- **On-premises**: built-in connectors over the network, or the data gateway for managed ones.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- secure-single-tenant-workflow-virtual-network-private-endpoint: "private endpoints for inbound traffic and use virtual network integration for outbound traffic"; private endpoint "uses a private IP address from your virtual network"; "you get an expected 403 Forbidden error"; "Setting up virtual network integration affects only outbound traffic"; "Enabling Private Link doesn't affect outbound traffic"; managed connector IP addresses when an NSG, UDR or firewall is used; managed webhook triggers and actions don't work with a private inbound endpoint.
+- deploy-single-tenant-logic-apps-private-storage-account: "When you create a single-tenant Standard logic app resource, you're required to have a storage account for storing logic app artifacts"; "Create different private endpoints for each of the Table, Queue, Blob, and File storage services"; VNet integration lets the logic app "access the storage account through private endpoints".
+- connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway"; "If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."
+Ours: the two-rules story, VPN/ExpressRoute as the usual network path to the datacenter, and the suggested build order.
+*/}

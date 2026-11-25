@@ -1,90 +1,85 @@
 ---
-title: Private endpoints & VNet
+title: "Lock down inbound: private endpoints"
 module: networking
 order: 2
-minutes: 11
+minutes: 8
 level: Advanced
-summary: Take a Standard logic app off the public internet. Set up a private endpoint for inbound calls and VNet integration for outbound ones, and know exactly what stops working.
+summary: Take a Standard logic app's endpoint off the internet. Add a private endpoint, test it from inside the network, and know exactly what stops working.
 youWillLearn:
-  - How private endpoints and VNet integration split inbound and outbound traffic
-  - What breaks when the logic app has no public endpoint
-  - The network rules for the storage account behind the app
-  - How to use your own DNS and access restrictions
+  - What a private endpoint does for inbound calls
+  - How to add one and test it
+  - What stops working when the app has no public endpoint
+  - How to deploy when VS Code and the CLI can't reach the app
 learnLinks:
   - title: "Secure Traffic between Standard Workflows and Virtual Networks"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
-  - title: "Set Up Deployment Slots for Zero Downtime"
-    url: https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
   - title: "Secure Access and Data in Workflows"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
 reviewStatus: draft
 ---
 
-<Step id="problem" name="No public endpoints" tag="PROBLEM">
-The security team's rule: nothing on the public internet. The logic app must accept calls only from the company network, and reach databases that only exist there.
+<Step id="problem" name="The order endpoint is public" tag="PROBLEM">
+The order-intake workflow starts with a **Request** trigger. Its URL works from anywhere on the internet.
 
-Standard handles this with two separate features, one for each direction.
+Security's rule: only systems on the company network may call it.
 </Step>
 
-<Step id="directions" name="Two directions">
-- **Inbound**: a **private endpoint** gives the logic app an address inside your virtual network.
-- **Outbound**: **VNet integration** routes the app's calls into your virtual network.
+<Step id="idea" name="The idea">
+**A private endpoint gives the logic app a private IP address inside your virtual network.**
 
-They're independent: a private endpoint doesn't change outbound traffic, and VNet integration only affects outbound traffic. For the private endpoint you need a subnet **without delegations**.
+Microsoft describes it as a network interface that effectively brings the service into your network. Callers on the network use that address; the public route stops working.
 </Step>
 
-<Step id="inbound" name="Inbound: private endpoint">
-Start with a trigger that accepts inbound requests, such as **Request**. Then on the logic app, under **Settings** > **Networking**, add a **private endpoint** in the inbound traffic section.
+<Step id="inbound-only" name="Inbound only">
+A private endpoint changes only **inbound** calls. Microsoft notes that enabling it doesn't affect outbound traffic, which still flows through the App Service infrastructure. For outbound, use **VNet integration** (the first lesson in this module).
 
-From outside the network, calls now get **403 Forbidden**, which is the expected result. To call the workflow you must be connected to the virtual network, for example from a VM in it.
+The private endpoint needs a subnet **without delegations**.
+</Step>
+
+<Step id="setup" name="Add the private endpoint">
+The workflow needs a built-in trigger that receives requests, such as **Request** or **HTTP + Webhook**.
+
+1. On the logic app, go to **Settings** > **Networking**.
+2. In **Inbound traffic configuration**, select the link next to **Private endpoints**.
+3. Select **Add** > **Express** or **Advanced**, and fill in the endpoint details.
+</Step>
+
+<Step id="test" name="403 means it works">
+Call the workflow URL again from outside the network: you now get **403 Forbidden**. Microsoft calls that the expected result: the private endpoint is set up and working.
+
+To test the real path, call it from inside the network, for example from a virtual machine in the same virtual network.
 </Step>
 
 <Step id="breaks" name="What stops working" tag="PROBLEM">
-Microsoft lists the side effects of a private inbound endpoint:
+Microsoft lists the side effects:
 
-- **Managed webhook triggers and actions** don't work, such as Event Grid and Dataverse triggers: they run in the public cloud and can't call into your network.
-- The **Office 365 Outlook** trigger only fires hourly.
+- **Managed webhook triggers and actions** don't work, such as the **Event Grid** and **Dataverse** triggers. They run in the public cloud and can't call into your private network.
+- The **Office 365 Outlook** trigger fires only **hourly**.
 - From outside the network, **monitoring view** can't show trigger and action inputs and outputs.
-- **VS Code or Azure CLI** deployments work only from inside the network.
 </Step>
 
-<Step id="outbound" name="Outbound: VNet integration">
-Under **Networking**, add **virtual network integration** in the outbound section and pick the subnet. You can't resize the subnet later: Microsoft recommends a **/26**, and the portal requires at least a **/27**.
+<Step id="deploy" name="Deploying a private app">
+Deployment from **VS Code** or the **Azure CLI** works only from **inside** the virtual network.
 
-By default, **all outbound traffic** goes through the virtual network. An HTTP action to a private IP that failed before now succeeds.
+From outside, use the **Deployment Center** to link the logic app to a **GitHub** repo and let Azure build and deploy it. For that to work, remove the `WEBSITE_RUN_FROM_PACKAGE` app setting or set it to `0`.
 </Step>
 
-<Step id="managed" name="Managed connectors still go out">
-Managed connectors run in Azure, outside your network. If a firewall, NSG or route table controls outbound traffic, allow outbound connections to the **managed connector IP addresses** for your region, or they stop working.
-</Step>
-
-<Step id="storage" name="The storage account">
-If the storage account behind the app sits behind private endpoints, open these ports from the integrated subnet: **443** to the storage account, **445** for the SMB file share, and **20000–30000** between the app's worker nodes.
-
-The Microsoft Learn deployment-slots page describes such a storage account with private endpoints for **Blob, File, Table and Queue**.
-</Step>
-
-<Step id="dns" name="Your own DNS" tag="TIP">
-If your virtual network uses its own DNS server, add the app setting `WEBSITE_DNS_SERVER` with its IP address, and `WEBSITE_DNS_ALT_SERVER` for a secondary.
-</Step>
-
-<Step id="restrictions" name="Or restrict by IP">
-If the endpoint stays public, **access restrictions** under Networking can allow or deny address ranges, a feature inherited from App Service. Separately, you can limit who can see **run history** inputs and outputs to specific IP ranges.
+<Step id="restrictions" name="Or keep it public, but filtered" tag="TIP">
+If a private endpoint is too much, **access restrictions** under Networking can allow or deny address ranges, a feature inherited from App Service. Separately, you can limit who can see **run history** inputs and outputs to specific IP ranges.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- **Private endpoint** for inbound, **VNet integration** for outbound; independent features.
-- Expect **403** from outside; managed **webhook** triggers stop working.
-- Use a **/26** subnet; allow outbound to **managed connector** IPs.
-- Storage behind private endpoints: ports **443**, **445**, **20000–30000**.
-- Custom DNS: `WEBSITE_DNS_SERVER`.
+- A **private endpoint** puts the app's inbound address inside your network; outbound is unaffected.
+- Add it under **Networking** > **Inbound traffic configuration**; from outside you get **403**.
+- **Managed webhook** triggers stop working; the **Outlook** trigger goes hourly; monitoring hides inputs and outputs from outside.
+- Deploy from inside the network, or through the **Deployment Center** with `WEBSITE_RUN_FROM_PACKAGE` removed or `0`.
+- Lighter option: **access restrictions** on the public endpoint.
 </Step>
 
 {/*
-Sources (checked 2026-11-24, raw page text):
-- https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
-- https://learn.microsoft.com/en-us/azure/logic-apps/set-up-deployment-slots
-- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app
-Fact-checked verbatim 2026-11-24.
-Not claimed: private DNS zone names, WEBSITE_CONTENTOVERVNET or vnetContentShareEnabled for Logic Apps (Learn's Logic Apps pages don't mention them).
+Sources (checked 2026-11-25, raw page text):
+- secure-single-tenant-workflow-virtual-network-private-endpoint (last updated 2026-10-30): "A private endpoint is a network interface that privately and securely connects to a service powered by Azure Private Link ... uses a private IP address from your virtual network, which effectively brings the service into your virtual network"; prerequisite "a subnet without any delegations"; "Start your workflow with a built-in trigger that can receive and handle inbound requests, such as the Request trigger or the HTTP + Webhook trigger"; Settings > Networking > Inbound traffic configuration > Private endpoints > Add > Express or Advanced; "you get an expected 403 Forbidden error, which is means that the private endpoint is set up and works correctly"; "create a virtual machine in the same virtual network that has the private endpoint"; considerations: monitoring view, "Managed API webhook triggers (push triggers) and actions won't work because they run in the public cloud and can't call into your private network ... the Dataverse trigger and the Event Grid trigger", Office 365 Outlook trigger "triggered only hourly", "Deployment from Visual Studio Code or Azure CLI works only from inside the virtual network", Deployment Center + GitHub with WEBSITE_RUN_FROM_PACKAGE removed or 0, "Enabling Private Link doesn't affect outbound traffic, which still flows through the App Service infrastructure".
+- logic-apps-securing-a-logic-app: access restrictions (inherited from App Service) and run history IP ranges (checked 2026-11-24).
+Moved to other lessons in this module: outbound / VNet integration, managed connector IPs and DNS (lesson VNet integration), storage ports and endpoints (lesson private storage).
+Ours: the order-intake story.
 */}
