@@ -43,7 +43,9 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogUrl} />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
     <script is:inline>
       try {
