@@ -2,7 +2,7 @@ import type { Scene } from '../../../../lessons/scene-types';
 
 // One architecture map: the logic app above your virtual network, its storage on the left, managed
 // connectors in Azure on the right, the datacenter below. Each step lights up one path.
-const core = ['app', 'vnetBox', 'pe', 'subnet', 'caller', 'caller-pe', 'pe-app', 'app-subnet'];
+const core = ['azBox', 'app', 'vnetBox', 'pe', 'subnet', 'caller', 'caller-pe', 'pe-app', 'app-subnet'];
 const all = [
   ...core, 'stpe', 'storage', 'api', 'cloud', 'onpremBox', 'onsql', 'gw',
   'subnet-api', 'subnet-stpe', 'stpe-storage', 'subnet-cloud', 'subnet-onsql', 'cloud-gw', 'gw-onsql',
@@ -11,6 +11,8 @@ const all = [
 export const scene: Scene = {
   viewBox: [900, 500],
   groups: [
+    // On a Workflow Service Plan the app runs on shared App Service infrastructure, outside your network.
+    { id: 'azBox', label: 'App Service · WS plan', x: 340, y: 6, w: 220, h: 100 },
     { id: 'vnetBox', label: 'Your virtual network', x: 190, y: 140, w: 520, h: 220 },
     { id: 'onpremBox', label: 'Datacenter', x: 190, y: 390, w: 520, h: 100 },
   ],

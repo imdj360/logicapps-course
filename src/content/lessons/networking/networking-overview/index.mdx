@@ -38,6 +38,8 @@ Here's where we're heading: the same logic app, with everything private.
 - **Managed connectors** still run in Azure, outside your network.
 - The **datacenter** is reached over the network, or through the **on-premises data gateway**.
 
+The logic app itself **doesn't run inside your network** on a Workflow Service Plan: it runs on Azure's shared App Service infrastructure, and the private endpoint and VNet integration connect it in both directions. On an **App Service Environment v3** it does run inside your network.
+
 The next steps take one path at a time.
 </Step>
 
@@ -94,5 +96,6 @@ Sources (checked 2026-11-25, raw page text):
 - secure-single-tenant-workflow-virtual-network-private-endpoint: "private endpoints for inbound traffic and use virtual network integration for outbound traffic"; private endpoint "uses a private IP address from your virtual network"; "you get an expected 403 Forbidden error"; "Setting up virtual network integration affects only outbound traffic"; "Enabling Private Link doesn't affect outbound traffic"; managed connector IP addresses when an NSG, UDR or firewall is used; managed webhook triggers and actions don't work with a private inbound endpoint.
 - deploy-single-tenant-logic-apps-private-storage-account: "When you create a single-tenant Standard logic app resource, you're required to have a storage account for storing logic app artifacts"; "Create different private endpoints for each of the Table, Queue, Blob, and File storage services"; VNet integration lets the logic app "access the storage account through private endpoints".
 - connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway"; "If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."
+Also from that page: inbound "continues to use the App Service shared endpoint" and outbound "still flows through the App Service infrastructure" (basis for "doesn't run inside your network"). ASE v3 runs inside your VNet: see the App Service Environment lesson.
 Ours: the two-rules story, VPN/ExpressRoute as the usual network path to the datacenter, and the suggested build order.
 */}
