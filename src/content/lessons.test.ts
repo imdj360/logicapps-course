@@ -62,8 +62,8 @@ describe.each(entries)('lesson $slug', ({ frontmatter, steps, body, scene }) => 
     const edgeIds = new Set(scene!.edges.map((e) => e.id));
     const groupIds = new Set((scene!.groups ?? []).map((g) => g.id));
     for (const e of scene!.edges) {
-      expect(nodeIds, `edge ${e.id}.from`).toContain(e.from);
-      expect(nodeIds, `edge ${e.id}.to`).toContain(e.to);
+      expect(nodeIds.has(e.from) || groupIds.has(e.from), `edge ${e.id}.from`).toBe(true);
+      expect(nodeIds.has(e.to) || groupIds.has(e.to), `edge ${e.id}.to`).toBe(true);
     }
     for (const [id, st] of Object.entries(scene!.steps)) {
       for (const v of [...st.visible, ...(st.highlight ?? []), ...(st.failed ?? []), ...(st.skipped ?? [])]) {

@@ -57,6 +57,12 @@ describe('Stage', () => {
     expect(container.querySelector('[data-edge-label="t-a"]')).toHaveTextContent('yes');
   });
 
+  it('draws an edge that starts at a group frame', () => {
+    const s = { ...scene, edges: [...scene.edges, { id: 'run-q', from: 'run', to: 'q' }], steps: { ...scene.steps, five: { visible: ['run', 't', 'q', 'run-q'], chips: [] } } };
+    const { container } = render(<Stage scene={s} stepId="five" playing reducedMotion={false} />);
+    expect(container.querySelector('[data-edge-id="run-q"]')).not.toBeNull();
+  });
+
   it('marks skipped nodes', () => {
     const s = { ...scene, steps: { ...scene.steps, four: { visible: ['t', 'a', 'q'], failed: ['a'], skipped: ['q'], chips: [] } } };
     const { container } = render(<Stage scene={s} stepId="four" playing reducedMotion={false} />);

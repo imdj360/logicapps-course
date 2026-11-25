@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import type { Scene, SceneNode } from '../../lessons/scene-types';
+import type { Scene } from '../../lessons/scene-types';
 import { NodeShape, NODE_H, NODE_W } from './NodeShape';
 import { StateChips } from './StateChips';
 import { Legend } from './Legend';
@@ -15,13 +15,16 @@ interface Props {
 
 const EMPTY = { visible: [] as string[], chips: [] };
 
-/** Point where the line from a's centre towards b leaves a's card. */
-function anchor(a: SceneNode, b: SceneNode): [number, number] {
+/** Anything an edge can attach to: a node card, or a group frame (e.g. a scope). */
+interface Box { x: number; y: number; hw: number; hh: number }
+
+/** Point where the line from a's centre towards b leaves a's box. */
+function anchor(a: Box, b: Box): [number, number] {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   if (dx === 0 && dy === 0) return [a.x, a.y];
-  const sx = Math.abs(dx) > 0 ? (NODE_W / 2 + 6) / Math.abs(dx) : Infinity;
-  const sy = Math.abs(dy) > 0 ? (NODE_H / 2 + 6) / Math.abs(dy) : Infinity;
+  const sx = Math.abs(dx) > 0 ? (a.hw + 6) / Math.abs(dx) : Infinity;
+  const sy = Math.abs(dy) > 0 ? (a.hh + 6) / Math.abs(dy) : Infinity;
   const s = Math.min(sx, sy);
   return [a.x + dx * s, a.y + dy * s];
 }
@@ -32,13 +35,16 @@ export function Stage({ scene, stepId, playing, reducedMotion, replayKey = 0 }: 
   const failed = new Set(step.failed ?? []);
   const skipped = new Set(step.skipped ?? []);
   const highlight = new Set(step.highlight ?? []);
-  const nodes = new Map(scene.nodes.map((n) => [n.id, n]));
+  const boxes = new Map<string, Box>([
+    ...scene.nodes.map((n): [string, Box] => [n.id, { x: n.x, y: n.y, hw: NODE_W / 2, hh: NODE_H / 2 }]),
+    ...(scene.groups ?? []).map((g): [string, Box] => [g.id, { x: g.x + g.w / 2, y: g.y + g.h / 2, hw: g.w / 2 - 6, hh: g.h / 2 - 6 }]),
+  ]);
   const [w, h] = scene.viewBox;
 
   const segment = (edgeId: string) => {
     const e = scene.edges.find((x) => x.id === edgeId);
-    const from = e && nodes.get(e.from);
-    const to = e && nodes.get(e.to);
+    const from = e && boxes.get(e.from);
+    const to = e && boxes.get(e.to);
     if (!from || !to) return null;
     return { from: anchor(from, to), to: anchor(to, from) };
   };

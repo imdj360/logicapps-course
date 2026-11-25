@@ -3,9 +3,10 @@ import type { Scene } from '../../../../lessons/scene-types';
 // Scopes are drawn as frames so you can see they group actions. Run after is set on the scope;
 // the arrows leave from Try's last action and are labelled with Try's outcome.
 const flow = ['trigger', 'stock', 'charge', 'confirm', 'trig-stock', 'stock-charge', 'charge-confirm'];
-const tryScope = ['tryBox'];
-const catchScope = ['catchBox', 'filter', 'term', 'charge-filter', 'filter-term'];
-const clean = ['cleanup', 'charge-cleanup'];
+// With scopes on screen, Confirm order hangs off the Try box, not off Charge card.
+const tryScope = ['tryBox', 'try-confirm'];
+const catchScope = ['catchBox', 'filter', 'term', 'try-catch', 'filter-term'];
+const clean = ['cleanup', 'try-cleanup'];
 
 export const scene: Scene = {
   viewBox: [900, 520],
@@ -21,16 +22,17 @@ export const scene: Scene = {
     { id: 'filter', kind: 'action', label: 'Filter result', sublabel: "result('Try')", x: 420, y: 300 },
     { id: 'term', kind: 'condition', label: 'Terminate', sublabel: 'Failed', x: 690, y: 300 },
     { id: 'notify', kind: 'action', label: 'Notify team', sublabel: 'if card fails', x: 495, y: 300 },
-    { id: 'cleanup', kind: 'scope', label: 'Cleanup', sublabel: 'all 4 statuses', x: 100, y: 450 },
+    { id: 'cleanup', kind: 'scope', label: 'Log outcome', sublabel: 'every run', x: 100, y: 450 },
   ],
   edges: [
     { id: 'trig-stock', from: 'trigger', to: 'stock' },
     { id: 'stock-charge', from: 'stock', to: 'charge' },
     { id: 'charge-confirm', from: 'charge', to: 'confirm', label: 'ok' },
-    { id: 'charge-filter', from: 'charge', to: 'filter', style: 'dashed', label: 'Try failed' },
+    { id: 'try-confirm', from: 'tryBox', to: 'confirm', label: 'ok' },
+    { id: 'try-catch', from: 'tryBox', to: 'catchBox', style: 'dashed', label: 'Try failed' },
     { id: 'filter-term', from: 'filter', to: 'term' },
     { id: 'charge-notify', from: 'charge', to: 'notify', style: 'dashed', label: 'failed' },
-    { id: 'charge-cleanup', from: 'charge', to: 'cleanup', style: 'dashed', label: 'always' },
+    { id: 'try-cleanup', from: 'tryBox', to: 'cleanup', style: 'dashed', label: 'always' },
   ],
   steps: {
     problem: {
@@ -54,28 +56,28 @@ export const scene: Scene = {
       chips: [{ label: 'Notify team runs after', value: 'Charge card has failed' }],
     },
     scope: {
-      visible: [...flow, ...tryScope, ...catchScope],
+      visible: [...flow.filter((x) => x !== 'charge-confirm'), ...tryScope, ...catchScope],
       failed: ['charge'],
       skipped: ['confirm'],
-      highlight: ['tryBox', 'catchBox', 'charge-filter'],
-      tokens: [{ id: 't1', edge: 'charge-filter', tone: 'fail' }],
+      highlight: ['tryBox', 'catchBox', 'try-catch'],
+      tokens: [{ id: 't1', edge: 'try-catch', tone: 'fail' }],
       chips: [{ label: 'Try box', value: 'Failed (one action failed)', tone: 'fail' }, { label: 'Catch runs after Try', value: 'has failed · timed out' }],
     },
     result: {
-      visible: [...flow, ...tryScope, ...catchScope],
+      visible: [...flow.filter((x) => x !== 'charge-confirm'), ...tryScope, ...catchScope],
       failed: ['charge'],
       skipped: ['confirm'],
       highlight: ['filter'],
       chips: [{ label: "result('Try')", value: 'each action: name · status' }, { label: 'keep', value: 'status = Failed' }],
     },
     finally: {
-      visible: [...flow, ...tryScope, ...clean],
-      highlight: ['cleanup', 'charge-cleanup'],
-      tokens: [{ id: 'f1', edge: 'charge-cleanup', tone: 'ok' }],
-      chips: [{ label: 'Cleanup runs after', value: 'all four outcomes' }, { label: 'so it runs', value: 'every time', tone: 'ok' }],
+      visible: [...flow.filter((x) => x !== 'charge-confirm'), ...tryScope, ...clean],
+      highlight: ['cleanup', 'try-cleanup'],
+      tokens: [{ id: 'f1', edge: 'try-cleanup', tone: 'ok' }],
+      chips: [{ label: 'Log outcome runs after Try', value: 'all four outcomes' }, { label: 'so it runs', value: 'every time', tone: 'ok' }],
     },
     handled: {
-      visible: [...flow, ...tryScope, ...catchScope],
+      visible: [...flow.filter((x) => x !== 'charge-confirm'), ...tryScope, ...catchScope],
       failed: ['charge'],
       skipped: ['confirm'],
       highlight: ['term'],
@@ -83,7 +85,7 @@ export const scene: Scene = {
       chips: [{ label: 'without Terminate', value: 'run Succeeded', tone: 'warn' }, { label: 'with Terminate', value: 'run Failed', tone: 'fail' }],
     },
     recap: {
-      visible: [...flow, ...tryScope, ...catchScope, ...clean],
+      visible: [...flow.filter((x) => x !== 'charge-confirm'), ...tryScope, ...catchScope, ...clean],
       chips: [{ label: 'react', value: 'run after' }, { label: 'many actions', value: 'Try + Catch scopes' }],
     },
   },

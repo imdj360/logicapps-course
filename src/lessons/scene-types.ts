@@ -6,6 +6,7 @@ export type NodeKind =
 export interface SceneNode { id: string; kind: NodeKind; label: string; x: number; y: number; sublabel?: string }
 /** A labelled frame drawn behind nodes, e.g. everything that belongs to one run. Shown when a step lists its id in `visible`. */
 export interface SceneGroup { id: string; label: string; x: number; y: number; w: number; h: number; /** Put the label at the right end, e.g. when an arrow enters on the left. */ labelAlign?: 'start' | 'end' }
+/** from/to can be a node id or a group id (an arrow from a whole scope). */
 export interface SceneEdge { id: string; from: string; to: string; style?: 'solid' | 'dashed'; /** Short text at the middle of the line, e.g. yes / no. */ label?: string }
 export interface Token { id: string; edge: string; tone: 'ok' | 'fail' | 'info' }
 export type ChipTone = 'ok' | 'warn' | 'fail' | 'neutral';
