@@ -37,7 +37,7 @@ export const scene: Scene = {
     },
     sequence: {
       visible: [...core],
-      tokens: [{ id: 's1', edge: 'order-reqq', tone: 'info' }, { id: 's2', edge: 'engine-repq', tone: 'ok' }, { id: 's3', edge: 'repq-order', tone: 'ok' }],
+      tokens: [{ id: 's1', edge: 'order-reqq', tone: 'info' }, { id: 's1b', edge: 'reqq-engine', tone: 'info' }, { id: 's2', edge: 'engine-repq', tone: 'ok' }, { id: 's3', edge: 'repq-order', tone: 'ok' }],
       chips: [{ label: 'request', value: 'MessageId + ReplyTo' }, { label: 'reply', value: 'CorrelationId = MessageId' }],
     },
     sessions: {

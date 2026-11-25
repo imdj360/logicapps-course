@@ -73,6 +73,24 @@ describe.each(entries)('lesson $slug', ({ frontmatter, steps, body, scene }) => 
     }
   });
 
+  // A moving dot that jumps from A→X to Y→B while a visible X→Y edge stays empty
+  // looks like the message never reached Y.
+  it('animates every visible hop between moving dots', () => {
+    const edges = new Map(scene!.edges.map((e) => [e.id, e]));
+    for (const [id, st] of Object.entries(scene!.steps)) {
+      const visible = new Set(st.visible);
+      const moving = (st.tokens ?? []).map((t) => edges.get(t.edge)!);
+      const movingIds = new Set(moving.map((e) => e.id));
+      for (const a of moving) for (const b of moving) {
+        for (const e of scene!.edges) {
+          if (e.from === a.to && e.to === b.from && visible.has(e.id)) {
+            expect(movingIds.has(e.id), `step ${id}: ${a.id} … ${b.id} skips ${e.id}`).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
   it('keeps node labels short enough for the card', () => {
     for (const n of scene!.nodes) expect(n.label.length, n.label).toBeLessThanOrEqual(16);
     for (const n of scene!.nodes) if (n.sublabel) expect(n.sublabel.length, n.sublabel).toBeLessThanOrEqual(15);

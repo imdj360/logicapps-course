@@ -46,7 +46,7 @@ export const scene: Scene = {
     problem: {
       visible: [...oneRun],
       highlight: ['oneRun', 'each0'],
-      tokens: [{ id: 'p1', edge: 'partner-req0', tone: 'info' }, { id: 'p2', edge: 'each0-create0', tone: 'info' }],
+      tokens: [{ id: 'p1', edge: 'partner-req0', tone: 'info' }, { id: 'p1b', edge: 'req0-each0', tone: 'info' }, { id: 'p2', edge: 'each0-create0', tone: 'info' }],
       chips: [{ label: 'For each', value: '500 orders, one run' }, { label: 'our concern', value: 'one failure, whole run', tone: 'warn' }],
     },
     spliton: {

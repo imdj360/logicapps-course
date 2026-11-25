@@ -37,13 +37,13 @@ export const scene: Scene = {
     },
     sequence: {
       visible: [...core],
-      tokens: [{ id: 's1', edge: 'sender-blob', tone: 'info' }, { id: 's2', edge: 'sender-queue', tone: 'ok' }, { id: 's3', edge: 'receiver-blob', tone: 'info' }],
+      tokens: [{ id: 's1', edge: 'sender-blob', tone: 'info' }, { id: 's2', edge: 'sender-queue', tone: 'ok' }, { id: 's2b', edge: 'queue-receiver', tone: 'ok' }, { id: 's3', edge: 'receiver-blob', tone: 'info' }],
       chips: [{ label: '1', value: 'save the file' }, { label: '2', value: 'then send the path' }, { label: '3', value: 'receiver fetches it' }],
     },
     build: {
       visible: [...core],
       highlight: ['sender', 'receiver'],
-      tokens: [{ id: 'b1', edge: 'sender-blob', tone: 'info' }, { id: 'b2', edge: 'sender-queue', tone: 'ok' }, { id: 'b3', edge: 'receiver-blob', tone: 'info' }],
+      tokens: [{ id: 'b1', edge: 'sender-blob', tone: 'info' }, { id: 'b2', edge: 'sender-queue', tone: 'ok' }, { id: 'b2b', edge: 'queue-receiver', tone: 'ok' }, { id: 'b3', edge: 'receiver-blob', tone: 'info' }],
       chips: [{ label: 'sender', value: 'Upload blob → Send message' }, { label: 'receiver', value: 'queue trigger → Read blob content' }],
     },
     eventgrid: {

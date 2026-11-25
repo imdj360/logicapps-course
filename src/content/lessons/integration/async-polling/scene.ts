@@ -29,7 +29,7 @@ export const scene: Scene = {
     problem: {
       visible: [...flow, ...partner],
       highlight: ['site', 'api'],
-      tokens: [{ id: 'p1', edge: 'site-req', tone: 'info' }, { id: 'p2', edge: 'http-api', tone: 'info' }],
+      tokens: [{ id: 'p1', edge: 'site-req', tone: 'info' }, { id: 'p1b', edge: 'req-http', tone: 'info' }, { id: 'p2', edge: 'http-api', tone: 'info' }],
       chips: [{ label: 'website', value: 'waiting' }, { label: 'partner', value: 'takes minutes', tone: 'warn' }],
     },
     sync: {
