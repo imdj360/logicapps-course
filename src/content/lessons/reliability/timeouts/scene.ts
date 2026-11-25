@@ -20,7 +20,7 @@ export const scene: Scene = {
   ],
   edges: [
     { id: 'trig-call', from: 'trigger', to: 'call' },
-    { id: 'call-api', from: 'call', to: 'api', label: 'request' },
+    { id: 'call-api', from: 'call', to: 'api' },
     { id: 'call-until', from: 'call', to: 'until' },
     { id: 'call-catch', from: 'call', to: 'catch', style: 'dashed', label: 'timed out' },
     { id: 'catch-alert', from: 'catch', to: 'alert' },
