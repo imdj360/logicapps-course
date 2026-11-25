@@ -5,6 +5,7 @@ import { markComplete, markStepReached } from '../../lib/progress';
 import { track } from '../../lib/analytics';
 import { parseStepHash, useStepNav } from './useStepNav';
 import { StepPanel } from './StepPanel';
+import type { NextLesson } from '../../lib/catalog';
 import { Timeline } from './Timeline';
 
 export interface PlayerStep {
@@ -20,6 +21,7 @@ interface Props {
   steps: PlayerStep[];
   youWillLearn: string[];
   recap?: ReactNode;
+  next?: NextLesson | null;
 }
 
 const isTyping = (el: EventTarget | null) =>
@@ -31,7 +33,7 @@ const isInteractive = (el: EventTarget | null) =>
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props) {
+export function LessonPlayer({ slug, scene, steps, youWillLearn, recap, next = null }: Props) {
   const count = steps.length;
   const nav = useStepNav(count, typeof window === 'undefined' ? '' : window.location.hash);
   // With reduced motion the diagram starts paused (showing "Play"), so a still diagram doesn't look broken.
@@ -116,6 +118,7 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
             onNext={nav.next}
             onBack={nav.back}
             recap={recap}
+            nextLesson={next}
           />
           {youWillLearn.length > 0 && (
             <div className="panel learn-box">

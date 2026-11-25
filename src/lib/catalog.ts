@@ -25,3 +25,15 @@ export function buildCatalog(
     }),
   }));
 }
+
+export interface NextLesson { href: string; title: string; moduleNumber: string; moduleTitle: string; newModule: boolean }
+
+/** The next published lesson in course order after `slug`, skipping lessons that aren't published. */
+export function nextLesson(catalog: CatalogModule[], slug: string): NextLesson | null {
+  const flat = catalog.flatMap((m) => m.lessons.map((l) => ({ ...l, mod: m })));
+  const i = flat.findIndex((l) => l.slug === slug);
+  if (i < 0) return null;
+  const next = flat.slice(i + 1).find((l) => l.status === 'published' && l.href);
+  if (!next) return null;
+  return { href: next.href!, title: next.title, moduleNumber: next.mod.number, moduleTitle: next.mod.title, newModule: next.mod.id !== flat[i].mod.id };
+}

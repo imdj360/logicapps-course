@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { PlayerStep } from './LessonPlayer';
+import type { NextLesson } from '../../lib/catalog';
 
 interface Props {
   step: PlayerStep;
@@ -9,9 +10,10 @@ interface Props {
   onNext: () => void;
   onBack: () => void;
   recap?: ReactNode;
+  nextLesson?: NextLesson | null;
 }
 
-export function StepPanel({ step, index, count, nextName, onNext, onBack, recap }: Props) {
+export function StepPanel({ step, index, count, nextName, onNext, onBack, recap, nextLesson = null }: Props) {
   return (
     <div className="panel step-panel" aria-live="polite">
       <div className="step-panel__top">
@@ -27,9 +29,18 @@ export function StepPanel({ step, index, count, nextName, onNext, onBack, recap 
       {index === count - 1 && recap}
       <div className="step-nav">
         <button type="button" className="btn" onClick={onBack} disabled={index === 0}>Back</button>
-        <button type="button" className="btn btn--primary" onClick={onNext} disabled={!nextName}>
-          {nextName ? <>Next: {nextName} <span aria-hidden="true">→</span></> : 'Lesson complete'}
-        </button>
+        {nextName || !nextLesson ? (
+          <button type="button" className="btn btn--primary" onClick={onNext} disabled={!nextName}>
+            {nextName ? <>Next: {nextName} <span aria-hidden="true">→</span></> : 'Lesson complete'}
+          </button>
+        ) : (
+          <a className="btn btn--primary" href={nextLesson.href}>
+            {nextLesson.newModule
+              ? <>Next module: {nextLesson.moduleNumber}. {nextLesson.moduleTitle}</>
+              : <>Next lesson: {nextLesson.title}</>}
+            {' '}<span aria-hidden="true">→</span>
+          </a>
+        )}
       </div>
       <div className="keys" aria-hidden="true">
         <span><kbd>←</kbd> <kbd>→</kbd> step</span>
