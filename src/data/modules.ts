@@ -65,7 +65,7 @@ export const MODULES: ModuleDef[] = [
   ] },
   { id: 'agentic', number: '09', title: 'Agentic Logic Apps', lessons: [
     l('agent-workflows', 'Agent workflows vs fixed workflows'),
-    l('logic-apps-as-tools', 'Logic Apps as tools & MCP servers'),
+    l('logic-apps-as-tools', 'MCP with Logic Apps: expose & call'),
     l('multi-agent-patterns', 'Single and multiple agents'),
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),

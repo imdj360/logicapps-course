@@ -1,24 +1,26 @@
 ---
-title: Logic Apps as tools & MCP servers
+title: "MCP with Logic Apps: expose & call"
 module: agentic
 order: 2
-minutes: 10
-level: Advanced
-summary: Turn existing workflows into tools that AI agents can call, through the Model Context Protocol or Microsoft Foundry, and know what each route requires.
+minutes: 9
+level: Intermediate
+summary: Use the Model Context Protocol in both directions — expose Standard workflows as an MCP server for external agents, and call remote MCP servers from a Logic Apps Agent Loop.
 youWillLearn:
-  - How a Standard logic app becomes an MCP server
-  - What a workflow needs to work as a tool
-  - How MCP servers authenticate callers
-  - How Foundry agents use Logic Apps tools
+  - How to expose a Standard logic app as an MCP server
+  - What a workflow needs to work as an MCP tool
+  - How to call an external MCP server from an Agent Loop
+  - How to secure and scope MCP servers in both directions
 relatedArticles:
   - title: "\u2699\ufe0f Enabling a Logic App as an MCP Server"
     url: https://dev.to/imdj/enabling-a-logic-app-as-an-mcp-server-34bp
+  - title: "Logic Apps \u2764\ufe0f MCP \u2014 Expose Arithmetic Tools (Add & Subtract)"
+    url: https://dev.to/imdj/-logic-apps-mcp-expose-arithmetic-tools-add-subtract-4o24
+  - title: "\ud83e\udde9 Consume an MCP Endpoint from Azure Logic Apps \u2014 with an Agent Loop"
+    url: https://dev.to/imdj/consume-an-mcp-endpoint-from-azure-logic-apps-with-an-agent-loop-52jh
   - title: "Running Multiple MCP Servers with Azure Logic Apps"
     url: https://dev.to/imdj/running-multiple-mcp-servers-with-azure-logic-apps-2j6i
   - title: "\ud83d\udd0c Exposing Logic Apps MCP Server via Azure API Management (APIM)"
     url: https://dev.to/imdj/exposing-logic-apps-mcp-server-via-azure-api-management-apim-1l9
-  - title: "Host LogicApps as an MCP Server on Azure Container Apps"
-    url: https://dev.to/imdj/host-logicapps-as-an-mcp-server-on-azure-container-apps-508
 learnLinks:
   - title: "Create Remote MCP Servers from Standard Workflows"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/create-model-context-protocol-server-standard
@@ -29,72 +31,90 @@ learnLinks:
   - title: "Add Agent Tools Backed by Connector Actions"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/add-agent-tools-connector-actions
 reviewStatus: draft
+lastVerified: '2026-11-25'
 ---
 
-<Step id="problem" name="Your workflows, their agents" tag="PROBLEM">
-Your team has dozens of tested workflows: create a customer, check stock, raise an invoice. Now other teams are building **AI agents** and want to use them.
+<Step id="problem" name="Two sides of MCP" tag="PROBLEM">
+The **Model Context Protocol (MCP)** is a standard way for AI agents to discover and call tools without custom glue code.
 
-Rather than rebuild that logic, you can expose the workflows as **tools** that agents call.
+With Azure Logic Apps, you use MCP in **two directions**:
+
+1. **Expose** your tested Logic Apps workflows as an **MCP server** so external agents can call them.
+2. **Call** external **MCP servers** from a Logic Apps workflow using the MCP connector inside an **Agent Loop** (ours: the Microsoft Learn docs don't cover this side yet).
 </Step>
 
-<Step id="mcp" name="A logic app as an MCP server">
-The **Model Context Protocol (MCP)** is a standard way for agents to discover and call tools. A **Standard** logic app can act as an **MCP server**: each workflow you choose becomes a tool. This is in **preview**.
+<Step id="expose" name="Expose: Logic App as an MCP server">
+A **Standard** logic app can act as a remote **MCP server** (preview): each workflow you pick becomes a discoverable tool for MCP clients. The Microsoft Learn docs test it from **GitHub Copilot in Visual Studio Code**.
 
-In the portal, open the logic app and, under **Agents**, select **MCP servers**. You can host several logical MCP servers in one logic app, each grouping related workflows.
+In the Azure portal, open your Standard logic app and go to **Agents > MCP servers**. You can host several logical MCP servers in one logic app, each grouping related workflows.
 </Step>
 
-<Step id="requirements" name="What a workflow needs">
-To be a tool, a workflow must:
+<Step id="requirements" name="What an exposed workflow needs">
+To expose a workflow as an MCP tool, it must:
 
-- start with the **Request** trigger, *When an HTTP request is received*;
+- start with a **Request** trigger (*When an HTTP request is received*);
 - end with a **Response** action;
-- be enabled, in a running logic app on a **Workflow Service Plan** or **ASE v3** (the Microsoft Learn API Center page is less strict about hosting; Daniel's article covers a Container Apps route that the Microsoft Learn docs don't document).
+- run in a **Workflow Service Plan** or **ASE v3**.
 
-You can also create new tool workflows from connector actions while you register the server: each action you select becomes its own workflow.
+Add a clear **trigger description** and **Request Body JSON Schema** (with parameter descriptions and `required` fields). Agents rely on those descriptions to decide when and how to call your tool.
 </Step>
 
-<Step id="describe" name="Describe the tool well">
-An agent relies on a tool's description to decide when and how to call it. Add a **trigger description** and a **Request Body JSON Schema** with a `description` for each parameter and a `required` list.
+<Step id="auth" name="Secure & connect to your MCP server">
+Standard MCP servers use **OAuth 2.0** by default (via **Easy Auth** and a Microsoft Entra app registration; note that Learn's MCP OAuth setup sets Easy Auth to allow unauthenticated requests through to the endpoint). You can also use **API keys**.
 
-Microsoft's advice when an agent calls a tool inconsistently: make the trigger and parameter descriptions **more unique**, for example by describing the format of each input.
+They support **Streamable HTTP** out of the box and **Server-Sent Events (SSE)** (which needs VNet integration and a `host.json` cross-worker setting).
 </Step>
 
-<Step id="auth" name="Who can call it">
-MCP endpoints use **OAuth 2.0** by default, which needs **Easy Auth** (App Service Authentication) with a Microsoft Entra app registration. The alternative is **key-based** access: generate a key, choose its duration, and store it right away, because you can't see it again.
-
-The Microsoft Learn OAuth setup also requires Easy Auth to **allow unauthenticated requests** through to the endpoint, so read that section carefully before you configure it.
+<Step id="apicenter" name="Other expose routes: API Center & Foundry">
+- **Azure API Center** (preview): expose a single **managed connector** as an MCP server backed by a Standard logic app (one action per tool; built-in and custom connectors aren't supported).
+- **Microsoft Foundry** (preview): Foundry agents can also call Request/Response Logic Apps workflows directly as tools, including workflows that wait for a human approval.
 </Step>
 
-<Step id="transport" name="Transports and networking" tag="TIP">
-Standard MCP servers support **Streamable HTTP** and **Server-Sent Events (SSE)**. SSE needs extra setup: VNet integration and a `host.json` setting for cross-worker communication. Streamable HTTP needs nothing more.
+<Step id="call" name="Call: Logic App as an MCP client">
+Now flip the direction. Your own Logic App has an **Agent Loop** and needs tools that already live on an **external MCP server** — a third-party service, a Microsoft MCP server, or another team's server.
 
-Because it's your logic app, the usual options apply: private endpoints and VNet integration, plus run history and Application Insights or Log Analytics integration.
+Instead of hand-wiring raw HTTP actions for every endpoint, add an **MCP server** connection (the MCP client connector) directly to your Agent Loop and point it at the remote server's URL.
+
+The Microsoft Learn docs don't document this side yet. These steps come from Daniel's own tests (see his article under References), so treat them as **ours**.
 </Step>
 
-<Step id="apicenter" name="MCP servers from a connector">
-**Azure API Center** offers another route, also in preview: build an MCP server from a single **managed connector**, backed by a Standard logic app. Each tool has one action, built-in and custom connectors aren't supported, and the API center and logic app must share a subscription.
+<Step id="discover" name="How the Agent Loop calls MCP">
+Once connected, the Agent Loop handles the MCP protocol for you (ours, from Daniel's tests):
+
+1. **Initialize** the MCP session with the remote server.
+2. **Discover (`tools/list`)** the available tools, descriptions and input schemas at runtime.
+3. **Call (`tools/call`)** whichever tool the model picks, feeding the result back into the loop until it finishes.
+
+Because tools are listed at runtime, a tool the remote server adds or updates is picked up on the next run (ours).
 </Step>
 
-<Step id="foundry" name="Tools for Foundry agents">
-Agents in **Microsoft Foundry** can use Logic Apps tools too (preview). A whole workflow can be a tool if it starts with a Request trigger and ends with a Response action, which also suits long-running work or a workflow that waits for a **human approval**.
+<Step id="filter" name="Auth & allowed tools on the client" tag="TIP">
+Pass the remote server's authentication (API key or OAuth/Bearer token) on the MCP connection (ours).
 
-Foundry provides the agent's intelligence (models, instructions, knowledge and guardrails); Logic Apps provides the automation layer that runs the workflows and connector actions.
+If a remote MCP server exposes dozens of tools, restrict **Allowed Tools** to just the ones your agent actually needs (ours). That saves context tokens, speeds up decisions and prevents the agent from calling risky tools by mistake.
+</Step>
+
+<Step id="both" name="Put both together: Logic App to Logic App" tag="TIP">
+Because Logic Apps can both **expose** and **call** MCP, teams can cleanly split responsibilities (ours):
+
+- **Domain teams** publish their tested workflows as a Standard **MCP server**.
+- **Agent teams** connect their **Agent Loop** to that server via the **MCP connector**.
+
+Business logic stays versioned and reusable in one place, while multiple agents share the same governed toolset.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- A Standard logic app can be an **MCP server** (preview): workflows become tools.
-- Tool workflows start with a **Request** trigger and end with a **Response**.
-- Good **descriptions and schemas** decide how well agents use your tools.
-- Secure MCP endpoints with **OAuth via Easy Auth**, or keys.
-- **API Center** and **Foundry** offer further routes, both in preview.
+- **Expose (MCP server):** Standard logic app (**Agents > MCP servers**, preview) turns Request/Response workflows into tools over Streamable HTTP or SSE, secured with OAuth (Easy Auth) or keys.
+- **Describe well:** trigger descriptions and JSON schemas guide how agents pick and call your tools.
+- **Call (MCP client, ours):** add a remote MCP server to an **Agent Loop** via the MCP connector to discover (`tools/list`) and invoke (`tools/call`) external tools dynamically. Not yet in the Microsoft Learn docs.
+- **Scope it:** configure auth and limit **Allowed Tools** to keep agents fast and safe.
 </Step>
 
 {/*
-Sources (checked 2026-11-24, raw page text):
+Sources (checked 2026-11-25). Expose side verified on create-model-context-protocol-server-standard: preview; "under Agents, select MCP servers"; Request trigger + Response action; Workflow Service Plan or ASE v3; OAuth 2.0 default with Easy Auth "allows unauthenticated access"; API key; "Streamable HTTP has no other requirements"; SSE needs VNet integration + host.json AllowCrossWorkerCommunication; tested from GitHub Copilot in VS Code (Copilot Studio not mentioned). Call side (MCP connector in an Agent Loop, Allowed Tools, tools/list + tools/call handling) is not on any Logic Apps Learn page as of 2026-11-25: ours, from Daniel's article. The managed connector list has ~55 vendor MCP connectors (preview).
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-model-context-protocol-server-standard
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-mcp-server-api-center
 - https://learn.microsoft.com/en-us/azure/logic-apps/automate-foundry-agents-with-workflows
 - https://learn.microsoft.com/en-us/azure/logic-apps/add-agent-tools-connector-actions
-Fact-checked verbatim 2026-11-24.
-Learn conflicts: hosting for MCP servers ("Workflow Service Plan or App Service Environment v3 only" vs "any hosting option" on the API Center page); transport wording. Not claimed: authentication for API Center-created servers, the host.json key for overriding the OAuth scope, a Consumption MCP path. The scenario is ours.
+- https://dev.to/imdj/consume-an-mcp-endpoint-from-azure-logic-apps-with-an-agent-loop-52jh
 */}
