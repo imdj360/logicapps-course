@@ -47,7 +47,7 @@ test('recap links appear only on the recap step', async ({ page }) => {
 test('has a canonical link and lesson title', async ({ page }) => {
   await page.goto('/lessons/sample/');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/lessons\/sample\/$/);
-  await expect(page).toHaveTitle('Sample lesson · Logic Apps course');
+  await expect(page).toHaveTitle('Sample lesson · Logic Apps visual guide');
 });
 
 test('draft lessons are not published in a production build', async ({ page }) => {

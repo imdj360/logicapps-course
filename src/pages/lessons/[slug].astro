@@ -30,7 +30,7 @@ const position = mod.lessons.findIndex((l) => l.slug === slug) + 1;
 const stepCount = Object.keys(scene.steps).length;
 const d = entry.data;
 ---
-<BaseLayout title={`${d.title} · Logic Apps course`} description={d.summary} activeSlug={slug}>
+<BaseLayout title={`${d.title} · Logic Apps visual guide`} description={d.summary} activeSlug={slug}>
   <div class="lesson-head">
     <div>
       <p class="lesson-head__crumb">{mod.number}. {mod.title} / Lesson {position} of {mod.lessons.length}</p>

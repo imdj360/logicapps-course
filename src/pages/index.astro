@@ -13,7 +13,7 @@ const first = catalog.flatMap((m) => m.lessons).find((l) => l.href);
 const total = courseModules.reduce((n, m) => n + m.lessons.length, 0);
 ---
 <BaseLayout
-  title="Logic Apps — a visual, interactive learning course"
+  title="Logic Apps — a visual guide"
   description="Learn Azure Logic Apps one animated step at a time: runs, hosting, reliability, integration patterns and agentic workflows."
 >
   <div class="home">
@@ -27,7 +27,7 @@ const total = courseModules.reduce((n, m) => n + m.lessons.length, 0);
         </p>
         <div class="hero__actions">
           {first
-            ? <a class="btn btn--primary" href={first.href}>Start the course</a>
+            ? <a class="btn btn--primary" href={first.href}>Start exploring</a>
             : <a class="btn btn--primary" href="#modules">See what's coming</a>}
           <a class="btn" href="#module-agentic"><span class="badge-new">NEW</span> Agentic Logic Apps</a>
         </div>
@@ -37,7 +37,7 @@ const total = courseModules.reduce((n, m) => n + m.lessons.length, 0);
       </div>
     </section>
 
-    <h2 class="section-title">The course</h2>
+    <h2 class="section-title">Modules</h2>
     <ModuleGrid modules={courseModules} />
 
     <div class="panel about">

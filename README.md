@@ -1,4 +1,4 @@
-# Logic Apps — a visual, interactive learning course
+# Logic Apps — a visual guide
 
 A free course that teaches Azure Logic Apps through animated, step-by-step lessons.
 Static site: Astro + React islands, deployed to Azure Static Web Apps.

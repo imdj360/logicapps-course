@@ -4,7 +4,7 @@ import { MODULES } from '../src/data/modules';
 test('hero invites you to start the course', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Logic Apps');
-  const start = page.getByRole('link', { name: 'Start the course' });
+  const start = page.getByRole('link', { name: 'Start exploring' });
   await expect(start).toHaveAttribute('href', /^\/lessons\/[a-z0-9-]+\/$/);
 });
 
