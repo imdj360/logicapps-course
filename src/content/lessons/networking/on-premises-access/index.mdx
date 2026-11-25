@@ -100,8 +100,8 @@ Both work only with **Windows** file systems, and **mapped network drives** aren
 
 <Step id="rules" name="Rules that trip people up" tag="TIP">
 - Only the **gateway administrator** can create the Azure gateway resource; **service principals** aren't supported.
-- The logic app and gateway resource can be in **different subscriptions**, but only in the **same Microsoft Entra tenant**.
-- You **can't share** a gateway resource or installation across subscriptions.
+- A workflow can use a gateway resource from **another subscription**, as long as both are in the **same Microsoft Entra tenant**.
+- But each gateway resource, and its installation, belongs to **one** subscription: you can't share it across several.
 - Save the **recovery key** you set at install. You need it to move, recover or change ownership of the gateway.
 </Step>
 

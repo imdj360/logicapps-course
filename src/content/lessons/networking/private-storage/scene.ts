@@ -19,7 +19,7 @@ export const scene: Scene = {
     { id: 'queue', kind: 'storage', label: 'Queue endpoint', sublabel: 'private', x: 560, y: 195 },
     { id: 'blob', kind: 'storage', label: 'Blob endpoint', sublabel: 'private', x: 560, y: 300 },
     { id: 'file', kind: 'storage', label: 'File endpoint', sublabel: 'SMB share', x: 560, y: 405 },
-    { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'no public', x: 800, y: 250 },
+    { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'via endpoints', x: 800, y: 250 },
     { id: 'p-storage', kind: 'storage', label: 'Storage', sublabel: 'public', x: 600, y: 250 },
   ],
   edges: [
@@ -76,6 +76,7 @@ export const scene: Scene = {
       visible: [...app, ...net, ...eps],
       highlight: ['app'],
       failed: ['app'],
+      tokens: [{ id: 'x1', edge: 'app-subnet', tone: 'fail' }, { id: 'x2', edge: 'subnet-file', tone: 'fail' }],
       chips: [{ label: 'workflows', value: "don't load", tone: 'fail' }, { label: 'Kudu console', value: 'not available', tone: 'warn' }],
     },
     fix: {

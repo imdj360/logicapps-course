@@ -22,7 +22,7 @@ export const scene: Scene = {
   ],
   nodes: [
     { id: 'app', kind: 'hosting-plan', label: 'Order logic app', sublabel: 'Standard', x: 450, y: 65 },
-    { id: 'caller', kind: 'user', label: 'Internal app', sublabel: 'on the network', x: 90, y: 200 },
+    { id: 'caller', kind: 'user', label: 'Internal app', sublabel: 'company network', x: 90, y: 200 },
     { id: 'pe', kind: 'keyvault', label: 'Private endpt', sublabel: 'inbound', x: 300, y: 200 },
     { id: 'subnet', kind: 'hosting-plan', label: 'App subnet', sublabel: 'outbound', x: 600, y: 200 },
     { id: 'stpe', kind: 'keyvault', label: 'Storage endpts', sublabel: '4 services', x: 300, y: 305 },

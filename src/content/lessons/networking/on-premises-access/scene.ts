@@ -22,6 +22,7 @@ export const scene: Scene = {
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'installed here', x: 620, y: 440 },
     { id: 'rec', kind: 'trigger', label: 'Every 5 min', sublabel: 'Recurrence', x: 180, y: 100 },
     { id: 'sftpget', kind: 'connector-managed', label: 'Get file', sublabel: 'partner SFTP', x: 180, y: 200 },
+    { id: 'archive', kind: 'storage', label: 'Blob archive', sublabel: 'built-in', x: 430, y: 200 },
     { id: 'createfile', kind: 'connector-managed', label: 'Create file', sublabel: 'File System', x: 180, y: 290 },
     { id: 'fsb', kind: 'connector-builtin', label: 'Create file', sublabel: 'built-in', x: 180, y: 200 },
     { id: 'fsm', kind: 'connector-managed', label: 'Create file', sublabel: 'managed', x: 180, y: 290 },
@@ -39,6 +40,7 @@ export const scene: Scene = {
     { id: 'gw-sql', from: 'gw', to: 'sql' },
     { id: 'rec-sftpget', from: 'rec', to: 'sftpget' },
     { id: 'sftpget-create', from: 'sftpget', to: 'createfile', label: 'for each' },
+    { id: 'sftpget-archive', from: 'sftpget', to: 'archive', label: 'copy' },
     { id: 'create-cloud', from: 'createfile', to: 'cloud' },
     { id: 'gw-share', from: 'gw', to: 'share' },
     { id: 'rec-fsb', from: 'rec', to: 'fsb' },
@@ -88,7 +90,7 @@ export const scene: Scene = {
       chips: [{ label: 'per computer', value: 'one gateway' }, { label: 'Azure resource', value: 'same account · same region' }],
     },
     example: {
-      visible: ['appBox', 'dcBox', 'rec', 'sftpget', 'createfile', 'cloud', 'gw', 'share', 'rec-sftpget', 'sftpget-create', 'create-cloud', 'gw-cloud', 'gw-share'],
+      visible: ['appBox', 'dcBox', 'rec', 'sftpget', 'archive', 'createfile', 'cloud', 'gw', 'share', 'rec-sftpget', 'sftpget-archive', 'sftpget-create', 'create-cloud', 'gw-cloud', 'gw-share'],
       highlight: ['createfile', 'gw', 'share'],
       tokens: [
         { id: 'x0', edge: 'rec-sftpget', tone: 'info' }, { id: 'x1', edge: 'sftpget-create', tone: 'info' }, { id: 'x2', edge: 'create-cloud', tone: 'info' },

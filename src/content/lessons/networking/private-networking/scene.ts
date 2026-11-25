@@ -76,7 +76,8 @@ export const scene: Scene = {
     },
     recap: {
       visible: [...core, 'vm', 'vm-pe', 'webhook', 'webhook-app', 'github', 'github-app'],
-      chips: [{ label: 'inbound', value: 'private endpoint' }, { label: 'outbound', value: 'VNet integration (lesson 1)' }],
+      failed: ['webhook'],
+      chips: [{ label: 'inbound', value: 'private endpoint' }, { label: 'outbound', value: 'VNet integration lesson' }],
     },
   },
   legend: [

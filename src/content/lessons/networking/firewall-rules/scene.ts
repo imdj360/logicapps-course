@@ -76,7 +76,7 @@ export const scene: Scene = {
     inbound: {
       // Callbacks come in on the app's public endpoint, not through the spoke network.
       visible: ['app', 'cloud', 'cloud-app'],
-      tokens: [{ id: 'cb1', edge: 'cloud-app', tone: 'info' }],
+      tokens: [{ id: 'cb1', edge: 'cloud-app', tone: 'ok' }],
       highlight: ['cloud'],
       chips: [{ label: 'webhook callbacks', value: 'allow AzureConnectors' }, { label: 'Office 365', value: 'caller is the connector' }],
     },
