@@ -33,13 +33,13 @@ export const scene: Scene = {
       visible: [...builtin],
       highlight: ['built', 'app-built'],
       tokens: [{ id: 'b1', edge: 'app-built', tone: 'ok' }],
-      chips: [{ label: 'runs', value: 'in-process' }, { label: 'designer filter', value: 'Built-in' }],
+      chips: [{ label: 'runs', value: 'in-process' }, { label: 'gallery label', value: 'Built-in' }],
     },
     managed: {
       visible: [...builtin, ...managed],
       highlight: ['managed', 'azure', 'managed-azure'],
       tokens: [{ id: 'm1', edge: 'app-managed', tone: 'info' }, { id: 'm2', edge: 'managed-azure', tone: 'info' }],
-      chips: [{ label: 'hosted by', value: 'Microsoft, shared' }, { label: 'designer filter', value: 'Shared' }],
+      chips: [{ label: 'hosted by', value: 'Microsoft, shared' }, { label: 'gallery label', value: 'Shared' }],
     },
     both: {
       visible: [...builtin, ...managed],
@@ -59,7 +59,7 @@ export const scene: Scene = {
     auth: {
       visible: [...builtin, ...managed, 'conn', 'managed-conn'],
       highlight: ['built'],
-      chips: [{ label: 'options', value: 'string · Entra · MI' }, { label: 'SFTP built-in MI', value: 'not supported', tone: 'warn' }, { label: 'recommended', value: 'managed identity', tone: 'ok' }],
+      chips: [{ label: 'options', value: 'string · Entra · MI' }, { label: 'SFTP built-in', value: 'password / key', tone: 'warn' }, { label: 'recommended', value: 'managed identity', tone: 'ok' }],
     },
     network: {
       visible: [...builtin, ...managed, 'vnet', 'queue', 'built-vnet', 'vnet-queue', 'azure-queue'],

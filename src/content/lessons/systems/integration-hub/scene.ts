@@ -11,6 +11,10 @@ export const scene: Scene = {
     { id: 'billing', kind: 'trigger', label: 'Billing flow', sublabel: 'subscription', x: 680, y: 350 },
     { id: 'eg', kind: 'connector-managed', label: 'Event Grid', sublabel: 'managed trigger', x: 380, y: 80 },
     { id: 'eh', kind: 'servicebus', label: 'Event Hubs', sublabel: '≤1,000/min/conn', x: 380, y: 420 },
+    { id: 'p-erp', kind: 'user', label: 'ERP', sublabel: 'calls warehouse', x: 110, y: 240 },
+    { id: 'wh', kind: 'user', label: 'Warehouse', sublabel: 'calls CRM', x: 380, y: 240 },
+    { id: 'p-crm', kind: 'user', label: 'CRM', sublabel: 'calls billing', x: 680, y: 130 },
+    { id: 'p-billing', kind: 'user', label: 'Billing', x: 680, y: 350 },
     { id: 'apim', kind: 'keyvault', label: 'API Mgmt', sublabel: 'front door', x: 110, y: 80 },
   ],
   edges: [
@@ -19,11 +23,14 @@ export const scene: Scene = {
     { id: 'topic-billing', from: 'topic', to: 'billing' },
     { id: 'eg-crm', from: 'eg', to: 'crm', style: 'dashed' },
     { id: 'eh-billing', from: 'eh', to: 'billing', style: 'dashed' },
-    { id: 'apim-erp', from: 'apim', to: 'erp', style: 'dashed' },
+    { id: 'apim-crm', from: 'apim', to: 'crm', style: 'dashed', label: 'callers' },
+    { id: 'erp-wh', from: 'p-erp', to: 'wh' },
+    { id: 'wh-crm', from: 'wh', to: 'p-crm' },
+    { id: 'crm-billing', from: 'p-crm', to: 'p-billing' },
   ],
   steps: {
     problem: {
-      visible: ['erp', 'crm', 'billing'],
+      visible: ['p-erp', 'wh', 'p-crm', 'p-billing', 'erp-wh', 'wh-crm', 'crm-billing'],
       chips: [{ label: 'today', value: 'point to point', tone: 'warn' }],
     },
     reference: {
@@ -55,12 +62,12 @@ export const scene: Scene = {
       chips: [{ label: 'our rule', value: 'one workflow per job' }],
     },
     front: {
-      visible: [...hub, 'apim', 'apim-erp'],
+      visible: [...hub, 'apim', 'apim-crm'],
       highlight: ['apim'],
       chips: [{ label: 'allow calls', value: "from APIM's IP (classic tiers)" }],
     },
     recap: {
-      visible: [...hub, 'eg', 'eh', 'apim', 'eg-crm', 'eh-billing', 'apim-erp'],
+      visible: [...hub, 'eg', 'eh', 'apim', 'eg-crm', 'eh-billing', 'apim-crm'],
       chips: [{ label: 'publish', value: 'once' }, { label: 'subscribe', value: 'freely' }],
     },
   },

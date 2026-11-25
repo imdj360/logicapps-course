@@ -42,13 +42,13 @@ They're two different connectors, running in two different places. Picking the r
 </Step>
 
 <Step id="builtin" name="Built-in: inside the runtime">
-**Built-in** connectors run natively on the Logic Apps runtime, **in the same process**. In a Standard workflow, they appear under the **Built-in** filter.
+**Built-in** connectors run natively on the Logic Apps runtime, **in the same process**. In a Standard workflow, they appear under the **Built-in** label.
 
 Some are part of the runtime itself, like *Schedule*, *HTTP* and *Request*. Others are informally called **service providers**: built on the Azure Functions extensibility model, they give access to services such as Blob Storage, Service Bus, Event Hubs and SQL Server.
 </Step>
 
 <Step id="managed" name="Managed: hosted by Microsoft">
-**Managed** connectors are deployed, hosted and managed **in Azure by Microsoft**, on shared resources. Most are a proxy or wrapper around a service's API. They appear under the **Shared** filter.
+**Managed** connectors are deployed, hosted and managed **in Azure by Microsoft**, on shared resources. Most are a proxy or wrapper around a service's API. They appear under the **Shared** label.
 
 They usually need you to create a **connection** first and authenticate. There are far more of them: over 1,400, covering services from Office 365 and SharePoint to Salesforce and SAP.
 </Step>
@@ -72,7 +72,7 @@ A **managed** connection is a separate Azure resource, an **API connection**, th
 </Step>
 
 <Step id="auth" name="How they authenticate">
-Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the built-in SFTP connector doesn't, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server and HTTP are the exceptions.
+Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the Microsoft Learn docs list only a password or a private key for the built-in SFTP connector, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server and HTTP are the exceptions.
 
 Microsoft recommends authenticating with a **managed identity** when possible.
 </Step>

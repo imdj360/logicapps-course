@@ -65,7 +65,7 @@ For the secret, the app setting holds a Key Vault reference instead of the key:
 PricingKey = @Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/pricing-key)
 ```
 
-The app reads it with its **system-assigned identity**, which needs the **Key Vault Secrets User** role.
+The app reads it with its **system-assigned identity**, which needs read access to the secret: the **Key Vault Secrets User** role if the vault uses Azure RBAC, or the **Get** secrets permission with access policies.
 </Step>
 
 <Step id="choose" name="Which one when?">

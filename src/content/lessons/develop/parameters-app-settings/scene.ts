@@ -41,7 +41,7 @@ export const scene: Scene = {
       visible: [...chain],
       highlight: ['settings', 'kv', 'settings-kv'],
       tokens: [{ id: 'a1', edge: 'settings-kv', tone: 'ok' }],
-      chips: [{ label: 'app setting', value: '@Microsoft.KeyVault(...)' }, { label: 'access', value: 'Key Vault Secrets User', tone: 'ok' }],
+      chips: [{ label: 'app setting', value: '@Microsoft.KeyVault(...)' }, { label: 'access', value: 'Secrets User (RBAC)', tone: 'ok' }],
     },
     choose: {
       visible: [...chain],

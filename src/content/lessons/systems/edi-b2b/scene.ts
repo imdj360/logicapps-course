@@ -11,7 +11,7 @@ export const scene: Scene = {
     { id: 'map', kind: 'action', label: 'Transform', sublabel: 'XSLT map', x: 640, y: 240 },
     { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'its XML', x: 810, y: 240 },
     { id: 'ia', kind: 'storage', label: 'Integration acct', sublabel: 'partners', x: 370, y: 410 },
-    { id: 'bad', kind: 'action', label: 'badMessages', sublabel: 'alert', x: 460, y: 80 },
+    { id: 'bad', kind: 'action', label: 'badMessages', sublabel: 'rejected', x: 460, y: 80 },
   ],
   edges: [
     { id: 'retailer-as2', from: 'retailer', to: 'as2' },
