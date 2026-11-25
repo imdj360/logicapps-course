@@ -79,9 +79,9 @@ Microsoft recommends authenticating with a **managed identity** when possible.
 </Step>
 
 <Step id="network" name="Reaching private systems">
-**Built-in** service provider connectors can reach resources in your **virtual network** and on-premises data sources directly, without the on-premises data gateway.
+**Built-in** service provider connectors can reach resources in your **virtual network** and on-premises data sources directly through **VNet integration** (on-premises systems reached from that network over VPN or ExpressRoute, ours), without the on-premises data gateway.
 
-**Managed** connectors run in multitenant Azure. To reach an on-premises system they need the **on-premises data gateway**. And if your logic app accepts inbound traffic only through a private endpoint, managed webhook triggers and actions won't work: they run in the public cloud and can't call into your private network.
+**Managed** connectors run in multitenant Azure. To reach an on-premises system, supported managed connectors need the **on-premises data gateway**. And if your logic app accepts inbound traffic only through a private endpoint, managed webhook triggers and actions won't work: they run in the public cloud and can't call into your private network.
 </Step>
 
 <Step id="throttle" name="Throttling" tag="TIP">
