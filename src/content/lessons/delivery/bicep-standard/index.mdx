@@ -31,7 +31,7 @@ Creating a Standard logic app in the Azure portal quietly provisions an App Serv
 
 Do that by hand in dev, test and production and the environments drift. **Bicep** lets you describe the infrastructure once and deploy it the same way every time.
 
-*(Honest note: Microsoft Learn's Bicep quickstart is Consumption-only. Every Azure resource type, SKU and setting below is verified against Learn, while the Bicep layout and production patterns are ours.)*
+*(Honest note: the Microsoft Learn docs' Bicep quickstart is Consumption-only. The resource types, the `functionapp,workflowapp` kind, `V2` connections, the access-policy shape, the WS1–WS3 plans and the documented app settings come from the Microsoft Learn docs. The pinned API versions, the `WorkflowStandard` tier name, `maximumElasticWorkerCount`, the extension-bundle and Application Insights app settings, ZRS and the overall Bicep layout are ours, from real deployments.)*
 </Step>
 
 <Step id="split" name="Two halves: Infrastructure and Code">
@@ -60,7 +60,7 @@ resource plan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 ```
 
-Set `maximumElasticWorkerCount` to cap how far the plan can burst under load.
+Set `maximumElasticWorkerCount` to cap how far the plan can burst under load (ours).
 </Step>
 
 <Step id="storage" name="Infra 2: the storage account">
@@ -80,7 +80,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 ```
 
-Use `Standard_ZRS` for zone-redundant plans, and add Blob, File, Table and Queue private endpoints when locking down networking.
+Use `Standard_ZRS` for zone-redundant plans (ours), and add Blob, File, Table and Queue private endpoints when locking down networking.
 </Step>
 
 <Step id="site" name="Infra 3: the logic app & runtime settings">
@@ -135,7 +135,7 @@ Loop over arrays in Bicep (`[for cfg in sftpConnections: ...]`) to stamp out mul
 </Step>
 
 <Step id="access-policy" name="Infra 5: the access policy" tag="PROBLEM">
-Deploying a `V2` API connection is only half the job. Without an **access policy**, the portal warns *"Access Policies are missing"* and workflows fail at runtime.
+Deploying a `V2` API connection is only half the job. Without an **access policy**, the portal warns *"Access Policies are missing"* and workflows fail at runtime (from Daniel's deployments; see his article under References).
 
 Add **`Microsoft.Web/connections/accessPolicies`** to grant the logic app's managed identity access:
 
@@ -189,5 +189,6 @@ Sources (checked 2026-11-25):
 - https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
 - https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
 - https://azure.github.io/Azure-Verified-Modules/
-Note: Microsoft Learn's Bicep quickstart is Consumption-only. All resource types, SKUs, app settings and access-policy requirements are verified against Learn; the infra-vs-code Bicep layout, array loops and AVM composition are our real-world Bicep patterns.
+Verified 2026-11-25 on authenticate-with-managed-identity: Microsoft.Web/sites kind "functionapp,workflowapp" with identity SystemAssigned; Microsoft.Web/connections with "kind": "V2" for Standard (V1 for Consumption) and api.id subscriptionResourceId('Microsoft.Web/locations/managedApis', ...); Microsoft.Web/connections/accessPolicies with principal type ActiveDirectory, tenantId and objectId; Learn uses providers(...).apiVersions[0], not pinned versions. edit-app-settings-host-settings: APP_KIND workflowApp, FUNCTIONS_EXTENSION_VERSION ~4, AzureWebJobsStorage, WEBSITE_CONTENTAZUREFILECONNECTIONSTRING, WEBSITE_CONTENTSHARE; extension bundle id Microsoft.Azure.Functions.ExtensionBundle.Workflows (shown in host.json). logic-apps-pricing: WS1-WS3. devops page: raw keys expire after seven days.
+Not on the Learn pages checked, so ours: the WorkflowStandard tier name, maximumElasticWorkerCount, the AzureFunctionsJobHost__extensionBundle__id app-setting form, APPLICATIONINSIGHTS_CONNECTION_STRING, StorageV2 / Standard_ZRS, pinned API versions, the "Access Policies are missing" portal warning (Daniel's article), the infra-vs-code Bicep layout, array loops and AVM composition.
 */}

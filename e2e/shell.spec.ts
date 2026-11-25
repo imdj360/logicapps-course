@@ -1,15 +1,15 @@
+import { MODULES } from '../src/data/modules';
 import { expect, test } from '@playwright/test';
 
-const MODULE_TITLES = [
-  'Foundations', 'Hosting & runtime', 'Building flows', 'Integration patterns', 'Reliability',
-  'Operating at scale', 'Security & delivery', 'Agentic Logic Apps', 'Whole systems',
-];
+// Read from the real module list so adding or renaming a module can't leave this test stale.
+const MODULE_TITLES = MODULES.map((m) => m.title);
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('sidebar lists every module', async ({ page }) => {
   await page.goto('/');
   const sidebar = page.locator('#sidebar');
   for (const title of MODULE_TITLES) {
-    await expect(sidebar.getByRole('button', { name: new RegExp(title) })).toBeVisible();
+    await expect(sidebar.getByRole('button', { name: new RegExp(escape(title)) })).toBeVisible();
   }
 });
 

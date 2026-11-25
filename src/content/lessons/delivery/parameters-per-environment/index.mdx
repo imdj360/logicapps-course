@@ -66,7 +66,7 @@ Two safe patterns:
 </Step>
 
 <Step id="secrets" name="Keep secrets in Key Vault">
-Standard's `parameters.json` does **not** support `securestring` or `secureobject` types, and values in `parameters.json` are plain text.
+Standard's `parameters.json` does **not** support `securestring` or `secureobject` types. It's a plain file in your project and your zip, so anything you put in it is readable by anyone who can read the repo (ours).
 
 Instead, point `parameters.json` at an app setting (`@appsetting('PartnerApiKey')`), and set that app setting to a **Key Vault reference**:
 
@@ -74,7 +74,7 @@ Instead, point `parameters.json` at an app setting (`@appsetting('PartnerApiKey'
 @Microsoft.KeyVault(SecretUri=https://<env-vault>.vault.azure.net/secrets/PartnerApiKey/)
 ```
 
-Each environment points to its own Key Vault, using the logic app's managed identity (`Key Vault Secrets User`).
+Each environment points to its own Key Vault, read with the logic app's managed identity: the **Key Vault Secrets User** role if the vault uses Azure RBAC, or the **Get** secrets permission with access policies.
 </Step>
 
 <Step id="connections" name="Connections across environments">
