@@ -69,7 +69,9 @@ Your alert can then say "*Charge card* failed: card declined". (`result()` only 
 <Step id="finally" name="Always clean up">
 Some work must happen however Try ends, such as writing how the order ended to your log.
 
-Add a **Log outcome** step after the Try box and tick **all four** for Try: Is successful, Has failed, Is skipped and Has timed out. It runs every time, success or failure. The log example is ours.
+Add a **Log outcome** step after the Try box and tick **all four** for Try: Is successful, Has failed, Is skipped and Has timed out. It runs every time, success or failure.
+
+There's no built-in "log" action: *Log outcome* is just our name for the step. Microsoft's own error-handling example uses an **HTTP** action that POSTs the details to a logging endpoint; a table or database insert works too (ours).
 </Step>
 
 <Step id="handled" name="Caught means Succeeded" tag="PROBLEM">

@@ -22,7 +22,7 @@ export const scene: Scene = {
     { id: 'filter', kind: 'action', label: 'Filter result', sublabel: "result('Try')", x: 420, y: 300 },
     { id: 'term', kind: 'condition', label: 'Terminate', sublabel: 'Failed', x: 690, y: 300 },
     { id: 'notify', kind: 'action', label: 'Notify team', sublabel: 'if card fails', x: 495, y: 300 },
-    { id: 'cleanup', kind: 'scope', label: 'Log outcome', sublabel: 'every run', x: 100, y: 450 },
+    { id: 'cleanup', kind: 'connector-builtin', label: 'Log outcome', sublabel: 'HTTP to a log', x: 100, y: 300 },
   ],
   edges: [
     { id: 'trig-stock', from: 'trigger', to: 'stock' },
