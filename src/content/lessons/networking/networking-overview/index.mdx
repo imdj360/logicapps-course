@@ -19,6 +19,8 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
   - title: "Hub-and-spoke network design guide"
     url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
+  - title: "App Service Environment networking"
+    url: https://learn.microsoft.com/en-us/azure/app-service/environment/networking
   - title: "App Service Networking Features"
     url: https://learn.microsoft.com/en-us/azure/app-service/networking-features
 reviewStatus: draft
@@ -108,6 +110,20 @@ Microsoft's hub-and-spoke guidance: keep application workloads, **PaaS included*
 Lessons: *VNet integration* (peered networks) and *Firewalls, fixed IPs and service tags*.
 </Step>
 
+<Step id="block-ase" name="Block: a dedicated environment (ASE v3)">
+**Need:** the app itself must run inside your network, on dedicated, single-tenant infrastructure.
+
+**Add:** host Standard on an **App Service Environment v3** (Windows plans). Then:
+- the app runs **in your virtual network**: no VNet integration needed, and its inbound and outbound traffic stays inside the network;
+- the ASE gets its own subnet, **delegated** to `Microsoft.Web/hostingEnvironments` and **empty** otherwise: **/24** for production, **/23** if you'll scale near the 200-instance maximum. Put private endpoints in other subnets;
+- private endpoints for apps on the ASE work only after you turn on **Allow new private endpoints** on the ASE;
+- sending an app's outbound traffic through a **different** subnet (outbound network segmentation) must be enabled **when you create** the ASE.
+
+**Trade-off:** dedicated cost and more to manage; it replaces the outbound block rather than adding to it.
+
+Lesson: *Standard on App Service Environment v3* (Hosting & runtime module).
+</Step>
+
 <Step id="combos" name="Common combinations" tag="TIP">
 Four mixes we see most (ours):
 
@@ -127,6 +143,7 @@ Build the outbound block first: the storage and datacenter blocks depend on it.
 - **Datacenter**: built-in over VPN/ExpressRoute, or the data gateway.
 - **Controlled egress**: firewall rules with service tags; NAT gateway for a fixed IP.
 - **Shared hub**: a spoke peered to the hub; gateway transit for the hub's VPN; private DNS linked to the spoke.
+- **Dedicated (ASE v3)**: the app runs inside your network; its own delegated, empty subnet.
 </Step>
 
 {/*
@@ -139,5 +156,8 @@ Sources (checked 2026-11-25, raw page text):
 - logic-apps-limits-and-config: service tags LogicAppsManagement, LogicApps, AzureConnectors.
 - app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
 - networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
+- app-service/environment/overview: "An App Service Environment is a single-tenant deployment of App Service that runs on your virtual network"; "For an App Service Environment, apps don't require extra configuration to join a virtual network."
+- app-service/environment/networking: "All of the inbound and outbound application traffic is inside the virtual network you specify. You deploy into a single subnet in your virtual network, and nothing else can be deployed into that subnet"; "The subnet must be delegated to Microsoft.Web/hostingEnvironments. The subnet must be empty"; "For production scale, we recommend a /24 ... near max capacity of 200 instances ... a /23"; "to enable Private Endpoints for apps hosted in your App Service Environment, you must first enable this feature at the App Service Environment level ... Allow new private endpoints"; outbound network segmentation "You must enable outbound network segmentation when you create your App Service Environment".
+- logic-apps-using-file-connector: Standard runs in "a Workflow Service Plan or App Service Environment v3 (Windows plans only)".
 Ours: the building-block framing, the combinations, and the build order.
 */}
