@@ -24,7 +24,7 @@ export const scene: Scene = {
     { id: 'pe-app', from: 'pe', to: 'app' },
     { id: 'internet-app', from: 'internet', to: 'app', style: 'dashed' },
     { id: 'webhook-app', from: 'webhook', to: 'app', style: 'dashed' },
-    { id: 'github-app', from: 'github', to: 'app', label: 'build + deploy' },
+    { id: 'github-app', from: 'github', to: 'app', label: 'Azure builds' },
   ],
   steps: {
     problem: {

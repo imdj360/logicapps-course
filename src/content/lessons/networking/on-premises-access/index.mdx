@@ -51,7 +51,7 @@ Ask one question first: **is there a network path from Azure to the datacenter**
 <Step id="built-in" name="Route 1: built-in, over the network">
 Built-in connectors run inside the logic app, so they need a network path to the datacenter:
 
-- **VNet integration** sends the app's outbound calls into your virtual network (the first lesson in this module).
+- **VNet integration** routes the app's outbound calls into your virtual network, all of them by default (the VNet integration lesson in this module).
 - Your virtual network reaches the datacenter, typically over a **VPN** or **ExpressRoute** link (ours: that link is Azure networking, not a Logic Apps setting).
 
 You then authenticate to the data source directly in the connection.
@@ -92,7 +92,7 @@ The File System connection is created in Bicep as a `Microsoft.Web/connections` 
 <Step id="file-share" name="File shares: two File System connectors">
 For files, Standard has **two** File System connectors, one per route:
 
-- **Built-in**: reaches the share **directly** through VNet integration, with **no gateway**. It needs a **Windows**-based Workflow Service Plan or ASE v3, the app setting `WEBSITE_CONTENTOVERVNET` = `1`, a network that can **resolve the file server's name**, and outbound **SMB on port 445**. The root folder must be a **top-level share**; reach subfolders with relative paths. Up to **20** built-in File System connections per logic app.
+- **Built-in**: reaches the share **directly** through VNet integration, with **no gateway**. It needs a **Windows**-based Workflow Service Plan or ASE v3, the app setting `WEBSITE_CONTENTOVERVNET` = `1` (or the `vnetContentShareEnabled` site property), a network that can **resolve the file server's name**, and outbound **SMB on port 445**. The root folder must be a **top-level share**; reach subfolders with relative paths. Up to **20** built-in File System connections per logic app.
 - **Managed**: goes through the **data gateway**, which must be in the **same Windows domain** as the file server. That's the one the example above uses.
 
 Both work only with **Windows** file systems, and **mapped network drives** aren't supported.

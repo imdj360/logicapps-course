@@ -15,10 +15,10 @@ export const scene: Scene = {
   nodes: [
     { id: 'app', kind: 'hosting-plan', label: 'Order logic app', sublabel: 'Standard', x: 110, y: 250 },
     { id: 'subnet', kind: 'hosting-plan', label: 'App subnet', sublabel: '443·445 open', x: 340, y: 250 },
-    { id: 'table', kind: 'keyvault', label: 'Table endpoint', sublabel: 'private', x: 560, y: 90 },
-    { id: 'queue', kind: 'keyvault', label: 'Queue endpoint', sublabel: 'private', x: 560, y: 195 },
-    { id: 'blob', kind: 'keyvault', label: 'Blob endpoint', sublabel: 'private', x: 560, y: 300 },
-    { id: 'file', kind: 'keyvault', label: 'File endpoint', sublabel: 'SMB share', x: 560, y: 405 },
+    { id: 'table', kind: 'storage', label: 'Table endpoint', sublabel: 'private', x: 560, y: 90 },
+    { id: 'queue', kind: 'storage', label: 'Queue endpoint', sublabel: 'private', x: 560, y: 195 },
+    { id: 'blob', kind: 'storage', label: 'Blob endpoint', sublabel: 'private', x: 560, y: 300 },
+    { id: 'file', kind: 'storage', label: 'File endpoint', sublabel: 'SMB share', x: 560, y: 405 },
     { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'no public', x: 800, y: 250 },
     { id: 'p-storage', kind: 'storage', label: 'Storage', sublabel: 'public', x: 600, y: 250 },
   ],
@@ -70,7 +70,7 @@ export const scene: Scene = {
       visible: [...app, ...net, ...eps],
       highlight: ['subnet'],
       tokens: [{ id: 'o1', edge: 'subnet-file', tone: 'info' }, { id: 'o2', edge: 'file-storage', tone: 'ok' }],
-      chips: [{ label: '443', value: 'storage' }, { label: '445', value: 'SMB file share' }, { label: '20000–30000', value: 'between workers' }],
+      chips: [{ label: '443', value: 'storage' }, { label: '445', value: 'SMB file share' }, { label: '20000–30000', value: 'plan to app nodes' }],
     },
     errors: {
       visible: [...app, ...net, ...eps],

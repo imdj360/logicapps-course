@@ -7,7 +7,7 @@ const outbound = [...appOnly, 'vnetBox', 'subnet', 'api', 'app-subnet', 'subnet-
 const inbound = ['caller', 'pe', 'caller-pe', 'pe-app'];
 const storage = ['stpe', 'storage', 'subnet-stpe', 'stpe-storage'];
 const onprem = ['onpremBox', 'onsql', 'gw', 'cloud', 'subnet-onsql', 'subnet-cloud', 'gw-cloud', 'gw-onsql'];
-const egress = ['fw', 'subnet-fw', 'cloud', 'subnet-cloud'];
+const egress = ['fw', 'subnet-fw'];
 const hub = ['hubBox', 'fw', 'subnet-fw'];
 const all = [...new Set([...outbound, ...inbound, ...storage, ...onprem, ...egress, ...hub])];
 
@@ -28,7 +28,7 @@ export const scene: Scene = {
     { id: 'stpe', kind: 'keyvault', label: 'Storage endpts', sublabel: '4 services', x: 300, y: 305 },
     { id: 'api', kind: 'user', label: 'Internal API', sublabel: '10.0.1.3', x: 600, y: 305 },
     { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'no public', x: 90, y: 305 },
-    { id: 'fw', kind: 'keyvault', label: 'Firewall · NAT', sublabel: 'egress', x: 815, y: 78 },
+    { id: 'fw', kind: 'hosting-plan', label: 'Firewall', sublabel: 'shared egress', x: 815, y: 78 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure', x: 815, y: 200 },
     { id: 'onsql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'datacenter', x: 300, y: 445 },
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'for managed', x: 600, y: 445 },

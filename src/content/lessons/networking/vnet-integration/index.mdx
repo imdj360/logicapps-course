@@ -50,7 +50,7 @@ Run the workflow again. The same HTTP action to 10.0.1.3 now succeeds.
 <Step id="subnet" name="Size the subnet once" tag="TIP">
 You **can't change the subnet size** after you assign it, so plan for the scale the app might reach.
 
-Microsoft recommends a **/26** subnet (64 addresses). If you create it in the Azure portal, **/27** is the minimum. A busy logic app can scale out to many instances, and each one needs an address.
+Microsoft recommends a **/26** subnet (64 addresses). If you create the subnet in the Azure portal while integrating, **/27** is the minimum; an existing subnet can be as small as **/28**. A busy logic app can scale out to many instances, and each one needs an address.
 </Step>
 
 <Step id="route-all" name="All outbound goes through the VNet">
@@ -73,7 +73,7 @@ VNet integration doesn't stop at the network you connect to. Microsoft lists wha
 
 The integrated network itself must be in the **same region** as the app. In a hub-and-spoke design (ours), you integrate the app into a spoke and reach shared services in the hub through peering.
 
-Calls to a private address in a peered network come **from an address in the integration subnet**, so that's the range to allow on the other side's NSG or firewall.
+Calls to a **VM or private endpoint** in the integrated or a peered network come **from an address in the integration subnet**, so that's the range to allow on the other side's NSG or firewall.
 
 To reach the datacenter through a VPN or ExpressRoute gateway in the hub, the peering must let the spoke use the hub's gateway, called gateway transit (ours: an Azure networking setting, not on the Logic Apps pages). Microsoft also notes that a route table can send outbound traffic to an ExpressRoute gateway, and that BGP routes from it affect the app's traffic.
 </Step>

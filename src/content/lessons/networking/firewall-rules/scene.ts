@@ -17,8 +17,8 @@ export const scene: Scene = {
   nodes: [
     { id: 'app', kind: 'hosting-plan', label: 'Order logic app', sublabel: 'Standard', x: 110, y: 120 },
     { id: 'intsub', kind: 'hosting-plan', label: 'Integration sub', sublabel: 'delegated · /26', x: 395, y: 120 },
-    { id: 'pesub', kind: 'keyvault', label: 'Endpoint subnet', sublabel: 'no delegation', x: 330, y: 270 },
-    { id: 'fw', kind: 'keyvault', label: 'Azure Firewall', sublabel: 'allow rules', x: 735, y: 120 },
+    { id: 'pesub', kind: 'hosting-plan', label: 'Endpoint subnet', sublabel: 'no delegation', x: 330, y: 270 },
+    { id: 'fw', kind: 'hosting-plan', label: 'Azure Firewall', sublabel: 'allow rules', x: 735, y: 120 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'AzureConnectors', x: 800, y: 430 },
     { id: 'kv', kind: 'keyvault', label: 'Key Vault', sublabel: 'network rules', x: 560, y: 430 },
     { id: 'nat', kind: 'hosting-plan', label: 'NAT gateway', sublabel: 'fixed IP', x: 110, y: 300 },
@@ -31,6 +31,7 @@ export const scene: Scene = {
     { id: 'intsub-kv', from: 'intsub', to: 'kv' },
     { id: 'intsub-nat', from: 'intsub', to: 'nat' },
     { id: 'nat-partner', from: 'nat', to: 'partner' },
+    { id: 'cloud-app', from: 'cloud', to: 'app', style: 'dashed', label: 'callback' },
   ],
   steps: {
     problem: {
@@ -53,7 +54,7 @@ export const scene: Scene = {
     tags: {
       visible: [...base, ...hub],
       highlight: ['fw', 'cloud'],
-      chips: [{ label: 'LogicAppsManagement', value: 'inbound' }, { label: 'LogicApps', value: 'outbound' }, { label: 'AzureConnectors', value: 'managed connectors', tone: 'ok' }],
+      chips: [{ label: 'AzureConnectors', value: 'managed connectors', tone: 'ok' }, { label: 'LogicApps · …Management', value: 'multitenant' }, { label: 'Standard', value: 'App Service rules + FQDNs' }],
     },
     fqdns: {
       visible: [...base, ...hub],
@@ -64,16 +65,18 @@ export const scene: Scene = {
       visible: [...base, ...subnets, ...fixed],
       highlight: ['nat', 'partner'],
       tokens: [{ id: 'n1', edge: 'app-intsub', tone: 'info' }, { id: 'n2', edge: 'intsub-nat', tone: 'info' }, { id: 'n3', edge: 'nat-partner', tone: 'ok' }],
-      chips: [{ label: 'NAT gateway', value: 'static public IP', tone: 'ok' }, { label: 'needs', value: 'route all' }, { label: 'firewall in path', value: 'its IP instead (ours)', tone: 'warn' }],
+      chips: [{ label: 'NAT gateway', value: 'static public IP', tone: 'ok' }, { label: 'needs', value: 'route all' }, { label: 'via firewall', value: 'the firewall IP', tone: 'warn' }],
     },
     keyvault: {
       visible: [...base, ...subnets, ...vault],
       highlight: ['kv', 'intsub-kv'],
       tokens: [{ id: 'k1', edge: 'intsub-kv', tone: 'ok' }],
-      chips: [{ label: 'resolved at', value: 'startup (configuration)' }, { label: 'vault allows', value: 'the virtual network', tone: 'ok' }, { label: 'not', value: 'public outbound IPs', tone: 'warn' }],
+      chips: [{ label: 'fetched at', value: 'start + every 24h' }, { label: 'vault allows', value: 'the virtual network', tone: 'ok' }, { label: 'not', value: 'public outbound IPs', tone: 'warn' }],
     },
     inbound: {
-      visible: [...base, ...hub],
+      // Callbacks come in on the app's public endpoint, not through the spoke network.
+      visible: ['app', 'cloud', 'cloud-app'],
+      tokens: [{ id: 'cb1', edge: 'cloud-app', tone: 'info' }],
       highlight: ['cloud'],
       chips: [{ label: 'webhook callbacks', value: 'allow AzureConnectors' }, { label: 'Office 365', value: 'caller is the connector' }],
     },

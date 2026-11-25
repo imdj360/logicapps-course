@@ -97,7 +97,7 @@ Lesson: *Firewalls, fixed IPs and service tags*.
 <Step id="block-hub" name="Block: shared hub (hub-and-spoke)">
 **Need:** several apps share one firewall, one VPN or ExpressRoute link and shared services, run by a central network team.
 
-**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls arrive from the integration subnet's addresses. To use the hub's VPN or ExpressRoute gateway, the peering needs gateway transit (ours: an Azure networking setting), and private DNS zones must be linked to the spoke.
+**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls to a VM or private endpoint there come from the integration subnet's addresses. To use the hub's VPN or ExpressRoute gateway, the peering needs gateway transit (ours: an Azure networking setting), and private DNS zones must be linked to the spoke.
 
 **Trade-off:** routes and firewall rules belong to the hub team, so every new dependency needs a request.
 
@@ -105,7 +105,7 @@ Lessons: *VNet integration* (peered networks) and *Firewalls, fixed IPs and serv
 </Step>
 
 <Step id="combos" name="Common combinations" tag="TIP">
-Three mixes we see most (ours):
+Four mixes we see most (ours):
 
 - **SaaS integration**: baseline only.
 - **Internal APIs, public triggers**: reach private resources, plus controlled egress when a partner needs a fixed IP.

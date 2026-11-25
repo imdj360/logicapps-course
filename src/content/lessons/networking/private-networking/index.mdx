@@ -27,7 +27,7 @@ Security's rule: only systems on the company network may call it.
 <Step id="idea" name="The idea">
 **A private endpoint gives the logic app a private IP address inside your virtual network.**
 
-Microsoft describes it as a network interface that effectively brings the service into your network. Callers on the network use that address; the public route stops working.
+Microsoft describes it as a network interface that effectively brings the service into your network. Callers on the network use that address; from outside the network, calls get 403 Forbidden.
 </Step>
 
 <Step id="inbound-only" name="Inbound only">
@@ -65,7 +65,7 @@ From outside, use the **Deployment Center** to link the logic app to a **GitHub*
 </Step>
 
 <Step id="restrictions" name="Or keep it public, but filtered" tag="TIP">
-If a private endpoint is too much, **access restrictions** under Networking can allow or deny address ranges, a feature inherited from App Service. Separately, you can limit who can see **run history** inputs and outputs to specific IP ranges.
+If a private endpoint is too much, **access restrictions** under Networking can allow or deny address ranges, a feature inherited from App Service. For Standard, the same access restrictions also control who can view **run history** inputs and outputs.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

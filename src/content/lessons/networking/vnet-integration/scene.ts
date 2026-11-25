@@ -70,7 +70,7 @@ export const scene: Scene = {
     subnet: {
       visible: [...app, ...vnet, ...wired],
       highlight: ['subnet'],
-      chips: [{ label: 'recommended', value: '/26 · 64 addresses' }, { label: 'portal minimum', value: '/27' }, { label: 'resize later', value: 'not possible', tone: 'warn' }],
+      chips: [{ label: 'recommended', value: '/26 · 64 addresses' }, { label: 'new in portal', value: '/27 minimum' }, { label: 'resize later', value: 'not possible', tone: 'warn' }],
     },
     'route-all': {
       visible: [...app, ...vnet, ...wired, ...managed],
