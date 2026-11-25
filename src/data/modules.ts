@@ -60,23 +60,28 @@ export const MODULES: ModuleDef[] = [
     l('managed-identity', 'Managed identity'),
     l('key-vault', 'Key Vault'),
     l('easy-auth', 'Easy Auth (App Service authentication)'),
-    l('private-networking', 'Private endpoints & VNet'),
     l('cicd', 'CI/CD with Bicep & ARM'),
     l('deployment-slots', 'Deployment slots'),
   ] },
-  { id: 'agentic', number: '09', title: 'Agentic Logic Apps', lessons: [
+  { id: 'networking', number: '09', title: 'Networking', lessons: [
+    l('vnet-integration', 'Reach private systems: VNet integration'),
+    l('private-networking', 'Lock down inbound: private endpoints'),
+    l('private-storage', 'The storage account on a private network'),
+    l('on-premises-access', 'Reaching on-premises systems'),
+  ] },
+  { id: 'agentic', number: '10', title: 'Agentic Logic Apps', lessons: [
     l('agent-workflows', 'Agent workflows vs fixed workflows'),
     l('logic-apps-as-tools', 'MCP with Logic Apps: expose & call'),
     l('multi-agent-patterns', 'Single and multiple agents'),
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),
   ] },
-  { id: 'automation', number: '10', title: 'Logic Apps Automation (preview)', lessons: [
+  { id: 'automation', number: '11', title: 'Logic Apps Automation (preview)', lessons: [
     l('what-is-automation', 'What Logic Apps Automation is'),
     l('projects-apps-workflows', 'Projects, applications and workflows'),
     l('automation-workflows', 'Building an automation workflow'),
   ] },
-  { id: 'advanced', number: '11', title: 'Advanced integration patterns', lessons: [
+  { id: 'advanced', number: '12', title: 'Advanced integration patterns', lessons: [
     l('claim-check', 'Claim check'),
     l('request-reply-service-bus', 'Request-reply over Service Bus'),
     l('sequential-convoy', 'Sequential convoy'),
@@ -86,7 +91,7 @@ export const MODULES: ModuleDef[] = [
     l('circuit-breaker', 'Circuit breaker'),
     l('long-waits-correlation', 'Correlation & long waits'),
   ] },
-  { id: 'systems', number: '12', title: 'Whole systems', lessons: [
+  { id: 'systems', number: '13', title: 'Whole systems', lessons: [
     l('order-processing', 'Order-processing pipeline'),
     l('edi-b2b', 'EDI / B2B flow'),
     l('integration-hub', 'Event-driven integration hub'),

@@ -1,0 +1,84 @@
+---
+title: "Reach private systems: VNet integration"
+module: networking
+order: 1
+minutes: 9
+level: Intermediate
+summary: The warehouse API has no public address, so the workflow can't reach it. Route the logic app's outbound calls through your virtual network, and see which connectors go that way and which don't.
+youWillLearn:
+  - Why a cloud workflow can't reach a private IP by default
+  - How VNet integration routes outbound calls into your network
+  - How big the subnet must be, and why you can't change it later
+  - Which connectors use the VNet, and what managed connectors need
+learnLinks:
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+  - title: "Connect to on-premises data sources (on-premises data gateway)"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-gateway-connection
+reviewStatus: draft
+---
+
+<Step id="problem" name="The API has no public address" tag="PROBLEM">
+The order workflow must call the **warehouse API**. It runs inside the company's virtual network at **10.0.1.3** and has no public address.
+
+The workflow's HTTP action calls 10.0.1.3, and it fails. Microsoft's own walkthrough calls that expected: the workflow runs in the cloud and can't reach your internal service.
+</Step>
+
+<Step id="idea" name="The idea">
+**VNet integration routes the logic app's outbound calls through a subnet in your virtual network.**
+
+Think of it as giving the logic app a desk inside the office network (ours): it still lives in Azure, but the calls it makes now start from inside.
+</Step>
+
+<Step id="outbound-only" name="Outbound only">
+VNet integration affects **only outbound** traffic: calls the logic app makes.
+
+Calls *into* the logic app still arrive on its shared public endpoint. Taking that off the internet is a separate feature, the **private endpoint**, which the next lesson covers. The two are independent, and you can use either or both.
+</Step>
+
+<Step id="setup" name="Turn it on">
+1. On the logic app, go to **Settings** > **Networking**.
+2. In **Outbound traffic configuration**, select **Virtual network integration** > **Add virtual network integration**.
+3. Pick the subscription, the virtual network that reaches the warehouse API, and the subnet. Select **Connect**.
+
+Run the workflow again. The same HTTP action to 10.0.1.3 now succeeds.
+</Step>
+
+<Step id="subnet" name="Size the subnet once" tag="TIP">
+You **can't change the subnet size** after you assign it, so plan for the scale the app might reach.
+
+Microsoft recommends a **/26** subnet (64 addresses). If you create it in the Azure portal, **/27** is the minimum. A busy logic app can scale out to many instances, and each one needs an address.
+</Step>
+
+<Step id="route-all" name="All outbound goes through the VNet">
+By default, the **Outbound internet traffic** option is selected, so **all** outbound traffic from the app goes through the virtual network, not just calls to private addresses. In that case the `WEBSITE_VNET_ROUTE_ALL` app setting is ignored.
+
+So your network's firewall, network security groups (NSGs) and route tables (UDRs) now apply to everything the app calls.
+</Step>
+
+<Step id="connectors" name="Which connectors use the VNet">
+- **Built-in** operations run inside the logic app, so their calls go through the VNet. That's why the **HTTP** action reached 10.0.1.3. Built-in service provider connectors, such as **SQL Server**, can reach private and on-premises data sources this way **without the on-premises data gateway**.
+- **Managed** connectors run in Azure, outside your network. The app talks to the managed API service, so if an NSG, UDR or firewall controls outbound traffic, allow outbound connections to **all managed connector IP addresses** in your region. Otherwise managed connectors stop working.
+</Step>
+
+<Step id="dns" name="Your own DNS" tag="TIP">
+If your virtual network uses its own DNS server, add the app setting `WEBSITE_DNS_SERVER` with its IP address, and `WEBSITE_DNS_ALT_SERVER` for a secondary one.
+
+One more dependency: the runtime needs an uninterrupted connection to its **storage account**. If that storage is private too, specific ports must be open. A later lesson in this module covers it.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- By default a workflow can't reach a private IP: it runs in the cloud.
+- **VNet integration** sends the app's **outbound** calls through a subnet in your network. Inbound needs a **private endpoint** (next lesson).
+- Use a **/26** subnet; you can't resize it later.
+- By default **all** outbound traffic goes through the VNet.
+- **Built-in** operations use the VNet; **managed** connectors need their regional **IP addresses** allowed.
+- Own DNS: `WEBSITE_DNS_SERVER`.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- secure-single-tenant-workflow-virtual-network-private-endpoint (last updated 2026-10-30): "private endpoints for inbound traffic and use virtual network integration for outbound traffic"; "Setting up virtual network integration affects only outbound traffic. To secure inbound traffic, which continues to use the App Service shared endpoint"; "You can't change the subnet size after assignment"; "use a /26 subnet with 64 addresses"; "If you create the subnet for virtual network integration with the Azure portal, you must use /27 as the minimum subnet size"; "a typical logic app has substantial workload and might need to scale out to a large number of instances"; test: "Add an HTTP action to call an internal service that's unavailable through the Internet and runs with a private IP address such as 10.0.1.3 ... The HTTP action fails, which is by design and expected because the workflow runs in the cloud and can't access your internal service"; steps: Settings > Networking > Outbound traffic configuration > Virtual network integration > Add virtual network integration > subscription, virtual network, subnet > Connect; "by default, the Outbound internet traffic setting is selected, which routes all outbound traffic through the virtual network. In this scenario, the app setting named WEBSITE_VNET_ROUTE_ALL is ignored"; WEBSITE_DNS_SERVER / WEBSITE_DNS_ALT_SERVER; "For Azure-hosted managed connectors to work, you need to have an uninterrupted connection to the managed API service ... If your virtual network uses a network security group (NSG), user-defined route table (UDR), or a firewall, make sure that the virtual network allows outbound connections to all managed connector IP addresses in the corresponding region. Otherwise, Azure-managed connectors won't work"; "For the Azure Logic Apps runtime to work, you need to have an uninterrupted connection to the backend storage"; "The HTTP action now runs successfully".
+- logic-apps-gateway-connection: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway."
+Ours: the warehouse-API story (Learn's example uses a generic internal service at 10.0.1.3), the desk analogy, "built-in operations run inside the logic app, so their calls go through the VNet" as the reason the HTTP action works (consistent with Learn's test and the built-in connector definition), "each instance needs an address".
+*/}
