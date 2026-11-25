@@ -40,7 +40,7 @@ export const scene: Scene = {
     idea: {
       visible: [...intake, ...naive],
       highlight: ['wfBox'],
-      chips: [{ label: 'idempotent', value: 'twice = once', tone: 'ok' }],
+      chips: [{ label: 'twice', value: 'same as once', tone: 'ok' }],
     },
     sources: {
       visible: [...intake, ...naive],
@@ -57,18 +57,18 @@ export const scene: Scene = {
     key: {
       visible: [...intake, ...checked],
       highlight: ['get', 'shop'],
-      chips: [{ label: 'look up by', value: 'order number', tone: 'ok' }, { label: 'not', value: 'a fresh GUID', tone: 'warn' }],
+      chips: [{ label: 'look up by', value: 'order number', tone: 'ok' }],
     },
     sbdedupe: {
       visible: [...intake, ...checked],
       highlight: ['queue'],
       tokens: [{ id: 'd1', edge: 'shop-queue', tone: 'info' }, { id: 'd2', edge: 'shop-queue', tone: 'fail' }],
-      chips: [{ label: 'MessageId', value: 'order number' }, { label: 'repeat in window', value: 'dropped', tone: 'ok' }, { label: 'window', value: '10 min default' }],
+      chips: [{ label: 'message ID', value: 'order number' }, { label: 'quick repeat', value: 'dropped', tone: 'ok' }],
     },
     unsafe: {
       visible: [...intake, ...checked],
       highlight: ['create'],
-      chips: [{ label: 'API supports it', value: 'idempotency key' }, { label: 'otherwise', value: 'retry None' }],
+      chips: [{ label: 'card payments', value: 'retry None', tone: 'warn' }],
     },
     recap: {
       visible: [...intake, ...checked],
