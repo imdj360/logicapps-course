@@ -70,7 +70,7 @@ export const scene: Scene = {
       visible: [...base, ...route1],
       highlight: ['builtin', 'subnet', 'subnet-sql'],
       tokens: [{ id: 'b1', edge: 'trig-builtin', tone: 'info' }, { id: 'b2', edge: 'builtin-subnet', tone: 'info' }, { id: 'b3', edge: 'subnet-sql', tone: 'ok' }],
-      chips: [{ label: 'needs', value: 'VNet integration' }, { label: 'link to datacenter', value: 'VPN / ExpressRoute (ours)' }],
+      chips: [{ label: 'needs', value: 'VNet integration' }, { label: 'link to datacenter', value: 'VPN / ExpressRoute' }],
     },
     gateway: {
       visible: [...base, ...route2],

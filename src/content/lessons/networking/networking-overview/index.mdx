@@ -17,6 +17,8 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account
   - title: "Connect to On-premises Data Sources"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
+  - title: "Hub-and-spoke network design guide"
+    url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
   - title: "App Service Networking Features"
     url: https://learn.microsoft.com/en-us/azure/app-service/networking-features
 reviewStatus: draft
@@ -97,7 +99,9 @@ Lesson: *Firewalls, fixed IPs and service tags*.
 <Step id="block-hub" name="Block: shared hub (hub-and-spoke)">
 **Need:** several apps share one firewall, one VPN or ExpressRoute link and shared services, run by a central network team.
 
-**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls to a VM or private endpoint there come from the integration subnet's addresses. To use the hub's VPN or ExpressRoute gateway, the peering needs gateway transit (ours: an Azure networking setting), and private DNS zones must be linked to the spoke.
+**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls to a VM or private endpoint there come from the integration subnet's addresses. To share the hub's VPN or ExpressRoute gateway, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering and *Use remote gateways* on the spoke's side. Private DNS zones must be linked to the spoke.
+
+Microsoft's hub-and-spoke guidance: keep application workloads, **PaaS included**, in the spokes; the hub holds only shared infrastructure such as the firewall, gateways, Bastion and DNS.
 
 **Trade-off:** routes and firewall rules belong to the hub team, so every new dependency needs a request.
 
@@ -134,5 +138,6 @@ Sources (checked 2026-11-25, raw page text):
 - app-service/overview-vnet-integration: peered networks including global peering, ExpressRoute; private DNS zones linked to the virtual network; route tables; NAT gateway "dedicated outbound IP".
 - logic-apps-limits-and-config: service tags LogicAppsManagement, LogicApps, AzureConnectors.
 - app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
+- networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
 Ours: the building-block framing, the combinations, and the build order.
 */}

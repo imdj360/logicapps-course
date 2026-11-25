@@ -89,7 +89,7 @@ export const scene: Scene = {
       visible: [...app, ...vnet, ...wired, 'hubBox', 'shared', 'hubgw', 'subnet-shared', 'subnet-hubgw'],
       highlight: ['hubBox', 'subnet-shared', 'shared'],
       tokens: [{ id: 'g1', edge: 'sql-subnet', tone: 'info' }, { id: 'g2', edge: 'subnet-shared', tone: 'ok' }],
-      chips: [{ label: 'peered networks', value: 'reachable · even global', tone: 'ok' }, { label: 'source address', value: 'integration subnet' }, { label: 'hub gateway', value: 'gateway transit (ours)' }],
+      chips: [{ label: 'peered networks', value: 'reachable · even global', tone: 'ok' }, { label: 'source address', value: 'integration subnet' }, { label: 'hub gateway', value: 'gateway transit' }],
     },
     'private-dns': {
       visible: [...app, ...vnet, ...wired, 'hubBox', 'shared', 'subnet-shared'],

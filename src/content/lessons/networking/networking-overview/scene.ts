@@ -108,7 +108,7 @@ export const scene: Scene = {
       visible: [...outbound, ...hub],
       highlight: ['hubBox', 'subnet-fw'],
       tokens: [{ id: 'h1', edge: 'app-subnet', tone: 'info' }, { id: 'h2', edge: 'subnet-fw', tone: 'ok' }],
-      chips: [{ label: 'need', value: 'shared firewall · VPN · services' }, { label: 'add', value: 'spoke peered to hub', tone: 'ok' }, { label: 'hub VPN', value: 'gateway transit (ours)' }],
+      chips: [{ label: 'need', value: 'shared firewall · VPN · services' }, { label: 'add', value: 'spoke peered to hub', tone: 'ok' }, { label: 'hub VPN', value: 'gateway transit' }],
     },
     combos: {
       visible: [...all],

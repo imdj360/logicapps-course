@@ -16,6 +16,8 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config#firewall-configuration-ip-addresses-and-service-tags
   - title: "Integrate your app with an Azure virtual network (App Service)"
     url: https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration
+  - title: "Hub-and-spoke network design guide"
+    url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
   - title: "Azure NAT Gateway integration (App Service)"
     url: https://learn.microsoft.com/en-us/azure/app-service/networking/nat-gateway-integration
   - title: "Use Key Vault references (App Service)"
@@ -40,7 +42,7 @@ A **private endpoint** needs a subnet **without delegations**. So a private Stan
 </Step>
 
 <Step id="forced" name="Forced through a firewall">
-A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to the app's outbound traffic. **Configuration** traffic, such as the storage content share, goes over the public route unless you route it through the network too (for example `WEBSITE_CONTENTOVERVNET`).
+A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. Microsoft's hub-and-spoke guide uses a default route, `0.0.0.0/0`, with next hop **VirtualAppliance** set to the firewall's private IP, and suggests turning off **BGP route propagation** if on-premises routes shouldn't override it. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to the app's outbound traffic. **Configuration** traffic, such as the storage content share, goes over the public route unless you route it through the network too (for example `WEBSITE_CONTENTOVERVNET`).
 
 Traffic to services secured with **service endpoints** is the exception: it goes straight to the service over the Azure backbone, not through the firewall route.
 
@@ -114,5 +116,6 @@ Sources (checked 2026-11-25, raw page text):
 - app-service/overview-vnet-integration (2026-11-25 re-check): "If you route your traffic through a firewall or a NAT gateway, the source IP address originates from this service"; "By default, configuration traffic goes directly over the public route"; Key Vault references "attempt to get secrets over the public route. If the Key Vault is blocking public traffic and the app is using virtual network integration, an attempt is made to get the secrets through the virtual network integration".
 - app-service-key-vault-references: "refetches them every 24 hours. Any configuration change to the app causes an app restart and an immediate refetch".
 - logic-apps-limits-and-config: "For Standard logic app workflows in single-tenant Azure Logic Apps, you must allow access for any trigger or action connections ... use service tags and the same level of restrictions or policies as Azure App Service"; LogicApps is described as "Outbound IP address prefixes for the multitenant Azure Logic Apps service".
+- networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
 Ours: the go-live story; "two subnets" as the consequence of delegated vs undelegated; the checklist.
 */}

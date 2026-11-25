@@ -16,6 +16,8 @@ learnLinks:
     url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
   - title: "Integrate your app with an Azure virtual network (App Service)"
     url: https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration
+  - title: "Hub-and-spoke network design guide"
+    url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
   - title: "Virtual network service endpoints"
     url: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview
   - title: "Connect to on-premises data sources (on-premises data gateway)"
@@ -81,7 +83,7 @@ The integrated network itself must be in the **same region** as the app. In a hu
 
 Calls to a **VM or private endpoint** in the integrated or a peered network come **from an address in the integration subnet**, so that's the range to allow on the other side's NSG or firewall.
 
-To reach the datacenter through a VPN or ExpressRoute gateway in the hub, the peering must let the spoke use the hub's gateway, called gateway transit (ours: an Azure networking setting, not on the Logic Apps pages). Microsoft also notes that a route table can send outbound traffic to an ExpressRoute gateway, and that BGP routes from it affect the app's traffic.
+Peering needs no extra setup for VNet integration. To reach the datacenter through a VPN or ExpressRoute gateway in the hub, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering, *Use remote gateways* on the spoke's side. It doesn't work with a **Basic** VPN gateway, and a spoke can use only **one** remote gateway. Microsoft also notes that a route table can send outbound traffic to an ExpressRoute gateway, and that BGP routes from it affect the app's traffic.
 </Step>
 
 <Step id="private-dns" name="Names must resolve privately" tag="TIP">
@@ -131,5 +133,7 @@ overview-vnet-integration (App Service, "Works with App Service apps, function a
 - app-service/overview-vnet-integration: "Virtual network integration enables you to reach Azure services that are secured with service endpoints ... configure service endpoints against the integration subnet."
 - service-bus-messaging/service-bus-service-endpoints: "Virtual Networks are supported only in Premium tier Service Bus namespaces ... The endpoint is restricted to Premium tier namespaces only."; service-bus-messaging/private-link-service: "This feature is supported with the premium tier of Azure Service Bus."
 - storage/common/storage-network-security: "When you create network rules by using the Azure portal, it automatically creates these service endpoints as you select each target subnet."
-Ours: hub-and-spoke framing, gateway transit (Azure networking, not on the Logic Apps or App Service pages checked), the warehouse-API story (Learn's example uses a generic internal service at 10.0.1.3), the desk analogy, "built-in operations run inside the logic app, so their calls go through the VNet" as the reason the HTTP action works (consistent with Learn's test and the built-in connector definition), "each instance needs an address".
+- networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
+- app-service/overview-vnet-integration: "If you use peering with virtual network integration, you don't need to do any more configuration."
+Ours: hub-and-spoke framing, the warehouse-API story (Learn's example uses a generic internal service at 10.0.1.3), the desk analogy, "built-in operations run inside the logic app, so their calls go through the VNet" as the reason the HTTP action works (consistent with Learn's test and the built-in connector definition), "each instance needs an address".
 */}
