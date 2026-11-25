@@ -62,7 +62,7 @@ export const MODULES: ModuleDef[] = [
     l('easy-auth', 'Easy Auth (App Service authentication)'),
   ] },
   { id: 'networking', number: '09', title: 'Networking', lessons: [
-    l('networking-overview', 'Networking at a glance'),
+    l('networking-overview', 'Network building blocks'),
     l('vnet-integration', 'Reach private systems: VNet integration'),
     l('private-networking', 'Lock down inbound: private endpoints'),
     l('private-storage', 'The storage account on a private network'),

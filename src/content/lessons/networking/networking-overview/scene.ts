@@ -1,12 +1,14 @@
 import type { Scene } from '../../../../lessons/scene-types';
 
-// One architecture map: the logic app above your virtual network, its storage on the left, managed
-// connectors in Azure on the right, the datacenter below. Each step lights up one path.
-const core = ['azBox', 'app', 'vnetBox', 'pe', 'subnet', 'caller', 'caller-pe', 'pe-app', 'app-subnet'];
-const all = [
-  ...core, 'stpe', 'storage', 'api', 'cloud', 'onpremBox', 'onsql', 'gw',
-  'subnet-api', 'subnet-stpe', 'stpe-storage', 'subnet-cloud', 'subnet-onsql', 'cloud-gw', 'gw-onsql',
-];
+// Building blocks on one map: the app (outside your network) at the top, your virtual network below it,
+// the datacenter at the bottom. Each step adds one block; the combinations show them together.
+const appOnly = ['azBox', 'app'];
+const outbound = [...appOnly, 'vnetBox', 'subnet', 'api', 'app-subnet', 'subnet-api'];
+const inbound = ['caller', 'pe', 'caller-pe', 'pe-app'];
+const storage = ['stpe', 'storage', 'subnet-stpe', 'stpe-storage'];
+const onprem = ['onpremBox', 'onsql', 'gw', 'cloud', 'subnet-onsql', 'subnet-cloud', 'cloud-gw', 'gw-onsql'];
+const egress = ['fw', 'subnet-fw', 'cloud', 'subnet-cloud'];
+const all = [...new Set([...outbound, ...inbound, ...storage, ...onprem, ...egress])];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -24,12 +26,13 @@ export const scene: Scene = {
     { id: 'stpe', kind: 'keyvault', label: 'Storage endpts', sublabel: '4 services', x: 300, y: 305 },
     { id: 'api', kind: 'user', label: 'Internal API', sublabel: '10.0.1.3', x: 600, y: 305 },
     { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'no public', x: 90, y: 305 },
+    { id: 'fw', kind: 'keyvault', label: 'Firewall · NAT', sublabel: 'egress', x: 815, y: 65 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure', x: 815, y: 200 },
     { id: 'onsql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'datacenter', x: 300, y: 445 },
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'for managed', x: 600, y: 445 },
     // Problem-only: the same app before anything is private.
     { id: 'p-storage', kind: 'storage', label: 'Storage', sublabel: 'public', x: 200, y: 240 },
-    { id: 'p-internet', kind: 'user', label: 'Internet', sublabel: 'anyone', x: 700, y: 240 },
+    { id: 'p-internet', kind: 'user', label: 'Internet', sublabel: 'SaaS · callers', x: 700, y: 240 },
     { id: 'p-erp', kind: 'storage', label: 'ERP SQL Server', sublabel: 'datacenter', x: 450, y: 420 },
   ],
   edges: [
@@ -41,6 +44,7 @@ export const scene: Scene = {
     { id: 'stpe-storage', from: 'stpe', to: 'storage' },
     { id: 'subnet-cloud', from: 'subnet', to: 'cloud', style: 'dashed' },
     { id: 'subnet-onsql', from: 'subnet', to: 'onsql', label: 'VPN / ER' },
+    { id: 'subnet-fw', from: 'subnet', to: 'fw', label: 'route' },
     { id: 'cloud-gw', from: 'cloud', to: 'gw', style: 'dashed' },
     { id: 'gw-onsql', from: 'gw', to: 'onsql', style: 'dashed' },
     { id: 'p-internet-app', from: 'p-internet', to: 'app', style: 'dashed', label: 'public' },
@@ -52,51 +56,59 @@ export const scene: Scene = {
       visible: ['app', 'p-storage', 'p-internet', 'p-erp', 'p-internet-app', 'p-app-storage', 'p-app-erp'],
       highlight: ['app'],
       tokens: [{ id: 'p1', edge: 'p-internet-app', tone: 'info' }, { id: 'p2', edge: 'p-app-erp', tone: 'fail' }],
-      chips: [{ label: 'rule 1', value: 'nothing public', tone: 'warn' }, { label: 'rule 2', value: 'reach the ERP', tone: 'warn' }],
+      chips: [{ label: 'project 1', value: 'SaaS only' }, { label: 'project 2', value: 'private database' }, { label: 'project 3', value: 'locked down', tone: 'warn' }],
     },
-    map: {
+    idea: {
       visible: [...all],
-      highlight: ['vnetBox'],
-      chips: [{ label: 'paths', value: 'in · out · storage · managed · on-prem' }],
+      highlight: ['vnetBox', 'onpremBox'],
+      chips: [{ label: 'building blocks', value: 'mix and match', tone: 'ok' }],
     },
-    inbound: {
-      visible: [...all],
-      highlight: ['caller', 'pe', 'caller-pe', 'pe-app'],
-      tokens: [{ id: 'i1', edge: 'caller-pe', tone: 'info' }, { id: 'i2', edge: 'pe-app', tone: 'ok' }],
-      chips: [{ label: 'feature', value: 'private endpoint' }, { label: 'from outside', value: '403 Forbidden', tone: 'warn' }],
+    baseline: {
+      visible: [...appOnly, 'p-internet', 'p-storage', 'p-internet-app', 'p-app-storage'],
+      highlight: ['azBox'],
+      tokens: [{ id: 'b1', edge: 'p-internet-app', tone: 'info' }],
+      chips: [{ label: 'runs on', value: 'shared App Service' }, { label: 'your network', value: 'not joined' }, { label: 'ASE v3', value: 'runs inside' }],
     },
-    outbound: {
-      visible: [...all],
-      highlight: ['subnet', 'app-subnet', 'subnet-api', 'api'],
+    'block-outbound': {
+      visible: [...outbound],
+      highlight: ['subnet', 'api', 'app-subnet', 'subnet-api'],
       tokens: [{ id: 'o1', edge: 'app-subnet', tone: 'info' }, { id: 'o2', edge: 'subnet-api', tone: 'ok' }],
-      chips: [{ label: 'feature', value: 'VNet integration' }, { label: 'inbound vs outbound', value: 'independent' }],
+      chips: [{ label: 'need', value: 'reach private resources' }, { label: 'add', value: 'VNet integration + private DNS', tone: 'ok' }],
     },
-    storage: {
-      visible: [...all],
-      highlight: ['stpe', 'storage', 'subnet-stpe', 'stpe-storage'],
+    'block-inbound': {
+      visible: [...outbound, ...inbound],
+      highlight: ['pe', 'caller-pe', 'pe-app'],
+      tokens: [{ id: 'i1', edge: 'caller-pe', tone: 'info' }, { id: 'i2', edge: 'pe-app', tone: 'ok' }],
+      chips: [{ label: 'need', value: 'no public inbound' }, { label: 'add', value: 'private endpoint', tone: 'ok' }, { label: 'lose', value: 'managed webhooks', tone: 'warn' }],
+    },
+    'block-storage': {
+      visible: [...outbound, ...storage],
+      highlight: ['stpe', 'storage'],
       tokens: [{ id: 's1', edge: 'app-subnet', tone: 'info' }, { id: 's2', edge: 'subnet-stpe', tone: 'info' }, { id: 's3', edge: 'stpe-storage', tone: 'ok' }],
-      chips: [{ label: 'storage', value: 'required by Standard' }, { label: 'private endpoints', value: 'Table · Queue · Blob · File' }],
+      chips: [{ label: 'need', value: 'private storage' }, { label: 'add', value: 'Table · Queue · Blob · File endpoints', tone: 'ok' }],
     },
-    managed: {
-      visible: [...all],
-      highlight: ['cloud', 'subnet-cloud'],
-      tokens: [{ id: 'm1', edge: 'app-subnet', tone: 'info' }, { id: 'm2', edge: 'subnet-cloud', tone: 'info' }],
-      chips: [{ label: 'managed connectors', value: 'outside your network' }, { label: 'firewall · NSG · UDR', value: 'allow their IPs', tone: 'warn' }],
+    'block-onprem': {
+      visible: [...outbound, ...onprem],
+      highlight: ['onsql', 'subnet-onsql', 'gw'],
+      tokens: [
+        { id: 'n1', edge: 'app-subnet', tone: 'info' }, { id: 'n2', edge: 'subnet-onsql', tone: 'ok' },
+        { id: 'n3', edge: 'subnet-cloud', tone: 'info' }, { id: 'n4', edge: 'cloud-gw', tone: 'info' }, { id: 'n5', edge: 'gw-onsql', tone: 'ok' },
+      ],
+      chips: [{ label: 'built-in', value: 'VPN / ExpressRoute', tone: 'ok' }, { label: 'managed only', value: 'data gateway' }],
     },
-    onprem: {
-      visible: [...all],
-      highlight: ['onsql', 'subnet-onsql', 'gw', 'cloud-gw', 'gw-onsql'],
-      tokens: [{ id: 'n1', edge: 'app-subnet', tone: 'info' }, { id: 'n2', edge: 'subnet-onsql', tone: 'ok' }, { id: 'n3', edge: 'gw-onsql', tone: 'info' }],
-      chips: [{ label: 'built-in', value: 'over the network', tone: 'ok' }, { label: 'managed only', value: 'data gateway' }],
+    'block-egress': {
+      visible: [...outbound, ...egress],
+      highlight: ['fw', 'subnet-fw'],
+      tokens: [{ id: 'e1', edge: 'app-subnet', tone: 'info' }, { id: 'e2', edge: 'subnet-fw', tone: 'info' }],
+      chips: [{ label: 'need', value: 'central egress · fixed IP' }, { label: 'add', value: 'firewall rules · NAT gateway', tone: 'ok' }],
     },
-    order: {
+    combos: {
       visible: [...all],
-      highlight: ['subnet'],
-      chips: [{ label: 'our order', value: 'outbound → storage → inbound' }],
+      chips: [{ label: 'SaaS', value: 'baseline' }, { label: 'internal APIs', value: 'outbound (+ egress)' }, { label: 'locked down', value: 'outbound + inbound + storage' }],
     },
     recap: {
       visible: [...all],
-      chips: [{ label: 'in', value: 'private endpoint' }, { label: 'out', value: 'VNet integration' }],
+      chips: [{ label: 'start with', value: 'your requirements' }, { label: 'build first', value: 'the outbound block' }],
     },
   },
   legend: [

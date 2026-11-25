@@ -20,6 +20,9 @@ export const scene: Scene = {
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure', x: 430, y: 420 },
     { id: 'sql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'on-premises', x: 780, y: 360 },
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'installed here', x: 620, y: 440 },
+    { id: 'rec', kind: 'trigger', label: 'Every 15 min', sublabel: 'Recurrence', x: 180, y: 100 },
+    { id: 'createfile', kind: 'connector-managed', label: 'Create file', sublabel: 'File System', x: 180, y: 290 },
+    { id: 'share', kind: 'storage', label: 'File share', sublabel: 'partner/OUT', x: 780, y: 360 },
     { id: 'p-sql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'not in Azure', x: 700, y: 200 },
   ],
   edges: [
@@ -31,6 +34,9 @@ export const scene: Scene = {
     { id: 'managed-cloud', from: 'managed', to: 'cloud' },
     { id: 'cloud-gw', from: 'cloud', to: 'gw', style: 'dashed' },
     { id: 'gw-sql', from: 'gw', to: 'sql' },
+    { id: 'rec-create', from: 'rec', to: 'createfile' },
+    { id: 'create-cloud', from: 'createfile', to: 'cloud' },
+    { id: 'gw-share', from: 'gw', to: 'share' },
   ],
   steps: {
     problem: {
@@ -66,6 +72,15 @@ export const scene: Scene = {
       visible: [...base, ...route2],
       highlight: ['gw'],
       chips: [{ label: 'per computer', value: 'one gateway' }, { label: 'Azure resource', value: 'same account · same region' }],
+    },
+    example: {
+      visible: ['appBox', 'dcBox', 'rec', 'createfile', 'cloud', 'gw', 'share', 'rec-create', 'create-cloud', 'cloud-gw', 'gw-share'],
+      highlight: ['createfile', 'gw', 'share'],
+      tokens: [
+        { id: 'x1', edge: 'rec-create', tone: 'info' }, { id: 'x2', edge: 'create-cloud', tone: 'info' },
+        { id: 'x3', edge: 'cloud-gw', tone: 'info' }, { id: 'x4', edge: 'gw-share', tone: 'ok' },
+      ],
+      chips: [{ label: 'connector', value: 'File System (managed)' }, { label: 'gateway resource', value: 'shared subscription, same tenant' }],
     },
     rules: {
       visible: [...base, ...route2],

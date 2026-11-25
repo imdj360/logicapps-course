@@ -1,15 +1,15 @@
 ---
-title: "Networking at a glance"
+title: "Network building blocks"
 module: networking
 order: 0
-minutes: 6
+minutes: 7
 level: Intermediate
-summary: One map of a private Standard logic app. See how inbound, outbound, storage, managed connectors and on-premises fit together, and which lesson covers each part.
+summary: There's no single right network setup. Start from your requirements, add only the building blocks you need, and see the common combinations, with a lesson behind each block.
 youWillLearn:
-  - The five network paths around a Standard logic app
-  - Which feature handles inbound and which handles outbound
-  - Why the storage account and managed connectors need their own care
-  - Two ways to reach on-premises systems
+  - Where a Standard logic app runs, and why it sits outside your network
+  - Which building block answers which requirement
+  - What each block costs you in trade-offs
+  - Three common combinations to start from
 learnLinks:
   - title: "Secure Traffic between Standard Workflows and Virtual Networks"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
@@ -22,84 +22,102 @@ learnLinks:
 reviewStatus: draft
 ---
 
-<Step id="problem" name="Two rules from security" tag="PROBLEM">
-The security team sets two rules for the order logic app:
+<Step id="problem" name="Every project has different rules" tag="PROBLEM">
+One project only connects SaaS apps. The next must reach a database on a private network. A third has security rules: nothing public, a firewall for all traffic, and files dropped in the company datacenter.
 
-1. **Nothing public.** No public endpoint on the app or its storage account.
-2. **Reach the ERP.** The ERP's SQL Server sits in the company datacenter.
-
-Right now the app is public, its storage is public, and it can't see the datacenter at all.
+There's no single "right" network setup. Each requirement adds a piece.
 </Step>
 
-<Step id="map" name="The whole map">
-Here's where we're heading: the same logic app, with everything private.
+<Step id="idea" name="The idea">
+**Treat networking as building blocks: start from your requirements and add only the blocks they call for.**
 
-- Callers come in through a **private endpoint** in your virtual network.
-- The app's calls go out through an **integration subnet** in the same network.
-- Its **storage account** is reached through four private endpoints.
-- **Managed connectors** still run in Azure, outside your network.
-- The **datacenter** is reached over the network, or through the **on-premises data gateway**.
-
-The logic app itself **doesn't run inside your network** on a Workflow Service Plan: it runs on Azure's shared App Service infrastructure, and the private endpoint and VNet integration connect it in both directions. On an **App Service Environment v3** it does run inside your network.
-
-The next steps take one path at a time.
+Each block solves one problem, brings its own trade-offs, and has a lesson in this module. You can mix them freely.
 </Step>
 
-<Step id="inbound" name="Path 1: calls in">
-A **private endpoint** gives the logic app a private address inside your virtual network. Callers on the network use it; from outside, calls get **403 Forbidden**.
+<Step id="baseline" name="Baseline: public">
+With no network setup, the logic app is public: callers reach its endpoint over the internet, and it calls services over the internet.
 
-Lesson: *Lock down inbound: private endpoints*.
+On a Workflow Service Plan the app runs on Azure's **shared App Service infrastructure**, outside your virtual network. Microsoft says you can't connect that network directly to yours; instead you add features for each direction. On an **App Service Environment v3** the app does run inside your network.
+
+**Enough when:** you only connect SaaS and public APIs.
 </Step>
 
-<Step id="outbound" name="Path 2: calls out">
-**VNet integration** routes the app's outbound calls through a subnet in your network, so it can reach private addresses such as an internal API, including in networks **peered** to it.
+<Step id="block-outbound" name="Block: reach private resources">
+**Need:** call a private API or database, in your network, a **peered** network, or over **ExpressRoute**.
 
-Inbound and outbound are **independent** features: you can use either one or both.
+**Add:** **VNet integration** for outbound calls, plus **private DNS** for anything behind a private endpoint.
+
+**Trade-off:** by default all outbound traffic goes through your network, so your NSGs and route tables apply to it.
 
 Lesson: *Reach private systems: VNet integration*.
 </Step>
 
-<Step id="storage" name="Path 3: its own storage">
-A Standard logic app **requires** a storage account for its artifacts. To make it private, the storage account gets **separate private endpoints for Table, Queue, Blob and File**, and the app reaches them through VNet integration.
+<Step id="block-inbound" name="Block: no public inbound">
+**Need:** only callers on your network may call the workflows.
+
+**Add:** a **private endpoint**.
+
+**Trade-off:** managed **webhook** triggers can't call in, and deployment from VS Code or the CLI must come from inside the network.
+
+Lesson: *Lock down inbound: private endpoints*.
+</Step>
+
+<Step id="block-storage" name="Block: private storage">
+**Need:** no storage account with public access.
+
+**Add:** private endpoints for **Table, Queue, Blob and File**, reached through VNet integration (so this block needs the outbound block).
+
+**Trade-off:** deployment needs temporary public access or an **ARM template**.
 
 Lesson: *The storage account on a private network*.
 </Step>
 
-<Step id="managed" name="Path 4: managed connectors">
-**Managed** connectors run in Azure, outside your network. If a firewall, NSG or route table controls the app's outbound traffic, allow outbound connections to the **managed connector IP addresses** for your region.
+<Step id="block-onprem" name="Block: the datacenter">
+**Need:** read or write data in the company datacenter.
 
-And with a private inbound endpoint, **managed webhook triggers** can't call back in.
-
-Lessons: *VNet integration* and *private endpoints*.
-</Step>
-
-<Step id="onprem" name="Path 5: the datacenter">
-Two routes:
-
-- **Built-in** service provider connectors, such as SQL Server, reach on-premises data sources **directly**, without the gateway, as long as the network reaches them. A VPN or ExpressRoute link from your virtual network to the datacenter is the usual path (ours).
-- If there's **no built-in** connector but a **managed** one exists, you need the **on-premises data gateway**.
+**Add one of:**
+- a **built-in** connector over the network: VNet integration plus a VPN or ExpressRoute link (ours: the usual link);
+- the **on-premises data gateway**, when only a **managed** connector exists for the data source.
 
 Lesson: *Reaching on-premises systems*.
 </Step>
 
-<Step id="order" name="Where to start" tag="TIP">
-A practical order (ours): VNet integration first, because the storage and on-premises paths depend on it; then private storage; then the inbound private endpoint last, because it changes how you deploy and test.
+<Step id="block-egress" name="Block: controlled egress">
+**Need:** all outbound traffic through a central firewall, or one **fixed IP** a partner can allow.
 
-Before go-live, check the firewall rules, subnets, fixed outbound IP and Key Vault access: the last lesson in this module, *Firewalls, fixed IPs and service tags*.
+**Add:** a route table to the firewall, with rules built from **service tags** (such as AzureConnectors) and your connections' domain names; a **NAT gateway** for a fixed outbound IP.
+
+**Trade-off:** every missing firewall rule is a broken connector.
+
+Lesson: *Firewalls, fixed IPs and service tags*.
+</Step>
+
+<Step id="combos" name="Common combinations" tag="TIP">
+Three mixes we see most (ours):
+
+- **SaaS integration**: baseline only.
+- **Internal APIs, public triggers**: reach private resources, plus controlled egress when a partner needs a fixed IP.
+- **Locked down**: reach private resources + no public inbound + private storage, often with the datacenter and controlled egress blocks.
+
+Build the outbound block first: the storage and datacenter blocks depend on it.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
-- **Inbound**: private endpoint. **Outbound**: VNet integration. They're independent.
-- **Storage**: four private endpoints, reached through VNet integration.
-- **Managed connectors**: outside your network; allow their IP addresses.
-- **On-premises**: built-in connectors over the network, or the data gateway for managed ones.
+- The app runs **outside** your network on a Workflow Service Plan; blocks connect it.
+- **Reach private resources**: VNet integration (+ private DNS, peering).
+- **No public inbound**: private endpoint.
+- **Private storage**: four storage private endpoints.
+- **Datacenter**: built-in over VPN/ExpressRoute, or the data gateway.
+- **Controlled egress**: firewall rules with service tags; NAT gateway for a fixed IP.
 </Step>
 
 {/*
 Sources (checked 2026-11-25, raw page text):
-- secure-single-tenant-workflow-virtual-network-private-endpoint: "private endpoints for inbound traffic and use virtual network integration for outbound traffic"; private endpoint "uses a private IP address from your virtual network"; "you get an expected 403 Forbidden error"; "Setting up virtual network integration affects only outbound traffic"; "Enabling Private Link doesn't affect outbound traffic"; managed connector IP addresses when an NSG, UDR or firewall is used; managed webhook triggers and actions don't work with a private inbound endpoint.
-- deploy-single-tenant-logic-apps-private-storage-account: "When you create a single-tenant Standard logic app resource, you're required to have a storage account for storing logic app artifacts"; "Create different private endpoints for each of the Table, Queue, Blob, and File storage services"; VNet integration lets the logic app "access the storage account through private endpoints".
-- connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway"; "If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."
-Also from that page: inbound "continues to use the App Service shared endpoint" and outbound "still flows through the App Service infrastructure" (basis for "doesn't run inside your network"). Verified 2026-11-25 on App Service docs: networking-features "All the roles in an App Service deployment exist in a multitenant network. Because there are many different customers in the same App Service scale unit, you can't connect the App Service network directly to your network. Instead of connecting the networks, you need features to handle the various aspects of application communication" and "The single-tenant App Service Environment (ASE) hosts Isolated SKU App Service plans directly in your Azure virtual network"; overview-vnet-integration "Virtual network integration is used only to make outbound calls from your app into your virtual network. Refer to private endpoint for inbound private access" and it "Works with App Service apps, function apps, and Logic apps"; environment/overview "An App Service Environment is a single-tenant deployment of App Service that runs on your virtual network".
-Ours: the two-rules story, VPN/ExpressRoute as the usual network path to the datacenter, and the suggested build order.
+- secure-single-tenant-workflow-virtual-network-private-endpoint: private endpoints for inbound, VNet integration for outbound; "affects only outbound traffic"; by default "routes all outbound traffic through the virtual network"; managed webhook triggers and actions don't work with a private inbound endpoint; VS Code / Azure CLI deployment only from inside the virtual network.
+- deploy-single-tenant-logic-apps-private-storage-account: required storage account; "different private endpoints for each of the Table, Queue, Blob, and File storage services"; VNet integration to reach them; "requires temporary public access" or an ARM template.
+- connect-on-premises-data-sources: built-in service provider connectors reach on-premises data sources without the gateway; "If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."
+- app-service/networking-features: "All the roles in an App Service deployment exist in a multitenant network ... you can't connect the App Service network directly to your network. Instead of connecting the networks, you need features to handle the various aspects of application communication"; "The single-tenant App Service Environment (ASE) hosts Isolated SKU App Service plans directly in your Azure virtual network".
+- app-service/overview-vnet-integration: peered networks including global peering, ExpressRoute; private DNS zones linked to the virtual network; route tables; NAT gateway "dedicated outbound IP".
+- logic-apps-limits-and-config: service tags LogicAppsManagement, LogicApps, AzureConnectors.
+Ours: the building-block framing, the three combinations, VPN/ExpressRoute as the usual datacenter link, and the build order.
 */}

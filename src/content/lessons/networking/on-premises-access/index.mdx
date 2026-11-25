@@ -66,6 +66,16 @@ So if your network forces internet traffic through a **proxy or firewall**, that
 Each gateway resource links to **exactly one** installation.
 </Step>
 
+<Step id="example" name="Example: files into the datacenter">
+A pattern from one of Daniel's production projects (ours, anonymised):
+
+1. A workflow runs on a **Recurrence** trigger and builds the outgoing order files.
+2. The **File System** managed connector's **Create file** action writes each file into a per-partner folder on an on-premises share, for example `<root>\<partner>\OUT\ORDER`.
+3. The ERP picks the files up from there.
+
+The connection is created in Bicep as a `Microsoft.Web/connections` resource for the `filesystem` API, with the share's **root folder**, the **gateway** resource ID and a Windows account for the share, taken from the pipeline's secrets. The gateway resource sits in a **shared subscription**, apart from the logic apps, which works because both are in the same Microsoft Entra tenant. The logic app reaches the connection with its **managed identity** in `connections.json`.
+</Step>
+
 <Step id="rules" name="Rules that trip people up" tag="TIP">
 - Only the **gateway administrator** can create the Azure gateway resource; **service principals** aren't supported.
 - The logic app and gateway resource can be in **different subscriptions**, but only in the **same Microsoft Entra tenant**.
@@ -91,5 +101,5 @@ The gateway itself costs nothing extra; normal Logic Apps pricing applies to the
 Sources (checked 2026-11-25, raw page text):
 - connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway. Instead, you provide information that authenticates your identity and authorizes access to your data source. If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."; supported data sources list (Apache Impala, BizTalk Server, File System, HTTP with Microsoft Entra ID, IBM DB2, IBM Informix, IBM MQ, MySQL, Oracle Database, PostgreSQL, SAP, SharePoint Server, SQL Server, Teradata); custom connectors over HTTP/HTTPS with REST or SOAP; "a gateway itself doesn't incur extra costs, the Azure Logic Apps pricing model applies"; payload size limits; "You can install only one data gateway per local computer"; same Azure account and subscription; "only the gateway administrator can create the gateway resource in Azure. Service principals currently aren't supported."; "Each gateway resource can link to only one gateway installation"; logic app and gateway resource can be in different subscriptions in the same Microsoft Entra tenant; "you can't share a data gateway resource or installation across multiple subscriptions"; create the resource in the same region as the installation.
 - install-on-premises-data-gateway-workflows: "The on-premises data gateway depends on Service Bus messaging to provide cloud connectivity and to establish the corresponding outbound connections to the gateway's associated Azure region. If your work environment requires that traffic goes through a proxy or firewall to access the internet, this restriction might prevent the on-premises data gateway from connecting"; gateway cluster, "install each additional gateway that's in the cluster on a different computer", "All the connectors that work with the on-premises data gateway support high availability"; recovery key "You need this key to move, recover, change ownership, or change the location for the gateway installation".
-Ours: the ERP story; VPN or ExpressRoute as the typical link from the virtual network to the datacenter (Azure networking, not stated on the Logic Apps pages); "check its communication settings first" as advice.
+Ours: the file-drop example (from Daniel's production project, anonymised: no client, subscription or resource names); the ERP story; VPN or ExpressRoute as the typical link from the virtual network to the datacenter (Azure networking, not stated on the Logic Apps pages); "check its communication settings first" as advice.
 */}
