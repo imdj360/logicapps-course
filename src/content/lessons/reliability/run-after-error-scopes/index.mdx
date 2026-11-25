@@ -25,7 +25,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="Unplanned failures" tag="PROBLEM">
-When an action throws an error you didn't plan for, it's marked **Failed**, every action after it is marked **Skipped**, and the run ends **Failed**. Nothing tells the team, and nothing cleans up.
+Your order workflow runs *Reserve stock*, *Charge card*, then *Confirm order*. The card charge throws an error you didn't plan for: it's marked **Failed**, *Confirm order* after it is marked **Skipped**, and the run ends **Failed**. Nothing tells the team, and nothing cleans up.
 
 **Run-after** settings let you plan for it.
 </Step>
@@ -52,11 +52,11 @@ This action runs only when A succeeded, and B either succeeded or failed.
 <Step id="scope" name="Scopes: one status for many">
 Reacting to every action separately gets messy. A **Scope** groups actions and gets its own status when they finish: **Succeeded** when all succeed, **Failed** when any fails.
 
-So one catch action can watch the whole scope. (Learn's error-handling page words it as the scope failing when its *final* action fails; the scopes page says *any*.)
+So one catch action can watch the whole scope. (the Microsoft Learn error-handling page words it as the scope failing when its *final* action fails; the scopes page says *any*.)
 </Step>
 
 <Step id="trycatch" name="Try and catch">
-Put the work in a **Try** scope. Add a **Catch** scope after it, with run after set to **Has failed** and **Has timed out** for Try.
+Put the work, *Reserve stock* and *Charge card*, in a **Try** scope. Add a **Catch** scope after it, with run after set to **Has failed** and **Has timed out** for Try.
 
 Catch runs only when Try failed or timed out. Inside it: alert the team, log the error, or compensate.
 </Step>

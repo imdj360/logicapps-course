@@ -46,7 +46,7 @@ The first three are **Inline Code** actions: the code lives inside your workflow
 <Step id="js" name="Inline JavaScript">
 **Execute JavaScript Code** works in Consumption and Standard; in Standard it needs **no integration account** and runs on **Node.js 16.x.x**. Your code reads a read-only `workflowContext` object, for example `workflowContext.trigger` and `workflowContext.actions`. A `return` statement isn't required, but it's how later actions reference the result, through the **Outputs** token.
 
-It's meant for small jobs: Learn's JavaScript page says it should finish in **5 seconds or fewer** and handle data up to **50 MB**, and it doesn't support `require()`.
+It's meant for small jobs: the Microsoft Learn JavaScript page says it should finish in **5 seconds or fewer** and handle data up to **50 MB**, and it doesn't support `require()`.
 </Step>
 
 <Step id="csharp" name="C# script">

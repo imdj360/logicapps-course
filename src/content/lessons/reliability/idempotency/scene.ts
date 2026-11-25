@@ -57,7 +57,7 @@ export const scene: Scene = {
     tracking: {
       visible: [...core],
       highlight: ['wf'],
-      chips: [{ label: 'tracking ID', value: 'correlates' }, { label: 'Learn says', value: 'correlation only', tone: 'warn' }],
+      chips: [{ label: 'tracking ID', value: 'correlates' }, { label: 'Microsoft Learn docs say', value: 'correlation only', tone: 'warn' }],
     },
     unsafe: {
       visible: [...core, 'retry', 'retry-db'],

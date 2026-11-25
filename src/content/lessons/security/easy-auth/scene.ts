@@ -45,7 +45,7 @@ export const scene: Scene = {
     request: {
       visible: [...core, 'sas', 'sas-wf'],
       highlight: ['wf'],
-      chips: [{ label: 'Learn', value: 'one sentence + a blog', tone: 'warn' }, { label: 'SAS', value: 'can stay on' }],
+      chips: [{ label: 'Microsoft Learn docs', value: 'one sentence + a blog', tone: 'warn' }, { label: 'SAS', value: 'can stay on' }],
     },
     chat: {
       visible: [...core, 'entra', 'entra-easy'],

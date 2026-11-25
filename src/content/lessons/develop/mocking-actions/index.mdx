@@ -36,12 +36,12 @@ An action that depends on an external service is a **mockable action**. You can 
 </Step>
 
 <Step id="classes" name="Typed output classes">
-The generated **MockOutputs** folder holds strongly typed classes for each connector operation (Learn's intro says each mockable operation). In Learn's sample, a Service Bus trigger and an action named `Call_External_API` give these types:
+The generated **MockOutputs** folder holds strongly typed classes for each connector operation (the Microsoft Learn intro says each mockable operation). In the Microsoft Learn sample, a Service Bus trigger and an action named `Call_External_API` give these types:
 
 - `WhenMessagesAreAvailableInAQueuePeeklockTriggerOutput` and `WhenMessagesAreAvailableInAQueuePeeklockTriggerMock`
 - `CallExternalAPIActionOutput` and `CallExternalAPIActionMock`
 
-Learn says you can use these classes to extend your tests and **create new mocks from scratch**.
+The Microsoft Learn docs say you can use these classes to extend your tests and **create new mocks from scratch**.
 </Step>
 
 <Step id="static" name="Static mock data">
@@ -60,7 +60,7 @@ The action mock is keyed by its action name, for example `Call_External_API`.
 </Step>
 
 <Step id="dynamic" name="Dynamic mock data">
-For responses that depend on the test context, pass `onGetActionMock` a callback that takes a `TestExecutionContext`. Learn gives two options: a **separate callback method**, or an **inline lambda function**.
+For responses that depend on the test context, pass `onGetActionMock` a callback that takes a `TestExecutionContext`. The Microsoft Learn docs give two options: a **separate callback method**, or an **inline lambda function**.
 
 The callback returns the action mock, with a `status` of `TestWorkflowStatus.Succeeded` and the outputs you choose.
 </Step>
@@ -68,11 +68,11 @@ The callback returns the action mock, with a `status` of `TestWorkflowStatus.Suc
 <Step id="from-run" name="Mocks from a run">
 In a run-based test, the mocks come from a `*-mock.json` file. Its `triggerMocks` section holds the trigger result and is **required to start workflow execution**. Its `actionMocks` section holds one mocked action per mockable action in the run, with `name`, `status` and `outputs`.
 
-Learn's sample then loads the file with `GetTestMockDefinition()` and edits entries like `mockData.ActionMocks["Call_External_API"]`.
+The Microsoft Learn sample then loads the file with `GetTestMockDefinition()` and edits entries like `mockData.ActionMocks["Call_External_API"]`.
 </Step>
 
 <Step id="failure" name="Simulate a failure">
-In the run-based samples, Learn shows an error scenario test: configure a mocked action to fail with a specific code and message.
+In the run-based samples, the Microsoft Learn docs show an error scenario test: configure a mocked action to fail with a specific code and message.
 
 ```csharp
 var mockError = new TestErrorInfo(code: ErrorResponseCode.BadRequest, message: "Input is invalid.");
@@ -81,7 +81,7 @@ mockData.ActionMocks["Call_External_API"] = new CallExternalAPIActionMock(
   error: mockError);
 ```
 
-Its stated goal is to confirm that the workflow handles these error conditions correctly. Learn doesn't mention error scopes; testing one this way is our application of the sample.
+Its stated goal is to confirm that the workflow handles these error conditions correctly. The Microsoft Learn docs don't mention error scopes; testing one this way is our application of the sample.
 </Step>
 
 <Step id="assert" name="What you assert">
@@ -92,13 +92,13 @@ Assert.IsNotNull(value: testRun);
 Assert.AreEqual(expected: TestWorkflowStatus.Succeeded, actual: testRun.Status);
 ```
 
-The failure sample asserts `TestWorkflowStatus.Failed` instead. Learn's samples assert on the **run status** only. They don't show assertions on action outputs, though the generated file is where you add your own.
+The failure sample asserts `TestWorkflowStatus.Failed` instead. The Microsoft Learn samples assert on the **run status** only. They don't show assertions on action outputs, though the generated file is where you add your own.
 </Step>
 
 <Step id="gaps" name="What isn't mocked" tag="TIP">
-Learn says the release **doesn't support non-mocked actions**: all actions in the execution path must be mocked. Unsupported action types include integration account actions and EDI encode and decode actions, plus Data Mapper, custom code, XML and Liquid actions for run-based tests.
+The Microsoft Learn docs say the release **doesn't support non-mocked actions**: all actions in the execution path must be mocked. Unsupported action types include integration account actions and EDI encode and decode actions, plus Data Mapper, custom code, XML and Liquid actions for run-based tests.
 
-Learn doesn't list which built-in operations count as mockable. It only says mockable means depending on an external service or system. Check the generated `MockOutputs` for your workflow.
+The Microsoft Learn docs don't list which built-in operations count as mockable. It only says mockable means depending on an external service or system. Check the generated `MockOutputs` for your workflow.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
@@ -106,7 +106,7 @@ Learn doesn't list which built-in operations count as mockable. It only says moc
 - `MockOutputs` gives typed `...TriggerMock` and `...ActionMock` classes.
 - Mock data can be **static**, **dynamic** through callbacks, or loaded from `*-mock.json`.
 - Set `TestWorkflowStatus.Failed` with a `TestErrorInfo` to simulate a failing action.
-- Learn's samples assert on `testRun.Status`; every action on the path must be mocked.
+- the Microsoft Learn samples assert on `testRun.Status`; every action on the path must be mocked.
 </Step>
 
 {/*

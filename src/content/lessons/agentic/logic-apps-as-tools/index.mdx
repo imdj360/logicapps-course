@@ -48,7 +48,7 @@ To be a tool, a workflow must:
 
 - start with the **Request** trigger, *When an HTTP request is received*;
 - end with a **Response** action;
-- be enabled, in a running logic app on a **Workflow Service Plan** or **ASE v3** (Learn's API Center page is less strict about hosting; Daniel's article covers a Container Apps route that Learn doesn't document).
+- be enabled, in a running logic app on a **Workflow Service Plan** or **ASE v3** (the Microsoft Learn API Center page is less strict about hosting; Daniel's article covers a Container Apps route that the Microsoft Learn docs don't document).
 
 You can also create new tool workflows from connector actions while you register the server: each action you select becomes its own workflow.
 </Step>
@@ -62,7 +62,7 @@ Microsoft's advice when an agent calls a tool inconsistently: make the trigger a
 <Step id="auth" name="Who can call it">
 MCP endpoints use **OAuth 2.0** by default, which needs **Easy Auth** (App Service Authentication) with a Microsoft Entra app registration. The alternative is **key-based** access: generate a key, choose its duration, and store it right away, because you can't see it again.
 
-Learn's OAuth setup also requires Easy Auth to **allow unauthenticated requests** through to the endpoint, so read that section carefully before you configure it.
+The Microsoft Learn OAuth setup also requires Easy Auth to **allow unauthenticated requests** through to the endpoint, so read that section carefully before you configure it.
 </Step>
 
 <Step id="transport" name="Transports and networking" tag="TIP">

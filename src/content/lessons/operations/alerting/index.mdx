@@ -44,18 +44,18 @@ On the logic app, under **Monitoring**, select **Alerts**, then **Create** > **A
 
 - a **signal**: one of the workflow metrics (we'd filter it to your workflow);
 - a **condition**: for example, greater than or equal to a threshold;
-- an **evaluation**: Learn's example checks every **1 minute** over the last **5 minutes**;
+- an **evaluation**: The Microsoft Learn example checks every **1 minute** over the last **5 minutes**;
 - who gets notified, and how (in Azure Monitor, an action group).
 
-Learn's worked example is for Consumption, so check the exact metric name in the portal.
+The Microsoft Learn worked example is for Consumption, so check the exact metric name in the portal.
 </Step>
 
 <Step id="delay" name="Alert on delay, not just failure" tag="TIP">
-Failures aren't the only problem. **Workflow Job Execution Delay** measures the time between a job being scheduled and actually running; Learn says the scaler works to keep these delays under control. Our advice: alert on it for workflows where latency matters, such as anything a customer waits for.
+Failures aren't the only problem. **Workflow Job Execution Delay** measures the time between a job being scheduled and actually running; the Microsoft Learn docs say the scaler works to keep these delays under control. Our advice: alert on it for workflows where latency matters, such as anything a customer waits for.
 </Step>
 
 <Step id="logalerts" name="Log alerts">
-A **log alert** runs a Log Analytics query on a schedule and alerts on the result. That fits conditions a metric can't express, such as "any failed action in the Payments workflow". Learn has no Standard-specific example, so here's ours, using the table from the monitoring lesson:
+A **log alert** runs a Log Analytics query on a schedule and alerts on the result. That fits conditions a metric can't express, such as "any failed action in the Payments workflow". The Microsoft Learn docs have no Standard-specific example, so here's ours, using the table from the monitoring lesson:
 
 ```kusto
 LogicAppWorkflowRuntime

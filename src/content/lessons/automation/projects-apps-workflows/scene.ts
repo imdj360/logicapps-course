@@ -68,7 +68,7 @@ export const scene: Scene = {
     author: {
       visible: tree,
       highlight: ['app-a', 'app-b'],
-      chips: [{ label: 'author observation', value: 'app = Container App', tone: 'warn' }, { label: 'not in Learn', value: 'may change', tone: 'warn' }],
+      chips: [{ label: 'author observation', value: 'app = Container App', tone: 'warn' }, { label: 'not in Microsoft Learn docs', value: 'may change', tone: 'warn' }],
     },
     recap: {
       visible: [...tree, 'owner', 'o-p'],

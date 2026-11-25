@@ -46,7 +46,7 @@ If your business can't handle duplicates, Microsoft says you need to implement *
 <Step id="sources" name="Where duplicates come from">
 - **Delivery**: the rare repeat delivery described above.
 - **Resubmit**: rerunning a run repeats its actions. Microsoft warns that create operations might create **duplicate data**.
-- **Retries**: a retry resends a request after a timeout or error. If the first request did reach the service, the work may now happen twice. (That's our reasoning; Learn doesn't spell it out.)
+- **Retries**: a retry resends a request after a timeout or error. If the first request did reach the service, the work may now happen twice. (That's our reasoning; the Microsoft Learn docs don't spell it out.)
 - **Concurrency**: Microsoft warns that changing concurrency on the Service Bus managed connector's auto-complete trigger can cause **duplicate messages** when the workflow is throttled.
 </Step>
 
@@ -63,7 +63,7 @@ It needs the **Standard** or **Premium** tier. In Logic Apps, the Service Bus **
 </Step>
 
 <Step id="writes" name="Make writes safe to repeat" tag="FIX">
-Duplicate detection covers one queue. Everything else is up to your design. Learn has no Logic Apps checklist for this, so these are **our** recommendations:
+Duplicate detection covers one queue. Everything else is up to your design. The Microsoft Learn docs have no Logic Apps checklist for this, so these are **our** recommendations:
 
 - **Upsert** instead of insert, keyed on the business key.
 - **Check before you create**: look the order up first, skip if it exists.
@@ -72,7 +72,7 @@ Duplicate detection covers one queue. Everything else is up to your design. Lear
 </Step>
 
 <Step id="tracking" name="Tracking IDs are not dedupe" tag="TIP">
-The `x-ms-client-tracking-id` header, or a custom tracking ID on the trigger, **correlates** runs in your logs. It's useful for spotting duplicates after the fact, but Learn describes it only for correlation, not deduplication, so don't rely on it to **prevent** them.
+The `x-ms-client-tracking-id` header, or a custom tracking ID on the trigger, **correlates** runs in your logs. It's useful for spotting duplicates after the fact, but the Microsoft Learn docs describe it only for correlation, not deduplication, so don't rely on it to **prevent** them.
 </Step>
 
 <Step id="unsafe" name="When a call can't be made safe" tag="TIP">

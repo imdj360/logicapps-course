@@ -27,11 +27,11 @@ Microsoft's answer for mission-critical Standard logic apps is **deployment slot
 <Step id="slot" name="What a slot is">
 Slots are **isolated environments that host different versions of your app in preproduction**. Microsoft defines zero downtime as: when you deploy new versions, end users **don't experience disruption or downtime**, even during updates or maintenance.
 
-Standard workflows are based on Azure Functions extensibility, so Learn points to the Azure Functions deployment slots article for more.
+Standard workflows are based on Azure Functions extensibility, so the Microsoft Learn docs point to the Azure Functions deployment slots article for more.
 </Step>
 
 <Step id="benefits" name="What you get">
-Learn lists these benefits:
+The Microsoft Learn docs list these benefits:
 
 - **Swap** a slot with production without interruption;
 - **validate** changes in a slot before applying them to production;
@@ -54,31 +54,31 @@ The slot's workflows then appear in a **read-only** view in the portal.
 </Step>
 
 <Step id="behavior" name="Workflows do not run in the slot" tag="TIP">
-Learn's known issues: nonproduction slots are created in **read-only** mode, and their **dispatcher is turned off**, which means **workflows can only run when they're in the production slot**. Traffic distribution is disabled.
+The Microsoft Learn known issues: nonproduction slots are created in **read-only** mode, and their **dispatcher is turned off**, which means **workflows can only run when they're in the production slot**. Traffic distribution is disabled.
 
-So a Request trigger in the staging slot won't process test orders. (Our reading: that follows from the dispatcher being off; Learn doesn't walk through trigger types.)
+So a Request trigger in the staging slot won't process test orders. (Our reading: that follows from the dispatcher being off; the Microsoft Learn docs don't walk through trigger types.)
 </Step>
 
 <Step id="limits" name="What slots don't support">
-Learn says deployment slots for Standard logic apps don't support:
+The Microsoft Learn docs say deployment slots for Standard logic apps don't support:
 
 - **blue-green deployment**;
 - **product verification testing before slot swapping**;
 - **A/B testing**.
 
-Our note: this sits oddly beside "validate any changes in a deployment slot". Learn doesn't reconcile the two, so don't plan on running workflows in staging to test them.
+Our note: this sits oddly beside "validate any changes in a deployment slot". The Microsoft Learn docs don't reconcile the two, so don't plan on running workflows in staging to test them.
 </Step>
 
 <Step id="swap" name="Swap with production">
 In the portal, choose **Deployment slots > Swap**, pick the **Source** slot to make active and the **Target** production slot, review **Config Changes**, then select **Start Swap**. In VS Code, run **Azure Logic Apps: Swap slot**. With the CLI, use `az functionapp deployment slot swap ... --target-slot production`.
 
-Learn notes that **swap with preview** works only with logic apps that enabled deployment slot settings.
+The Microsoft Learn docs note that **swap with preview** works only with logic apps that enabled deployment slot settings.
 </Step>
 
 <Step id="settings" name="Settings and storage">
 Settings can be marked **Deployment slot setting**. The Azure Functions article says a sticky setting **doesn't swap** with the app instance.
 
-If the storage account is **private**, create the file share named in `WEBSITE_CONTENTSHARE` yourself, and add `WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS` with value `0` on each slot. For Terraform with a storage account secured by a firewall and private endpoints, Learn says to use a Bicep or ARM template to set up the slots and also set the host ID to a unique value. The Azure Functions settings reference names it `AzureFunctionsWebHost__hostid` (two underscores, the separator for nested settings); Learn's slots page shows it with one underscore.
+If the storage account is **private**, create the file share named in `WEBSITE_CONTENTSHARE` yourself, and add `WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS` with value `0` on each slot. For Terraform with a storage account secured by a firewall and private endpoints, the Microsoft Learn docs say to use a Bicep or ARM template to set up the slots and also set the host ID to a unique value. The Azure Functions settings reference names it `AzureFunctionsWebHost__hostid` (two underscores, the separator for nested settings); the Microsoft Learn slots page shows it with one underscore.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

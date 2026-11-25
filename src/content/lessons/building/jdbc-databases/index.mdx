@@ -55,7 +55,7 @@ Zip the project **contents** (no extra wrapper folder) and deploy, for example w
 </Step>
 
 <Step id="connect" name="Connect">
-A connection needs three values: the database **URL**, a **user** and a **password**. The URL format comes from your driver's documentation, not from Learn:
+A connection needs three values: the database **URL**, a **user** and a **password**. The URL format comes from your driver's documentation, not from the Microsoft Learn docs:
 
 - **MySQL**: `jdbc:mysql://db-host:3306/stock`
 - **Oracle**: `jdbc:oracle:thin:@//db-host:1521/ORDERS`, with Oracle's `ojdbc` driver
@@ -80,7 +80,7 @@ Two databases also have their own built-in connector in Standard:
 
 <Step id="watch" name="Watch out" tag="TIP">
 - The database must be **reachable from the logic app's runtime**: for a private database, use VNet integration or the hybrid model (ours, from Microsoft's Oracle guidance).
-- Learn's JDBC page is short: no Java version, no URL examples, no preview/GA status. **Test** with your driver and database first.
+- the Microsoft Learn JDBC page is short: no Java version, no URL examples, no preview/GA status. **Test** with your driver and database first.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

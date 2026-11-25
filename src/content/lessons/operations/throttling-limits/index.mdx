@@ -37,7 +37,7 @@ Throttling can happen at:
 </Step>
 
 <Step id="resource" name="Your logic app">
-Learn lists no action-count limit for Standard: a Standard workflow has **no limit on the number of actions** that can run in any interval, where Consumption allows 100,000 per 5 minutes by default (300,000 in high throughput mode).
+The Microsoft Learn docs list no action-count limit for Standard: a Standard workflow has **no limit on the number of actions** that can run in any interval, where Consumption allows 100,000 per 5 minutes by default (300,000 in high throughput mode).
 
 What you control is **trigger concurrency**: unlimited by default. Turn it on to cap concurrent runs at **1 to 100**, with up to **200 waiting runs**. Remember that turning it on can't be undone. To spot resource-level throttling in Standard, Microsoft points to the **Http 4xx** metric (a general App Service metric that counts all 4xx responses, not only throttling).
 </Step>

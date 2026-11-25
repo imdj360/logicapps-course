@@ -57,21 +57,21 @@ Choose **single tenant** for supported account types. Microsoft warns against "A
 </Step>
 
 <Step id="request" name="For Request triggers">
-Learn's security page confirms that a Standard workflow starting with the **Request** trigger (not a webhook trigger) can use Easy Auth for inbound calls, for example from a managed identity. For the steps, it links to a **Tech Community blog**, not a Learn article.
+The Microsoft Learn security page confirms that a Standard workflow starting with the **Request** trigger (not a webhook trigger) can use Easy Auth for inbound calls, for example from a managed identity. For the steps, it links to a **Tech Community blog**, not a Microsoft Learn article.
 
-It also says Standard can use other authentication types **without disabling SAS**. Learn doesn't spell out how SAS and Easy Auth interact on the same trigger, so test both paths before you rely on it.
+It also says Standard can use other authentication types **without disabling SAS**. The Microsoft Learn docs don't spell out how SAS and Easy Auth interact on the same trigger, so test both paths before you rely on it.
 </Step>
 
 <Step id="chat" name="For agent chat">
-For **conversational agents**, Learn has a full walkthrough (preview). You need the **Application Developer** role in Entra ID and the **Azure Contributor** role or higher on the logic app: Microsoft notes that's not the same as Logic Apps Standard Contributor.
+For **conversational agents**, the Microsoft Learn docs have a full walkthrough (preview). You need the **Application Developer** role in Entra ID and the **Azure Contributor** role or higher on the logic app: Microsoft notes that's not the same as Logic Apps Standard Contributor.
 
-Learn recommends **Require authentication** (unless you plan to allow some endpoints) and a **302 redirect** for agents. After that, the portal's built-in chat page stops working; people use the external chat client URL instead.
+The Microsoft Learn docs recommend **Require authentication** (unless you plan to allow some endpoints) and a **302 redirect** for agents. After that, the portal's built-in chat page stops working; people use the external chat client URL instead.
 </Step>
 
 <Step id="mcp" name="For MCP servers">
-MCP servers (preview) use **OAuth 2.0 by default**, which requires Easy Auth. Expose an API on the app registration; Learn recommends the scope **user_impersonation**, the default supported scope (another scope needs an override in `host.json`).
+MCP servers (preview) use **OAuth 2.0 by default**, which requires Easy Auth. Expose an API on the app registration; the Microsoft Learn docs recommend the scope **user_impersonation**, the default supported scope (another scope needs an override in `host.json`).
 
-Set the allowed token audience to `api://<application-id-uri>/`, **with the trailing slash**. Unlike agent chat, Learn's MCP setup sets Restrict access to **Allow unauthenticated access**.
+Set the allowed token audience to `api://<application-id-uri>/`, **with the trailing slash**. Unlike agent chat, the Microsoft Learn MCP setup sets Restrict access to **Allow unauthenticated access**.
 </Step>
 
 <Step id="identity" name="Who called?">
@@ -82,7 +82,7 @@ Microsoft points out that downstream actions such as **Compose** or **Parse JSON
 
 <Step id="troubleshoot" name="When it says no" tag="TIP">
 - **401** with `invalid_token` mentioning the audience: the token's audience doesn't match your allowed audiences (for MCP, check the trailing slash).
-- **403** after authentication: Learn notes it might mean the workflow or agent wasn't found.
+- **403** after authentication: the Microsoft Learn docs note it might mean the workflow or agent wasn't found.
 - With Require authentication on, it applies to **every** path of the app unless you exclude paths.
 </Step>
 
@@ -90,7 +90,7 @@ Microsoft points out that downstream actions such as **Compose** or **Parse JSON
 - **Easy Auth** checks Entra ID tokens before requests reach your workflows.
 - It validates the **audience**; add checks for apps, identities and tenants.
 - Set it up under **Settings > Authentication** with a single-tenant app registration.
-- Learn documents it fully for **agent chat** and **MCP**; for **Request triggers**, only briefly.
+- the Microsoft Learn docs document it fully for **agent chat** and **MCP**; for **Request triggers**, only briefly.
 - Read the caller's claims from headers such as `X-MS-CLIENT-PRINCIPAL`.
 </Step>
 

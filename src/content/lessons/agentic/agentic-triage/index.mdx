@@ -49,7 +49,7 @@ The agent then loops: the **model** (for example an Azure OpenAI deployment) pla
 <Step id="tools" name="Tools are actions">
 A **tool** is a sequence of one or more ordinary **actions** inside the Agent action. It can't contain a trigger, and it must start with an action.
 
-Our agent gets two read-only tools: *Get run history* (the failed run's actions, inputs and outputs) and *Query logs* (recent errors for the partner API). Agent parameters let the model fill in a tool's inputs when it calls that tool. These two tools are our design: Learn has no guidance on agents that read run history, so treat them as ordinary actions you build yourself.
+Our agent gets two read-only tools: *Get run history* (the failed run's actions, inputs and outputs) and *Query logs* (recent errors for the partner API). Agent parameters let the model fill in a tool's inputs when it calls that tool. These two tools are our design: the Microsoft Learn docs have no guidance on agents that read run history, so treat them as ordinary actions you build yourself.
 </Step>
 
 <Step id="investigate" name="The agent investigates">

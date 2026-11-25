@@ -40,7 +40,7 @@ The workflow keeps the inbound request open only for a limited time: **225 secon
 <Step id="asyncin" name="Switch 1: on the Response">
 This switch faces the **website**. Turn on **Asynchronous response** on the **Response** action, or leave out the Response action, and the website immediately gets **202 Accepted**. The workflow carries on with the partner call, and can take as long as it needs, within a stateful workflow's run duration.
 
-The caller then needs another way to learn the outcome, for example a callback or a status it can check. Learn doesn't prescribe one.
+The caller then needs another way to learn the outcome, for example a callback or a status it can check. The Microsoft Learn docs don't prescribe one.
 </Step>
 
 <Step id="outbound" name="Switch 2: on the HTTP action">
@@ -58,7 +58,7 @@ By default, Logic Apps polls the location after **one second**.
 </Step>
 
 <Step id="nolocation" name="202 without a location" tag="PROBLEM">
-Some APIs answer 202 with no location header to poll. For those, turn **off** the HTTP action's Asynchronous pattern setting, so, in our view, the action doesn't keep checking for a status that never comes. Learn's own reasons to turn it off are to stop checking location headers and to avoid HTTP timeouts on long-running tasks.
+Some APIs answer 202 with no location header to poll. For those, turn **off** the HTTP action's Asynchronous pattern setting, so, in our view, the action doesn't keep checking for a status that never comes. The Microsoft Learn docs' own reasons to turn it off are to stop checking location headers and to avoid HTTP timeouts on long-running tasks.
 </Step>
 
 <Step id="stateless" name="Stateless doesn't poll">

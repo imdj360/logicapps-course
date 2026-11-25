@@ -51,7 +51,7 @@ The partner stays down longer than the retries last. *Call partner API* ends as 
 <Step id="catch" name="Try and Catch scopes" tag="FIX">
 Logic Apps has no try/catch keyword, but **scopes** give you the same pattern. Put *Call partner API* and *Save order* inside a *Scope* named **Try**. Then add a second *Scope* after it, named **Catch**, with your error handling inside: here, an alert to the team.
 
-A scope gets its own status once everything inside it finishes. Learn's scopes page says that when any action inside fails, the scope is marked **Failed** (its error-handling page words it as the final action failing). So the Catch scope doesn't need to know which action broke. It only watches the Try scope.
+A scope gets its own status once everything inside it finishes. The Microsoft Learn scopes page says that when any action inside fails, the scope is marked **Failed** (its error-handling page words it as the final action failing). So the Catch scope doesn't need to know which action broke. It only watches the Try scope.
 </Step>
 
 <Step id="run-after" name="Configure run after">

@@ -65,7 +65,7 @@ A **tool** is a sequence of one or more actions that completes a task for the ag
 
 <Step id="types" name="Autonomous or conversational">
 - An **autonomous** agent starts from any supported trigger and works from system instructions and nonhuman inputs. Microsoft says these suit work that might run a long time or needs stronger governance.
-- A **conversational** agent starts with the chat-session trigger (Learn calls it "When a chat session starts" in one place and "When a new chat session starts" in another) and talks with people. These suit user-driven, short-lived or session-based work.
+- A **conversational** agent starts with the chat-session trigger (the Microsoft Learn docs call it "When a chat session starts" in one place and "When a new chat session starts" in another) and talks with people. These suit user-driven, short-lived or session-based work.
 </Step>
 
 <Step id="where" name="Where you can build them">
@@ -77,7 +77,7 @@ Several Standard features around agents are also in preview, such as multi-agent
 <Step id="limits" name="Context and history">
 Every call sends the conversation so far to the model, and models have a **context length**: gpt-4o, for example, accepts 128,000 input tokens. Logic Apps can trim the agent's history by **token count** or **message count**, but Microsoft marks that as an **experimental** capability.
 
-Learn doesn't state a maximum number of loop iterations, so design instructions and tools so the agent can finish.
+The Microsoft Learn docs don't state a maximum number of loop iterations, so design instructions and tools so the agent can finish.
 </Step>
 
 <Step id="cost" name="What it costs" tag="TIP">

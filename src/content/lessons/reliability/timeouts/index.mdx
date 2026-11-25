@@ -50,7 +50,7 @@ You can limit how long an action may run. In code view, `limit.timeout` caps the
 "limit": { "timeout": "PT10M" }
 ```
 
-If the action hasn't finished when the time is up, it stops: Learn's action reference says it's marked **Cancelled** with the code `ActionTimedOut`.
+If the action hasn't finished when the time is up, it stops: the Microsoft Learn action reference says it's marked **Cancelled** with the code `ActionTimedOut`.
 </Step>
 
 <Step id="until" name="Until loop timeout">
@@ -66,7 +66,7 @@ A whole **stateful** run can last **90 days** by default; set `Runtime.Backend.F
 </Step>
 
 <Step id="catch" name="Catching a timeout" tag="FIX">
-A timeout is an outcome you can act on. On the next action, or on a catch scope, open **Run after** and select **Has timed out**, alongside **Has failed**. Learn describes the outcome both as Cancelled (ActionTimedOut) and as Timed out, so test what your run after sees.
+A timeout is an outcome you can act on. On the next action, or on a catch scope, open **Run after** and select **Has timed out**, alongside **Has failed**. The Microsoft Learn docs describe the outcome both as Cancelled (ActionTimedOut) and as Timed out, so test what your run after sees.
 
 That way a partner that never answers leads to an alert or a fallback, not a run stuck on Running.
 </Step>

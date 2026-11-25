@@ -68,7 +68,7 @@ export const scene: Scene = {
     'run-it': {
       visible: ['cls', 'ext', 'cls-ext'],
       highlight: ['cls'],
-      chips: [{ label: 'Learn on running tests', value: 'silent', tone: 'warn' }],
+      chips: [{ label: 'Microsoft Learn docs on running tests', value: 'silent', tone: 'warn' }],
     },
     limits: {
       visible: ['def', 'run', 'gen', 'cls', 'def-gen', 'run-gen', 'gen-cls'],

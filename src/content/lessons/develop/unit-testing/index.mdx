@@ -38,7 +38,7 @@ The test definition **mocks the external calls** from each workflow operation **
 </Step>
 
 <Step id="two-ways" name="Two ways to start">
-There are two starting points, each with its own Learn article:
+There are two starting points, each with its own Microsoft Learn article:
 
 - **From a workflow definition**: open the designer and create a test.
 - **From a workflow run**: reuse a run you already executed locally, so the mock data reflects a real execution.
@@ -85,13 +85,13 @@ Each sample test prepares mocks, runs the workflow with `RunWorkflowAsync`, and 
 </Step>
 
 <Step id="run-it" name="Running the tests">
-Learn's two articles show how to create and edit the tests. They **don't describe how to run them**, in Test Explorer, with `dotnet test` or in a pipeline, and they don't call the feature preview or give a test framework name.
+The Microsoft Learn two articles show how to create and edit the tests. They **don't describe how to run them**, in Test Explorer, with `dotnet test` or in a pipeline, and they don't call the feature preview or give a test framework name.
 
 Our inference: the generated class uses `[TestClass]`, `[TestMethod]` and `[TestInitialize]`, which look like MSTest attributes, so ordinary .NET test tooling should apply. Check that in your own project before relying on it in CI.
 </Step>
 
 <Step id="limits" name="Current limits" tag="TIP">
-Learn lists limits for **this release**:
+The Microsoft Learn docs list limits for **this release**:
 
 - only **C#** is supported;
 - **non-mocked actions** aren't supported, so every action on the execution path must be mocked;
@@ -106,7 +106,7 @@ If your workflow uses XML maps or Liquid, plan for that gap.
 - Create them from a **definition** (designer) or from a **local run** (run history).
 - VS Code generates a **Tests** folder with `MockOutputs` classes and a sample C# test class.
 - Run-based tests add a `*-mock.json` file.
-- Learn is silent on running tests and CI; the release only supports **C#** and fully mocked paths.
+- the Microsoft Learn docs are silent on running tests and CI; the release only supports **C#** and fully mocked paths.
 </Step>
 
 {/*

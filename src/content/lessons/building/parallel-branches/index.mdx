@@ -65,7 +65,7 @@ A successor of a failed action is marked **Skipped**, and the join's default run
 <Step id="handle" name="Handle it in the join" tag="FIX">
 To act on the failure, open the join's **run after** settings for the branch that can fail. Keep **Is successful** selected and add **Has failed** (and **Has timed out** or **Is skipped** if you need them).
 
-The join now runs whether *Reserve stock* succeeds or fails. Inside it, check the branch's status, for example with a condition on `actions('Reserve_stock')?['status']`, the same expression Learn uses to check a scope's status.
+The join now runs whether *Reserve stock* succeeds or fails. Inside it, check the branch's status, for example with a condition on `actions('Reserve_stock')?['status']`, the same expression the Microsoft Learn docs use to check a scope's status.
 </Step>
 
 <Step id="vs" name="Branches or For each?" tag="TIP">
@@ -75,7 +75,7 @@ Use **For each** for the **same** work on every item in a list. It already runs 
 </Step>
 
 <Step id="limits" name="Limits" tag="TIP">
-Learn lists no separate limit on the number of parallel branches. Actions in branches count toward the workflow limits like any other action: **500 actions** per workflow, and an actions nesting depth of **8**.
+The Microsoft Learn docs list no separate limit on the number of parallel branches. Actions in branches count toward the workflow limits like any other action: **500 actions** per workflow, and an actions nesting depth of **8**.
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">

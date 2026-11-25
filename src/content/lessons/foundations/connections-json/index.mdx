@@ -93,7 +93,7 @@ The key (`serviceBus`) is the link: rename it in one file and you must rename it
 </Step>
 
 <Step id="managed" name="A managed connection">
-A managed connection is different: the connection itself is a **separate Azure resource**, an API connection of type `Microsoft.Web/connections`, deployed with your infrastructure, for example in an ARM template. `connections.json` points at it. This example is adapted from Learn's Service Bus and SQL examples:
+A managed connection is different: the connection itself is a **separate Azure resource**, an API connection of type `Microsoft.Web/connections`, deployed with your infrastructure, for example in an ARM template. `connections.json` points at it. This example is adapted from the Microsoft Learn Service Bus and SQL examples:
 
 ```json
 "managedApiConnections": {
@@ -106,7 +106,7 @@ A managed connection is different: the connection itself is a **separate Azure r
 }
 ```
 
-A managed action points at its entry with `host.connection.referenceName` (shape from Daniel's projects; we didn't find it spelled out on Learn):
+A managed action points at its entry with `host.connection.referenceName` (shape from Daniel's projects; we didn't find it spelled out in the Microsoft Learn docs):
 
 ```json
 "Send_an_email": {
