@@ -13,6 +13,7 @@ export const scene: Scene = {
   groups: [
     { id: 'appBox', label: 'Standard logic app', x: 30, y: 40, w: 300, h: 430 },
     { id: 'vnetBox', label: 'Your virtual network', x: 410, y: 40, w: 470, h: 300 },
+    { id: 'hubBox', label: 'Hub network · peered', x: 410, y: 365, w: 470, h: 125 },
   ],
   nodes: [
     { id: 'trig', kind: 'trigger', label: 'Order received', sublabel: 'Request', x: 180, y: 110 },
@@ -22,6 +23,8 @@ export const scene: Scene = {
     { id: 'subnet', kind: 'hosting-plan', label: 'App subnet', sublabel: '/26 recommended', x: 510, y: 210 },
     { id: 'api', kind: 'user', label: 'Warehouse API', sublabel: '10.0.1.3', x: 760, y: 140 },
     { id: 'db', kind: 'storage', label: 'SQL Server', sublabel: 'private IP', x: 760, y: 270 },
+    { id: 'shared', kind: 'storage', label: 'Shared SQL', sublabel: 'in the hub', x: 760, y: 430 },
+    { id: 'hubgw', kind: 'hosting-plan', label: 'VPN gateway', sublabel: 'to datacenter', x: 540, y: 430 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure service', x: 640, y: 420 },
   ],
   edges: [
@@ -33,6 +36,8 @@ export const scene: Scene = {
     { id: 'sql-subnet', from: 'sql', to: 'subnet' },
     { id: 'subnet-api', from: 'subnet', to: 'api' },
     { id: 'subnet-db', from: 'subnet', to: 'db' },
+    { id: 'subnet-shared', from: 'subnet', to: 'shared', label: 'peering' },
+    { id: 'subnet-hubgw', from: 'subnet', to: 'hubgw', style: 'dashed' },
     { id: 'mail-subnet', from: 'mail', to: 'subnet' },
     { id: 'subnet-cloud', from: 'subnet', to: 'cloud', style: 'dashed', label: 'allow its IPs' },
   ],
@@ -77,6 +82,17 @@ export const scene: Scene = {
       highlight: ['http', 'sql', 'mail', 'cloud'],
       tokens: [{ id: 'c1', edge: 'sql-subnet', tone: 'info' }, { id: 'c2', edge: 'subnet-db', tone: 'ok' }, { id: 'c3', edge: 'mail-subnet', tone: 'info' }, { id: 'c4', edge: 'subnet-cloud', tone: 'info' }],
       chips: [{ label: 'built-in', value: 'through the VNet', tone: 'ok' }, { label: 'managed', value: 'allow regional IPs', tone: 'warn' }],
+    },
+    peering: {
+      visible: [...app, ...vnet, ...wired, 'hubBox', 'shared', 'hubgw', 'subnet-shared', 'subnet-hubgw'],
+      highlight: ['hubBox', 'subnet-shared', 'shared'],
+      tokens: [{ id: 'g1', edge: 'sql-subnet', tone: 'info' }, { id: 'g2', edge: 'subnet-shared', tone: 'ok' }],
+      chips: [{ label: 'peered networks', value: 'reachable · even global', tone: 'ok' }, { label: 'source address', value: 'integration subnet' }, { label: 'hub gateway', value: 'gateway transit (ours)' }],
+    },
+    'private-dns': {
+      visible: [...app, ...vnet, ...wired, 'hubBox', 'shared', 'subnet-shared'],
+      highlight: ['subnet-shared'],
+      chips: [{ label: 'private endpoint names', value: 'must resolve privately' }, { label: 'Azure DNS private zones', value: 'link to the network', tone: 'ok' }],
     },
     dns: {
       visible: [...app, ...vnet, ...wired],
