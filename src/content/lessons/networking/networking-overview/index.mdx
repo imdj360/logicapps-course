@@ -9,7 +9,7 @@ youWillLearn:
   - Where a Standard logic app runs, and why it sits outside your network
   - Which building block answers which requirement
   - What each block costs you in trade-offs
-  - Three common combinations to start from
+  - The common combinations, including hub-and-spoke
 learnLinks:
   - title: "Secure Traffic between Standard Workflows and Virtual Networks"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
@@ -94,12 +94,23 @@ Lesson: *Reaching on-premises systems*.
 Lesson: *Firewalls, fixed IPs and service tags*.
 </Step>
 
+<Step id="block-hub" name="Block: shared hub (hub-and-spoke)">
+**Need:** several apps share one firewall, one VPN or ExpressRoute link and shared services, run by a central network team.
+
+**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls arrive from the integration subnet's addresses. To use the hub's VPN or ExpressRoute gateway, the peering needs gateway transit (ours: an Azure networking setting), and private DNS zones must be linked to the spoke.
+
+**Trade-off:** routes and firewall rules belong to the hub team, so every new dependency needs a request.
+
+Lessons: *VNet integration* (peered networks) and *Firewalls, fixed IPs and service tags*.
+</Step>
+
 <Step id="combos" name="Common combinations" tag="TIP">
 Three mixes we see most (ours):
 
 - **SaaS integration**: baseline only.
 - **Internal APIs, public triggers**: reach private resources, plus controlled egress when a partner needs a fixed IP.
 - **Locked down**: reach private resources + no public inbound + private storage, often with the datacenter and controlled egress blocks.
+- **Enterprise**: the locked-down mix inside a **hub-and-spoke** network, with the firewall and the datacenter link in the hub.
 
 Build the outbound block first: the storage and datacenter blocks depend on it.
 </Step>
@@ -111,6 +122,7 @@ Build the outbound block first: the storage and datacenter blocks depend on it.
 - **Private storage**: four storage private endpoints.
 - **Datacenter**: built-in over VPN/ExpressRoute, or the data gateway.
 - **Controlled egress**: firewall rules with service tags; NAT gateway for a fixed IP.
+- **Shared hub**: a spoke peered to the hub; gateway transit for the hub's VPN; private DNS linked to the spoke.
 </Step>
 
 {/*

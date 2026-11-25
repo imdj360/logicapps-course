@@ -8,7 +8,8 @@ const inbound = ['caller', 'pe', 'caller-pe', 'pe-app'];
 const storage = ['stpe', 'storage', 'subnet-stpe', 'stpe-storage'];
 const onprem = ['onpremBox', 'onsql', 'gw', 'cloud', 'subnet-onsql', 'subnet-cloud', 'gw-cloud', 'gw-onsql'];
 const egress = ['fw', 'subnet-fw', 'cloud', 'subnet-cloud'];
-const all = [...new Set([...outbound, ...inbound, ...storage, ...onprem, ...egress])];
+const hub = ['hubBox', 'fw', 'subnet-fw'];
+const all = [...new Set([...outbound, ...inbound, ...storage, ...onprem, ...egress, ...hub])];
 
 export const scene: Scene = {
   viewBox: [900, 500],
@@ -16,6 +17,7 @@ export const scene: Scene = {
     // On a Workflow Service Plan the app runs on shared App Service infrastructure, outside your network.
     { id: 'azBox', label: 'App Service · WS plan', x: 340, y: 6, w: 220, h: 100 },
     { id: 'vnetBox', label: 'Your virtual network', x: 190, y: 140, w: 520, h: 220 },
+    { id: 'hubBox', label: 'Hub · peered', x: 728, y: 8, w: 170, h: 118 },
     { id: 'onpremBox', label: 'Datacenter', x: 190, y: 390, w: 520, h: 100 },
   ],
   nodes: [
@@ -26,7 +28,7 @@ export const scene: Scene = {
     { id: 'stpe', kind: 'keyvault', label: 'Storage endpts', sublabel: '4 services', x: 300, y: 305 },
     { id: 'api', kind: 'user', label: 'Internal API', sublabel: '10.0.1.3', x: 600, y: 305 },
     { id: 'storage', kind: 'storage', label: 'Storage', sublabel: 'no public', x: 90, y: 305 },
-    { id: 'fw', kind: 'keyvault', label: 'Firewall · NAT', sublabel: 'egress', x: 815, y: 65 },
+    { id: 'fw', kind: 'keyvault', label: 'Firewall · NAT', sublabel: 'egress', x: 815, y: 78 },
     { id: 'cloud', kind: 'connector-managed', label: 'Managed API', sublabel: 'Azure', x: 815, y: 200 },
     { id: 'onsql', kind: 'storage', label: 'ERP SQL Server', sublabel: 'datacenter', x: 300, y: 445 },
     { id: 'gw', kind: 'hosting-plan', label: 'Data gateway', sublabel: 'for managed', x: 600, y: 445 },
@@ -44,7 +46,7 @@ export const scene: Scene = {
     { id: 'stpe-storage', from: 'stpe', to: 'storage' },
     { id: 'subnet-cloud', from: 'subnet', to: 'cloud', style: 'dashed' },
     { id: 'subnet-onsql', from: 'subnet', to: 'onsql', label: 'VPN / ER' },
-    { id: 'subnet-fw', from: 'subnet', to: 'fw', label: 'route' },
+    { id: 'subnet-fw', from: 'subnet', to: 'fw' },
     { id: 'gw-cloud', from: 'gw', to: 'cloud', style: 'dashed', label: 'polls out' },
     { id: 'gw-onsql', from: 'gw', to: 'onsql', style: 'dashed' },
     { id: 'p-internet-app', from: 'p-internet', to: 'app', style: 'dashed', label: 'public' },
@@ -102,9 +104,15 @@ export const scene: Scene = {
       tokens: [{ id: 'e1', edge: 'app-subnet', tone: 'info' }, { id: 'e2', edge: 'subnet-fw', tone: 'info' }],
       chips: [{ label: 'need', value: 'central egress · fixed IP' }, { label: 'add', value: 'firewall rules · NAT gateway', tone: 'ok' }],
     },
+    'block-hub': {
+      visible: [...outbound, ...hub],
+      highlight: ['hubBox', 'subnet-fw'],
+      tokens: [{ id: 'h1', edge: 'app-subnet', tone: 'info' }, { id: 'h2', edge: 'subnet-fw', tone: 'ok' }],
+      chips: [{ label: 'need', value: 'shared firewall · VPN · services' }, { label: 'add', value: 'spoke peered to hub', tone: 'ok' }, { label: 'hub VPN', value: 'gateway transit (ours)' }],
+    },
     combos: {
       visible: [...all],
-      chips: [{ label: 'SaaS', value: 'baseline' }, { label: 'internal APIs', value: 'outbound (+ egress)' }, { label: 'locked down', value: 'outbound + inbound + storage' }],
+      chips: [{ label: 'SaaS', value: 'baseline' }, { label: 'internal APIs', value: 'outbound (+ egress)' }, { label: 'locked down', value: 'outbound + inbound + storage' }, { label: 'enterprise', value: '+ hub-and-spoke' }],
     },
     recap: {
       visible: [...all],
