@@ -45,17 +45,14 @@ jobs:
 
   # Optional second host. Turn on with repository variable PAGES_ENABLED=true and
   # Settings > Pages > Source: GitHub Actions. Rebuilt here because the base path differs from Azure.
-  github-pages:
+  # Upload and deploy are separate jobs (as in GitHub's Pages template): deploying in the same job
+  # right after the upload fails with "No artifacts named github-pages" before the upload is registered.
+  pages-build:
     needs: build
     if: github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     env:
       # Custom domain: set PAGES_BASE_PATH to / and PAGES_SITE_URL to the domain.
       PUBLIC_BASE_PATH: ${{ vars.PAGES_BASE_PATH || format('/{0}', github.event.repository.name) }}
@@ -75,5 +72,19 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  pages-deploy:
+    needs: pages-build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@v4
