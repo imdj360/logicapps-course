@@ -83,13 +83,15 @@ The integrated network itself must be in the **same region** as the app. In a hu
 
 Calls to a **VM or private endpoint** in the integrated or a peered network come **from an address in the integration subnet**, so that's the range to allow on the other side's NSG or firewall.
 
-Peering needs no extra setup for VNet integration. To reach the datacenter through a VPN or ExpressRoute gateway in the hub, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering, *Use remote gateways* on the spoke's side. It doesn't work with a **Basic** VPN gateway, and a spoke can use only **one** remote gateway. Microsoft also notes that a route table can send outbound traffic to an ExpressRoute gateway, and that BGP routes from it affect the app's traffic.
+Peering needs no extra setup for VNet integration. To reach the datacenter through a VPN or ExpressRoute gateway in the hub, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering, *Use remote gateways* on the spoke's side.
 </Step>
 
 <Step id="private-dns" name="Names must resolve privately" tag="TIP">
 When the app calls something through a **private endpoint**, in its own or a peered network, the name must resolve to the endpoint's private address.
 
 With **Azure DNS private zones**, that happens automatically when the zones are **linked to the virtual network** and you don't use a custom DNS server. With your own DNS server, manage the private endpoint records there.
+
+In **hub-and-spoke**, Microsoft describes a common setup: create the private DNS zones **once in the hub**, and link them to every virtual network, hub and spokes, with clients that need to resolve those names.
 </Step>
 
 <Step id="service-endpoints" name="Service endpoints: the lighter option">
@@ -135,5 +137,6 @@ overview-vnet-integration (App Service, "Works with App Service apps, function a
 - storage/common/storage-network-security: "When you create network rules by using the Azure portal, it automatically creates these service endpoints as you select each target subnet."
 - networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
 - app-service/overview-vnet-integration: "If you use peering with virtual network integration, you don't need to do any more configuration."
+- private-link/private-endpoint-dns-integration (checked 2026-11-25): "In a hub-and-spoke topology, a common scenario allows the creation of private DNS zones only once in the hub"; "link the same private DNS zones to all spokes and hub virtual networks that contain clients that need DNS resolution from the zones".
 Ours: hub-and-spoke framing, the warehouse-API story (Learn's example uses a generic internal service at 10.0.1.3), the desk analogy, "built-in operations run inside the logic app, so their calls go through the VNet" as the reason the HTTP action works (consistent with Learn's test and the built-in connector definition), "each instance needs an address".
 */}

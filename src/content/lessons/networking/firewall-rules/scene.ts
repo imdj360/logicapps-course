@@ -80,6 +80,13 @@ export const scene: Scene = {
       highlight: ['cloud'],
       chips: [{ label: 'webhook callbacks', value: 'allow AzureConnectors' }, { label: 'Office 365', value: 'caller is the connector' }],
     },
+    troubleshoot: {
+      visible: [...base, ...hub],
+      highlight: ['app', 'intsub'],
+      failed: ['cloud'],
+      tokens: [{ id: 't1', edge: 'app-intsub', tone: 'info' }, { id: 't2', edge: 'intsub-fw', tone: 'info' }, { id: 't3', edge: 'fw-cloud', tone: 'fail' }],
+      chips: [{ label: 'portal', value: 'Network troubleshooter' }, { label: 'Kudu', value: 'nameresolver · tcpping' }, { label: '~21 s timeout', value: 'firewall in the way', tone: 'warn' }],
+    },
     checklist: {
       visible: [...base, ...subnets, ...hub, ...fixed, ...vault],
       chips: [{ label: 'before go-live', value: 'subnets · firewall · NAT · vault' }],

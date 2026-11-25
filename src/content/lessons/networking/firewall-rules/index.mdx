@@ -2,7 +2,7 @@
 title: "Firewalls, fixed IPs and service tags"
 module: networking
 order: 5
-minutes: 10
+minutes: 11
 level: Advanced
 summary: The network team forces all outbound traffic through a firewall, and a partner wants one fixed IP to allow. Get the subnets, firewall rules, service tags, NAT gateway and Key Vault access right before go-live.
 youWillLearn:
@@ -42,7 +42,7 @@ A **private endpoint** needs a subnet **without delegations**. So a private Stan
 </Step>
 
 <Step id="forced" name="Forced through a firewall">
-A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. Microsoft's hub-and-spoke guide uses a default route, `0.0.0.0/0`, with next hop **VirtualAppliance** set to the firewall's private IP, and suggests turning off **BGP route propagation** if on-premises routes shouldn't override it. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to the app's outbound traffic. **Configuration** traffic, such as the storage content share, goes over the public route unless you route it through the network too (for example `WEBSITE_CONTENTOVERVNET`).
+A **route table** on the integration subnet sends outbound traffic wherever you choose, such as a hub firewall. Microsoft's hub-and-spoke guide uses a default route, `0.0.0.0/0` pointing at the firewall's private IP. With all outbound traffic routed into the network (the default), the **NSGs and route tables** on the integration subnet apply to the app's outbound traffic. **Configuration** traffic, such as the storage content share, goes over the public route unless you route it through the network too (for example `WEBSITE_CONTENTOVERVNET`).
 
 Traffic to services secured with **service endpoints** is the exception: it goes straight to the service over the Azure backbone, not through the firewall route.
 
@@ -86,6 +86,15 @@ If the app's endpoint stays public but filtered by **access restrictions**, mana
 Some callers aren't what you'd expect: for **Office 365** triggers, the caller is the Office 365 connector itself.
 </Step>
 
+<Step id="troubleshoot" name="A call fails: find out why">
+When a call over the network fails, test from the app itself:
+
+1. Under **Diagnose and solve problems**, run **Network troubleshooter**. It checks that every instance has a private IP, checks the DNS settings, and can test one endpoint. Its connection check doesn't support Linux or container apps yet.
+2. In the **Kudu** console (Windows apps), check name resolution with `nameresolver.exe hostname`, then the port with `tcpping.exe hostname port`. `ping`, `nslookup` and `tracert` don't work there. On Linux, use `nslookup` and `curl`.
+3. A **timeout of about 21 seconds** usually means a firewall is in the way.
+4. Check the usual suspects: `WEBSITE_PRIVATE_IP` is set, **Route All** is on, no **NSG** blocks outbound from the integration subnet, and on-premises routes replies back to Azure.
+</Step>
+
 <Step id="checklist" name="Go-live checklist" tag="TIP">
 Before switching on the firewall (ours):
 
@@ -102,6 +111,7 @@ Before switching on the firewall (ours):
 - Service tags: **AzureConnectors** for managed connectors; **LogicApps** and **LogicAppsManagement** are described for multitenant.
 - Fixed outbound IP: **NAT gateway** (or the firewall's IP).
 - Key Vault: allow the **virtual network**, not the app's public IPs.
+- When a call fails: **Network troubleshooter**, then `nameresolver` and `tcpping` in Kudu.
 </Step>
 
 {/*
@@ -117,5 +127,6 @@ Sources (checked 2026-11-25, raw page text):
 - app-service-key-vault-references: "refetches them every 24 hours. Any configuration change to the app causes an app restart and an immediate refetch".
 - logic-apps-limits-and-config: "For Standard logic app workflows in single-tenant Azure Logic Apps, you must allow access for any trigger or action connections ... use service tags and the same level of restrictions or policies as Azure App Service"; LogicApps is described as "Outbound IP address prefixes for the multitenant Azure Logic Apps service".
 - networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
+- troubleshoot/azure/app-service/troubleshoot-vnet-integration-apps (ms.date 2026-08-25, checked 2026-11-25): Network troubleshooter under Diagnose and solve problems; "checks if the private IP is assigned to all instances of the App Service plan and the DNS settings ... You can also run tests against a specific endpoint"; "Connection issues doesn't support Linux or container-based apps yet"; "nameresolver.exe hostname [optional:DNS Server]"; "tcpping.exe hostname [optional: port]"; "In native Windows apps, the tools ping, nslookup, and tracert don't work through the console"; Linux: nslookup and curl; "If there's a firewall in the way, you encounter the TCP timeout. (The TCP timeout is usually 21 seconds)"; WEBSITE_PRIVATE_IP; "Is Route All enabled?"; "Is there an NSG blocking egress from your integration subnet?"; "is your on-premises gateway configured to route traffic back up to Azure?".
 Ours: the go-live story; "two subnets" as the consequence of delegated vs undelegated; the checklist.
 */}

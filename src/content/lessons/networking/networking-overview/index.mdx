@@ -116,8 +116,7 @@ Lessons: *VNet integration* (peered networks) and *Firewalls, fixed IPs and serv
 **Add:** host Standard on an **App Service Environment v3** (Windows plans). Then:
 - the app runs **in your virtual network**: no VNet integration needed, and its inbound and outbound traffic stays inside the network;
 - the ASE gets its own subnet, **delegated** to `Microsoft.Web/hostingEnvironments` and **empty** otherwise: **/24** for production, **/23** if you'll scale near the 200-instance maximum. Put private endpoints in other subnets;
-- private endpoints for apps on the ASE work only after you turn on **Allow new private endpoints** on the ASE;
-- sending an app's outbound traffic through a **different** subnet (outbound network segmentation) must be enabled **when you create** the ASE.
+- private endpoints for apps on the ASE work only after you turn on **Allow new private endpoints** on the ASE.
 
 **Trade-off:** dedicated cost and more to manage; it replaces the outbound block rather than adding to it.
 
