@@ -6,7 +6,7 @@ const appOnly = ['azBox', 'app'];
 const outbound = [...appOnly, 'vnetBox', 'subnet', 'api', 'app-subnet', 'subnet-api'];
 const inbound = ['caller', 'pe', 'caller-pe', 'pe-app'];
 const storage = ['stpe', 'storage', 'subnet-stpe', 'stpe-storage'];
-const onprem = ['onpremBox', 'onsql', 'gw', 'cloud', 'subnet-onsql', 'subnet-cloud', 'cloud-gw', 'gw-onsql'];
+const onprem = ['onpremBox', 'onsql', 'gw', 'cloud', 'subnet-onsql', 'subnet-cloud', 'gw-cloud', 'gw-onsql'];
 const egress = ['fw', 'subnet-fw', 'cloud', 'subnet-cloud'];
 const all = [...new Set([...outbound, ...inbound, ...storage, ...onprem, ...egress])];
 
@@ -45,7 +45,7 @@ export const scene: Scene = {
     { id: 'subnet-cloud', from: 'subnet', to: 'cloud', style: 'dashed' },
     { id: 'subnet-onsql', from: 'subnet', to: 'onsql', label: 'VPN / ER' },
     { id: 'subnet-fw', from: 'subnet', to: 'fw', label: 'route' },
-    { id: 'cloud-gw', from: 'cloud', to: 'gw', style: 'dashed' },
+    { id: 'gw-cloud', from: 'gw', to: 'cloud', style: 'dashed', label: 'polls out' },
     { id: 'gw-onsql', from: 'gw', to: 'onsql', style: 'dashed' },
     { id: 'p-internet-app', from: 'p-internet', to: 'app', style: 'dashed', label: 'public' },
     { id: 'p-app-storage', from: 'app', to: 'p-storage', style: 'dashed', label: 'public' },
@@ -92,7 +92,7 @@ export const scene: Scene = {
       highlight: ['onsql', 'subnet-onsql', 'gw'],
       tokens: [
         { id: 'n1', edge: 'app-subnet', tone: 'info' }, { id: 'n2', edge: 'subnet-onsql', tone: 'ok' },
-        { id: 'n3', edge: 'subnet-cloud', tone: 'info' }, { id: 'n4', edge: 'cloud-gw', tone: 'info' }, { id: 'n5', edge: 'gw-onsql', tone: 'ok' },
+        { id: 'n3', edge: 'subnet-cloud', tone: 'info' }, { id: 'n4', edge: 'gw-cloud', tone: 'info' }, { id: 'n5', edge: 'gw-onsql', tone: 'ok' },
       ],
       chips: [{ label: 'built-in', value: 'VPN / ExpressRoute', tone: 'ok' }, { label: 'managed only', value: 'data gateway' }],
     },
