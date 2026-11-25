@@ -21,7 +21,7 @@ reviewStatus: draft
 <Step id="problem" name="Too many small messages" tag="PROBLEM">
 Orders arrive all day from the shop, the app and EDI partners: hundreds of single messages. The ERP team asks for something else: **one file per hour**, with all the orders in it.
 
-Logic Apps has a pattern for collecting messages and releasing them together: **batching**.
+Today each order goes on its own. Logic Apps has a pattern for collecting messages and releasing them together: **batching**.
 </Step>
 
 <Step id="pattern" name="Receiver and senders">
@@ -66,7 +66,7 @@ Our design for the ERP request, using only the pieces above:
 
 1. **Receiver** *Collect orders*: **Batch Trigger** with batch name `erp-orders`, released on a **Schedule** of every 1 hour.
 2. **Senders**: the shop, app and EDI workflows each end with **Send to batch**: batch name `erp-orders`, the order as message content, and the receiver's workflow and trigger names. Each sets the **partition name** to its warehouse code, for example `WH-NORTH`.
-3. **Each hour**, the receiver's run gets the **Batched Items** for a partition. A **For each** turns every order into a line, then the run writes **one file**, named with the **Partition Name**, such as `WH-NORTH-2026-11-24-14.csv`.
+3. **Each hour**, the receiver's run gets the **Batched Items** for a partition. A **For each** turns every order into a line, then a **Write file** step (for example an SFTP or Blob action, ours) writes **one file**, named with the **Partition Name**, such as `WH-NORTH-2026-11-24-14.csv`.
 
 Result: one file per warehouse per hour, instead of hundreds of single orders. The names, file format and per-warehouse split are ours.
 </Step>
