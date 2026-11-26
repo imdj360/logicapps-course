@@ -68,7 +68,7 @@ a.credit:hover { color: var(--fg); }
   display: flex; flex-direction: column;
 }
 .sidebar__head { display: flex; justify-content: space-between; align-items: baseline; padding: 1rem 2.6rem 0.5rem 1rem; font: 600 13px/1 var(--font-display); }
-/* Desktop: hide or show the course menu to give the lesson more room. Choice is remembered in localStorage. */
+/* Desktop: hide or show the module menu to give the lesson more room. Choice is remembered in localStorage. */
 .sidebar-toggle { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--muted); font: 600 16px/1 var(--font-mono); cursor: pointer; }
 .sidebar-toggle:hover { color: var(--fg); border-color: var(--border-strong); }
 .sidebar { position: sticky; }

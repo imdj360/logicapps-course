@@ -59,11 +59,11 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
   <body>
     <TopBar />
     <div class="shell">
-      <aside id="sidebar" class="sidebar" aria-label="Course">
-        <button type="button" class="sidebar-toggle sidebar-toggle--hide" data-sidebar-toggle="collapsed" aria-label="Hide course menu" title="Hide course menu">‹</button>
+      <aside id="sidebar" class="sidebar" aria-label="Modules">
+        <button type="button" class="sidebar-toggle sidebar-toggle--hide" data-sidebar-toggle="collapsed" aria-label="Hide module menu" title="Hide module menu">‹</button>
         <Sidebar client:load catalog={catalog} activeSlug={activeSlug} />
       </aside>
-      <button type="button" class="sidebar-toggle sidebar-toggle--show" data-sidebar-toggle="open" aria-label="Show course menu" title="Show course menu">›</button>
+      <button type="button" class="sidebar-toggle sidebar-toggle--show" data-sidebar-toggle="open" aria-label="Show module menu" title="Show module menu">›</button>
       <div>
         <main class="main"><slot /></main>
         <Footer />

@@ -78,7 +78,7 @@ export const scene: Scene = {
     resources: {
       visible: [...wf, ...steps, 'cons', 'std'],
       highlight: ['std'],
-      chips: [{ label: 'Consumption', value: 'one workflow · pay per run' }, { label: 'Standard', value: 'many workflows · plan', tone: 'ok' }, { label: 'this course', value: 'Standard-first' }],
+      chips: [{ label: 'Consumption', value: 'one workflow · pay per run' }, { label: 'Standard', value: 'many workflows · plan', tone: 'ok' }, { label: 'this guide', value: 'Standard-first' }],
     },
     when: {
       visible: [...wf, ...steps],

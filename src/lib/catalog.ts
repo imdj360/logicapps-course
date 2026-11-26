@@ -28,7 +28,7 @@ export function buildCatalog(
 
 export interface NextLesson { href: string; title: string; moduleNumber: string; moduleTitle: string; newModule: boolean }
 
-/** The next published lesson in course order after `slug`, skipping lessons that aren't published. */
+/** The next published lesson in guide order after `slug`, skipping lessons that aren't published. */
 export function nextLesson(catalog: CatalogModule[], slug: string): NextLesson | null {
   const flat = catalog.flatMap((m) => m.lessons.map((l) => ({ ...l, mod: m })));
   const i = flat.findIndex((l) => l.slug === slug);

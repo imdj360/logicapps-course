@@ -4,7 +4,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { siteConfig } from '../config/site';
 ---
 <header class="topbar">
-  <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Open course menu" aria-controls="sidebar" aria-expanded="false">
+  <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Open module menu" aria-controls="sidebar" aria-expanded="false">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
   </button>
   <a href={withBase('/')} class="brand">
@@ -28,7 +28,7 @@ import { siteConfig } from '../config/site';
   const setOpen = (open: boolean) => {
     sidebar?.setAttribute('data-open', String(open));
     btn?.setAttribute('aria-expanded', String(open));
-    btn?.setAttribute('aria-label', open ? 'Close course menu' : 'Open course menu');
+    btn?.setAttribute('aria-label', open ? 'Close module menu' : 'Open module menu');
   };
   btn?.addEventListener('click', () => setOpen(sidebar?.getAttribute('data-open') !== 'true'));
   document.addEventListener('keydown', (e) => {
