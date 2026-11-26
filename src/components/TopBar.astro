@@ -25,10 +25,16 @@ import { siteConfig } from '../config/site';
 <script>
   const btn = document.getElementById('menu-btn');
   const sidebar = document.getElementById('sidebar');
-  btn?.addEventListener('click', () => {
-    const open = sidebar?.getAttribute('data-open') !== 'true';
+  const setOpen = (open: boolean) => {
     sidebar?.setAttribute('data-open', String(open));
-    btn.setAttribute('aria-expanded', String(open));
-    btn.setAttribute('aria-label', open ? 'Close course menu' : 'Open course menu');
+    btn?.setAttribute('aria-expanded', String(open));
+    btn?.setAttribute('aria-label', open ? 'Close course menu' : 'Open course menu');
+  };
+  btn?.addEventListener('click', () => setOpen(sidebar?.getAttribute('data-open') !== 'true'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar?.getAttribute('data-open') === 'true') {
+      setOpen(false);
+      btn?.focus();
+    }
   });
 </script>

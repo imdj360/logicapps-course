@@ -80,7 +80,7 @@ const ogUrl = new URL(withBase(ogImage), siteConfig.siteUrl).href;
         }),
       );
       document.addEventListener('click', (e) => {
-        const el = (e.target as HTMLElement).closest('[data-track]');
+        const el = e.target instanceof Element ? e.target.closest('[data-track]') : null;
         if (el) track(el.getAttribute('data-track') as 'devto_click');
       });
     </script>
