@@ -1,10 +1,10 @@
 ---
-title: A run failed at 3am — now what?
+title: Troubleshoot a failed run
 module: operations
 order: 4
 minutes: 10
 level: Intermediate
-summary: The alert fires at 3am. Walk through the checks in order, from trigger history to the failing action to the platform underneath, and get the order through safely.
+summary: An alert says runs are failing. Walk through the checks in order, from trigger history to the failing action to the platform underneath, and get the order through safely.
 youWillLearn:
   - Why trigger history comes before run history
   - How to find the failing action and read its error
@@ -21,9 +21,9 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="The alert fires" tag="PROBLEM">
-At 3am the on-call phone buzzes: **Workflow Runs Failure Rate** for the order workflow has crossed its threshold.
+The **Workflow Runs Failure Rate** alert for the order workflow has crossed its threshold, and a customer says their order never arrived.
 
-You're half awake. A fixed order of checks helps: **trigger**, then **run**, then **action**, then **platform**.
+A fixed order of checks helps: **trigger**, then **run**, then **action**, then **platform**.
 </Step>
 
 <Step id="trigger" name="Start with the trigger">
@@ -74,7 +74,7 @@ Both options need a **stateful** workflow, and neither works from VS Code or the
 Either way, rerunning **might create duplicate data**: check whether the failed run already did part of the work.
 </Step>
 
-<Step id="after" name="After the night" tag="TIP">
+<Step id="after" name="Afterwards" tag="TIP">
 Turn the incident into one improvement: a catch scope that would have alerted with a clear message, an idempotency check that makes resubmits safe, or a **Health Check** workflow.
 
 And for production, Microsoft says that to get the app-level SLA for Standard, set **Maximum Burst** to **2 or more** instances. If the app can't scale because of that setting, **Diagnose and solve problems** > **Logic App Down or Reporting Errors** shows a warning.
@@ -95,5 +95,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
 Fact-checked verbatim 2026-11-24.
 - view-workflow-status-run-history (ms.date 2026-03-02, re-checked 2026-11-26), "Rerun a workflow with same inputs": "The resubmitted run executes the same workflow version as the original run, even if you updated the workflow definition"; "only Consumption workflows and Standard stateful workflows ... are supported. To use these capabilities with a stateless Standard workflow, enable stateful mode"; "You can rerun only actions from sequential workflows. Workflows with parallel paths are currently not supported"; "must have a completed state, such as Succeeded, Failed, or Cancelled"; "40 or fewer actions"; "currently are unavailable with Visual Studio Code or Azure CLI"; table: Condition yes / actions in True and False paths no; For each plus all actions inside and after the loop no; Switch yes / actions in Default and Case paths no; Until plus inside and after no; "operations that precede the resubmitted action show a lighter-colored status icon, representing reused inputs and outputs"; "might create duplicate data or try to delete data that no longer exists".
-Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The 3am scenario and the trigger-run-action-platform order as a checklist are ours; Learn's own order is trigger history, then run history.
+Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The failed-order scenario and the trigger-run-action-platform order as a checklist are ours; Learn's own order is trigger history, then run history.
 */}

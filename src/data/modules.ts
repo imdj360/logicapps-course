@@ -54,7 +54,7 @@ export const MODULES: ModuleDef[] = [
     l('throttling-limits', 'Throttling & limits'),
     l('monitoring', 'Monitoring with App Insights & Log Analytics'),
     l('alerting', 'Alerting'),
-    l('failed-at-3am', 'A run failed at 3am — now what?'),
+    l('troubleshoot-failed-run', 'Troubleshoot a failed run'),
   ] },
   { id: 'security', number: '08', title: 'Security', lessons: [
     l('managed-identity', 'Managed identity'),

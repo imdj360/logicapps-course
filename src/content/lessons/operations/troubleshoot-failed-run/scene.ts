@@ -5,7 +5,7 @@ const path = ['phone', 'trig', 'run', 'act', 'phone-trig', 'trig-run', 'run-act'
 export const scene: Scene = {
   viewBox: [900, 500],
   nodes: [
-    { id: 'phone', kind: 'human', label: 'On-call', sublabel: '03:00', x: 110, y: 240 },
+    { id: 'phone', kind: 'human', label: 'You', sublabel: 'alert fired', x: 110, y: 240 },
     { id: 'trig', kind: 'trigger', label: 'Trigger history', sublabel: 'step 1', x: 330, y: 240 },
     { id: 'run', kind: 'storage', label: 'Run history', sublabel: 'step 2', x: 560, y: 240 },
     { id: 'act', kind: 'connector-managed', label: 'Failed action', sublabel: 'step 3', x: 790, y: 240 },
