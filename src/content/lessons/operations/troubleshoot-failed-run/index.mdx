@@ -4,12 +4,12 @@ module: operations
 order: 4
 minutes: 10
 level: Intermediate
-summary: An alert says runs are failing. Walk through the checks in order, from trigger history to the failing action to the platform underneath, and get the order through safely.
+summary: An alert says runs are failing. Walk through the checks in order, from trigger history to the failing action, and get the order through safely.
 youWillLearn:
   - Why trigger history comes before run history
   - How to find the failing action and read its error
-  - Which errors point at the platform rather than your workflow
   - How to resubmit safely once it's fixed
+  - When you can rerun from the failed step, and when you can't
 learnLinks:
   - title: "Troubleshoot and Diagnose Workflow Failures"
     url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-diagnosing-failures
@@ -23,7 +23,7 @@ reviewStatus: draft
 <Step id="problem" name="The alert fires" tag="PROBLEM">
 The **Workflow Runs Failure Rate** alert for the order workflow has crossed its threshold, and a customer says their order never arrived.
 
-A fixed order of checks helps: **trigger**, then **run**, then **action**, then **platform**.
+A fixed order of checks helps: **trigger**, then **run**, then **action**.
 </Step>
 
 <Step id="trigger" name="Start with the trigger">
@@ -46,32 +46,23 @@ Usually the answer is in the failed action's outputs: a status code and a messag
 Check whether it's **one run or many**: a query over your logs, like the ones in the monitoring lesson, tells you if this is one bad message or an outage.
 </Step>
 
-<Step id="platform" name="When it's the platform" tag="PROBLEM">
-Some errors point below your workflow, at the **storage account** the runtime depends on. Microsoft lists messages like:
+<Step id="resubmit" name="Resubmit the whole run" tag="FIX">
+Once the cause is fixed, go back to **run history**, select the failed run and choose **Resubmit**.
 
-- `Cannot reach host runtime`
-- `Azure.Storage.Blobs: This request is not authorized to perform this operation`
-- `Failed to save workflow`
+It reruns the **same workflow version**, even if you've changed the workflow since, with the same inputs. It needs a **stateful** workflow, and doesn't work from VS Code or the Azure CLI.
 
-Check the `AzureWebJobsStorage` setting, the private endpoints for Blob, File, Table and Queue, and DNS.
+Rerunning **might create duplicate data**: check whether the failed run already did part of the work.
 </Step>
 
-<Step id="fix" name="Fix, then resubmit" tag="FIX">
-Once the cause is fixed, rerun from **run history**. There are two options:
+<Step id="from-action" name="Rerun from the failed step">
+To skip the steps that already worked, open the failed action's menu and choose **Submit from this action**. The steps before it reuse their earlier inputs and outputs.
 
-- **Resubmit** reruns the whole run: the **same workflow version**, even if you've changed the workflow since, with the same inputs.
-- **Submit from this action** reruns from the failed step. The steps before it reuse their earlier inputs and outputs.
-
-Submit from this action has limits:
+It has limits:
 
 - **No loops**: it isn't available for a **For each** or **Until**, any action inside one, or any action after one.
 - **No branches**: it works on a **Condition** or **Switch** itself, but not on the actions inside their paths.
 - The workflow must be **sequential**, with no parallel branches, and have **40 or fewer** actions.
 - The run must be **finished**: Succeeded, Failed or Cancelled.
-
-Both options need a **stateful** workflow, and neither works from VS Code or the Azure CLI.
-
-Either way, rerunning **might create duplicate data**: check whether the failed run already did part of the work.
 </Step>
 
 <Step id="after" name="Afterwards" tag="TIP">
@@ -84,7 +75,6 @@ And for production, Microsoft says that to get the app-level SLA for Standard, s
 - Check **trigger history** first: Failed, Skipped (no run) or Succeeded.
 - In **run history**, open the failed step's inputs, outputs and error.
 - Decide if it's **one run or many** with a log query.
-- Storage access errors point at the **platform**: settings, private endpoints, DNS.
 - **Resubmit** the whole run, or **Submit from this action** (not in loops, branches or parallel paths); watch for duplicates.
 </Step>
 
@@ -95,5 +85,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
 Fact-checked verbatim 2026-11-24.
 - view-workflow-status-run-history (ms.date 2026-03-02, re-checked 2026-11-26), "Rerun a workflow with same inputs": "The resubmitted run executes the same workflow version as the original run, even if you updated the workflow definition"; "only Consumption workflows and Standard stateful workflows ... are supported. To use these capabilities with a stateless Standard workflow, enable stateful mode"; "You can rerun only actions from sequential workflows. Workflows with parallel paths are currently not supported"; "must have a completed state, such as Succeeded, Failed, or Cancelled"; "40 or fewer actions"; "currently are unavailable with Visual Studio Code or Azure CLI"; table: Condition yes / actions in True and False paths no; For each plus all actions inside and after the loop no; Switch yes / actions in Default and Case paths no; Until plus inside and after no; "operations that precede the resubmitted action show a lighter-colored status icon, representing reused inputs and outputs"; "might create duplicate data or try to delete data that no longer exists".
-Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The failed-order scenario and the trigger-run-action-platform order as a checklist are ours; Learn's own order is trigger history, then run history.
+Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The failed-order scenario and the trigger-run-action order as a checklist are ours; Learn's own order is trigger history, then run history.
 */}

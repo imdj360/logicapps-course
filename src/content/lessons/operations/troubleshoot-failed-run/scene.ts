@@ -9,21 +9,19 @@ export const scene: Scene = {
     { id: 'trig', kind: 'trigger', label: 'Trigger history', sublabel: 'step 1', x: 330, y: 240 },
     { id: 'run', kind: 'storage', label: 'Run history', sublabel: 'step 2', x: 560, y: 240 },
     { id: 'act', kind: 'connector-managed', label: 'Failed action', sublabel: 'step 3', x: 790, y: 240 },
-    { id: 'storage', kind: 'storage', label: 'Storage account', sublabel: 'step 4', x: 560, y: 410 },
     { id: 'resubmit', kind: 'action', label: 'Resubmit', sublabel: 'after the fix', x: 790, y: 90 },
   ],
   edges: [
     { id: 'phone-trig', from: 'phone', to: 'trig' },
     { id: 'trig-run', from: 'trig', to: 'run' },
     { id: 'run-act', from: 'run', to: 'act' },
-    { id: 'run-storage', from: 'run', to: 'storage', style: 'dashed' },
     { id: 'act-resubmit', from: 'act', to: 'resubmit' },
   ],
   steps: {
     problem: {
       visible: ['phone'],
       highlight: ['phone'],
-      chips: [{ label: 'alert', value: 'Runs Failure Rate', tone: 'fail' }, { label: 'order', value: 'trigger → run → action → platform' }],
+      chips: [{ label: 'alert', value: 'Runs Failure Rate', tone: 'fail' }, { label: 'order', value: 'trigger → run → action' }],
     },
     trigger: {
       visible: ['phone', 'trig', 'phone-trig'],
@@ -43,25 +41,25 @@ export const scene: Scene = {
       tokens: [{ id: 'a1', edge: 'run-act', tone: 'fail' }],
       chips: [{ label: 'rule of thumb: 401', value: 'credentials' }, { label: '429', value: 'throttling' }, { label: '5xx', value: 'their side' }],
     },
-    platform: {
-      visible: [...path, 'storage', 'run-storage'],
-      failed: ['storage'],
-      highlight: ['run-storage'],
-      chips: [{ label: 'error', value: 'Cannot reach host runtime', tone: 'fail' }, { label: 'check', value: 'storage · endpoints · DNS' }],
-    },
-    fix: {
+    resubmit: {
       visible: [...path, 'resubmit', 'act-resubmit'],
       highlight: ['resubmit', 'act-resubmit'],
       tokens: [{ id: 'f1', edge: 'act-resubmit', tone: 'ok' }],
-      chips: [{ label: 'Resubmit', value: 'same version, same inputs' }, { label: 'from an action', value: 'not in loops or branches', tone: 'warn' }, { label: 'watch for', value: 'duplicates', tone: 'warn' }],
+      chips: [{ label: 'Resubmit', value: 'same version, same inputs' }, { label: 'watch for', value: 'duplicates', tone: 'warn' }],
+    },
+    'from-action': {
+      visible: [...path, 'resubmit', 'act-resubmit'],
+      highlight: ['act'],
+      tokens: [{ id: 'f2', edge: 'act-resubmit', tone: 'ok' }],
+      chips: [{ label: 'from the failed step', value: 'earlier steps reused' }, { label: 'not in', value: 'loops · branches · parallel', tone: 'warn' }],
     },
     after: {
       visible: [...path, 'resubmit', 'act-resubmit'],
       chips: [{ label: 'improve one thing', value: 'catch · idempotency · health' }, { label: 'SLA', value: 'Maximum Burst ≥ 2' }],
     },
     recap: {
-      visible: [...path, 'storage', 'resubmit', 'run-storage', 'act-resubmit'],
-      chips: [{ label: 'order', value: 'trigger → run → action → platform' }],
+      visible: [...path, 'resubmit', 'act-resubmit'],
+      chips: [{ label: 'order', value: 'trigger → run → action' }],
     },
   },
   legend: [
