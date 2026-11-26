@@ -29,6 +29,15 @@ On Monday morning a customer asks where their weekend orders are. The workflow h
 Monitoring tells you what happened. **Alerts** tell you while it's happening.
 </Step>
 
+<Step id="levels" name="Two levels of alerting">
+Most teams use two levels (ours):
+
+1. **In the workflow**: a **catch scope** emails the team for each failed run, with the order number and the error. This is what people act on.
+2. **Azure Monitor alerts**: a safety net for what the workflow can't report itself, such as a trigger that fails before any run starts, an app that's down, or a catch scope that fails too.
+
+This lesson is about the second level.
+</Step>
+
 <Step id="metrics" name="Metrics to alert on">
 A Standard logic app exposes workflow metrics in the **App Service standard metrics** namespace. Search for "workflow" to find them, for example:
 
@@ -78,6 +87,7 @@ Our recommendations: alert on **rates** rather than single failures, scope rules
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
+- Two levels: a **catch scope** email per failed run, and **Azure Monitor alerts** as the safety net.
 - Standard exposes **Workflow Runs/Actions/Triggers Failure Rate**, run counts and **Job Execution Delay**.
 - Build **metric alert rules** under Monitoring > Alerts; check metric names in the portal.
 - Use **log alerts** for conditions only a query can express.
@@ -96,4 +106,5 @@ Sources (checked 2026-11-24, raw page text):
 Fact-checked verbatim 2026-11-24.
 Learn notes: the metrics page describes Workflow Runs Failure Rate as "the number of failed workflow runs", so whether it's a count or a percentage is ambiguous; we avoid saying which. The alert example on Learn (Triggers Failed) is Consumption only.
 Not claimed: a Standard alert-rule walkthrough (none on Learn). The delay alert, the log-alert query use and the alert-fatigue advice are ours.
+Ours: the two-levels framing (a catch scope email per failed run first, Azure Monitor alerts as the safety net for trigger failures, an app that's down, or a failing catch scope).
 */}
