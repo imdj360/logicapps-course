@@ -8,7 +8,7 @@ export const scene: Scene = {
     { id: 'app', kind: 'hosting-plan', label: 'Logic app', sublabel: 'Standard', x: 110, y: 240 },
     { id: 'metrics', kind: 'appinsights', label: 'Workflow metrics', sublabel: 'failure rate', x: 360, y: 240 },
     { id: 'rule', kind: 'condition', label: 'Alert rule', sublabel: 'every 1 min', x: 610, y: 240 },
-    { id: 'team', kind: 'human', label: 'On-call', sublabel: 'action group', x: 820, y: 240 },
+    { id: 'team', kind: 'human', label: 'Ops team', sublabel: 'action group', x: 820, y: 240 },
     { id: 'logs', kind: 'appinsights', label: 'Log query', sublabel: 'log alert', x: 360, y: 410 },
     { id: 'probe', kind: 'trigger', label: 'Health Check', sublabel: 'ping per min', x: 110, y: 80 },
   ],

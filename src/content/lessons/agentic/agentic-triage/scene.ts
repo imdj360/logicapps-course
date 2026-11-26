@@ -12,7 +12,7 @@ export const scene: Scene = {
     { id: 'model', kind: 'llm-agent', label: 'Model', sublabel: 'Azure OpenAI', x: 780, y: 100 },
     { id: 'history', kind: 'action', label: 'Get run history', sublabel: 'read-only tool', x: 330, y: 260 },
     { id: 'logs', kind: 'action', label: 'Query logs', sublabel: 'read-only tool', x: 550, y: 260 },
-    { id: 'human', kind: 'human', label: 'On-call engineer', sublabel: 'approval', x: 780, y: 270 },
+    { id: 'human', kind: 'human', label: 'Ops team', sublabel: 'approval', x: 780, y: 270 },
     { id: 'resubmit', kind: 'action', label: 'Resubmit runs', sublabel: 'after approval', x: 780, y: 420 },
   ],
   edges: [
@@ -28,7 +28,7 @@ export const scene: Scene = {
     problem: {
       visible: ['alert'],
       failed: ['alert'],
-      chips: [{ label: 'failed runs', value: '12', tone: 'fail' }, { label: 'on-call', value: 'reading run history' }],
+      chips: [{ label: 'failed runs', value: '12', tone: 'fail' }, { label: 'ops team', value: 'reading run history' }],
     },
     types: {
       visible: [...core],
