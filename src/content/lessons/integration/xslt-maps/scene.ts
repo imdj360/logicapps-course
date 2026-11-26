@@ -9,7 +9,7 @@ export const scene: Scene = {
     { id: 'partner', kind: 'user', label: 'Partner', sublabel: 'their XML', x: 110, y: 110 },
     { id: 'validate', kind: 'connector-builtin', label: 'Validate XML', sublabel: 'against .xsd', x: 330, y: 110 },
     { id: 'transform', kind: 'connector-builtin', label: 'Transform XML', sublabel: 'XSLT map', x: 560, y: 110 },
-    { id: 'erp', kind: 'user', label: 'Our XML', sublabel: 'transformed XML', x: 790, y: 110 },
+    { id: 'erp', kind: 'user', label: 'ERP', sublabel: 'transformed XML', x: 790, y: 110 },
     { id: 'maps', kind: 'storage', label: 'Artifacts/Maps', sublabel: '.xslt', x: 560, y: 280 },
     { id: 'schemas', kind: 'storage', label: 'Schemas', sublabel: 'XSD · JSON', x: 330, y: 280 },
     { id: 'dm', kind: 'human', label: 'Data Mapper', sublabel: 'VS Code', x: 110, y: 410 },
@@ -36,7 +36,7 @@ export const scene: Scene = {
       visible: [...flow],
       highlight: ['partner', 'erp'],
       tokens: [{ id: 'p1', edge: 'partner-transform', tone: 'info' }],
-      chips: [{ label: 'partner', value: 'their schema' }, { label: 'our XML', value: 'our schema' }],
+      chips: [{ label: 'partner', value: 'their schema' }, { label: 'ERP', value: 'our schema' }],
     },
     transform: {
       visible: [...flow],
