@@ -70,7 +70,7 @@ While the order moves, Logic Apps records it at two levels:
 1. **The run**: one run for each time the trigger fires, in the **run history**, with its status and when it started and ended.
 2. **Every step**: the trigger and each action get their own record, with status, timing, **inputs**, **outputs** and any error. For our order that's the **Request** itself (the order that came in), then *Parse order*, *Check stock* and *Send to queue*.
 
-In the portal you see the trigger's inputs and outputs in the **trigger history**. In storage, the request is kept the same way as the actions: Standard keeps these records in Azure Storage tables, linked to blobs that hold the inputs and outputs (author's observation; Daniel's storage article shows the tables).
+In the portal you see the trigger's inputs and outputs in the **trigger history**. In storage, the request is kept the same way as the actions: Standard keeps these records in Azure Storage tables, linked to blobs that hold the inputs and outputs (ours; the related storage article shows the tables).
 
 Run history is kept for **90 days** by default, in both Consumption and Standard, and you can change that.
 

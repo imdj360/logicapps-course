@@ -88,6 +88,27 @@ describe('LessonPlayer', () => {
     expect(pause).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('starts paused under reduced motion, and Play opts in to the animation', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('prefers-reduced-motion'), media: q }));
+    try {
+      renderPlayer();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    const play = screen.getByRole('button', { name: /Play/ });
+    expect(play).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(play);
+    expect(screen.getByRole('button', { name: /Pause/ })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('links to the next module from the last step', () => {
+    window.history.replaceState(null, '', '/lessons/demo/#3');
+    render(<LessonPlayer slug="demo" scene={scene} steps={steps} youWillLearn={[]}
+      next={{ href: '/lessons/next/', title: 'Next one', moduleNumber: '02', moduleTitle: 'Hosting', newModule: true }} />);
+    const link = screen.getByRole('link', { name: /Next module: 02\. Hosting/ });
+    expect(link).toHaveAttribute('href', '/lessons/next/');
+  });
+
   it('ignores keys while typing in an input', () => {
     render(<><input aria-label="search" /><LessonPlayer slug="demo" scene={scene} steps={steps} youWillLearn={[]} /></>);
     const input = screen.getByLabelText('search');

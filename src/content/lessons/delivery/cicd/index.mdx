@@ -1,7 +1,7 @@
 ---
-title: CI/CD with Bicep & ARM
-module: security
-order: 5
+title: "CI/CD: build the zip and deploy"
+module: delivery
+order: 2
 minutes: 11
 level: Intermediate
 summary: Ship a Standard logic app the same way every time. Deploy infrastructure and workflows separately, promote one zip through environments, and swap without downtime.
@@ -29,7 +29,7 @@ learnLinks:
 reviewStatus: draft
 ---
 
-<Step id="problem" name="Works on my laptop, again" tag="PROBLEM">
+<Step id="problem" name="Manual portal deploys drift" tag="PROBLEM">
 Today someone exports the workflow from the portal and pastes it into production. Test and production drift, and nobody can say what's running where.
 
 Standard is built for a proper pipeline: the same artifact, promoted from environment to environment.
@@ -39,16 +39,10 @@ Standard is built for a proper pipeline: the same artifact, promoted from enviro
 Microsoft's model: single-tenant Logic Apps **separates app code from infrastructure**. You provision infrastructure, such as the logic app, its plan, storage and networking, with templates. You build the workflows into a **zip**, an immutable artifact you deploy to each environment.
 </Step>
 
-<Step id="infra" name="The infrastructure">
-A Standard deployment needs:
+<Step id="infra" name="Deploy infrastructure first">
+Your pipeline's first stage deploys the Bicep or ARM templates from the previous lesson: the **Workflow Standard** plan, **storage account**, **Application Insights**, **logic app** (`functionapp,workflowapp`), **V2 API connections** and their **access policies**.
 
-- the **logic app**, an App Service resource of kind `functionapp,workflowapp`;
-- a **Workflow Standard** hosting plan;
-- a **storage account**, for both stateful and stateless workflows;
-- **API connections**, if you use managed connectors;
-- optionally **Application Insights**.
-
-Deploy these with ARM templates (our note: Bicep compiles to ARM, so it works too). The Microsoft Learn Bicep quickstart is for Consumption, so for Standard, start from Microsoft's GitHub and Azure DevOps samples.
+Running infrastructure first ensures the target logic app and its managed identity exist before the workflow zip is deployed.
 </Step>
 
 <Step id="zip" name="The deployment zip">
@@ -58,16 +52,28 @@ A bundle-based project needs no build step; a NuGet-based one builds like a .NET
 </Step>
 
 <Step id="connections" name="Prepare connections" tag="PROBLEM">
-Managed connections made in VS Code use **raw keys** for local work, which expire after seven days. Before release, change their authentication in `connections.json` to `ManagedServiceIdentity`.
+Managed connections made in VS Code use **raw keys** for local work, which expire after seven days. Before release, change their authentication in `connections.json` to `ManagedServiceIdentity`, and make sure each `V2` API connection has an **access policy** for the logic app's identity (from the Bicep stage).
 
-Each managed API connection also needs an **access policy** for the logic app's identity. When you deploy to a different region or subscription than your local setup, you must create the connections first; Microsoft calls an ARM template the easiest way, and its samples include the access policies.
+A practical pipeline pattern *(ours)*: instead of hand-maintaining `connectionRuntimeUrl` and resource IDs per environment, run a small **PowerShell script** right after Bicep finishes. It queries `Get-AzResource -ResourceType Microsoft.Web/connections` in the target resource group, reads each connection's `api.id`, `id` and `connectionRuntimeUrl`, sets `authentication.type` to `ManagedServiceIdentity`, and writes a clean `connections.json` for that environment:
+
+```powershell
+Get-AzResource -ResourceGroupName $rg -ResourceType Microsoft.Web/connections | ForEach-Object {
+  $c = Get-AzResource -ResourceId $_.Id
+  $managed[$_.Name] = @{
+    api                  = @{ id = $c.Properties.api.id }
+    connection           = @{ id = $_.Id.ToLower() }
+    connectionRuntimeUrl = $c.Properties.connectionRuntimeUrl
+    authentication       = @{ type = 'ManagedServiceIdentity' }
+  }
+}
+```
 </Step>
 
 <Step id="config" name="Per-environment values">
 Settings differ per environment, so keep them out of the zip:
 
-- **App settings**: set them in the pipeline, for example with the `appSettings` parameter of the Azure DevOps task.
-- **Parameters**: keep a `parameters.json` per environment and deploy the right one; `connections.json` can reference parameters and app settings.
+- **App settings**: merge them in the pipeline, for example with the `appSettings` parameter of the Azure DevOps task or `az webapp config appsettings set`.
+- **Parameters**: deploy the right `parameters.json` per environment; `connections.json` references parameters and app settings. The next lesson walks through this in detail.
 </Step>
 
 <Step id="release" name="Deploy the zip">
@@ -106,5 +112,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-securing-a-logic-app (roles)
 Fact-checked verbatim 2026-11-24.
 Learn inconsistencies: the setup page's example zip lists local.settings.json while the DevOps page says it's ignored in Azure; the Azure DevOps prose mentions a publish profile while its YAML uses a service connection.
-Not claimed: a Standard Bicep template on Learn (none found). "Works on my laptop" is our framing.
+Not claimed: a Standard Bicep template on Learn (none found). "Manual portal deploys drift" and the PowerShell connections.json generation pattern are ours.
 */}

@@ -1,0 +1,90 @@
+---
+title: Troubleshoot a failed run
+module: operations
+order: 4
+minutes: 10
+level: Intermediate
+summary: An alert says runs are failing. Walk through the checks in order, from trigger history to the failing action, and get the order through safely.
+youWillLearn:
+  - Why trigger history comes before run history
+  - How to find the failing action and read its error
+  - How to resubmit safely once it's fixed
+  - When you can rerun from the failed step, and when you can't
+learnLinks:
+  - title: "Troubleshoot and Diagnose Workflow Failures"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-diagnosing-failures
+  - title: "View Workflow Status and Run History"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+  - title: "Monitor Standard Workflows with Health Check"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
+reviewStatus: approved
+lastVerified: '2026-11-26'
+---
+
+<Step id="problem" name="The alert fires" tag="PROBLEM">
+The **Workflow Runs Failure Rate** alert for the order workflow has crossed its threshold, and a customer says their order never arrived.
+
+A fixed order of checks helps: **trigger**, then **run**, then **action**.
+</Step>
+
+<Step id="trigger" name="Start with the trigger">
+Microsoft's docs start with **trigger history**:
+
+- **Failed**: the trigger itself broke. Select the attempt and choose **Outputs** to see the error.
+- **Skipped**: it checked and found nothing new. That's not an error, and no run was created.
+- **Succeeded**: it found data. Usually a **Fired** status appears too; if not, a condition or Split on may mean no run started. If a run exists, move on to run history.
+</Step>
+
+<Step id="run" name="Then the run">
+In **Run history**, open a failed run. **Failed** means at least one action failed and nothing after it handled the failure.
+
+Select each step to review its **inputs**, **outputs** and **error message**. The failed action shows **Failed**; actions after it whose run-after conditions weren't met show **Skipped**.
+</Step>
+
+<Step id="action" name="Read the failing action">
+Usually the answer is in the failed action's outputs: a status code and a message from the service it called. As a rule of thumb (ours): a 401 points at credentials or permissions, a 429 at throttling, a 5xx at the other side.
+
+Check whether it's **one run or many**: a query over your logs, like the ones in the monitoring lesson, tells you if this is one bad message or an outage.
+</Step>
+
+<Step id="resubmit" name="Resubmit the whole run" tag="FIX">
+Once the cause is fixed, go back to **run history**, select the failed run and choose **Resubmit**.
+
+It reruns the **same workflow version**, even if you've changed the workflow since, with the same inputs. It needs a **stateful** workflow, and doesn't work from VS Code or the Azure CLI.
+
+Rerunning **might create duplicate data**: check whether the failed run already did part of the work.
+</Step>
+
+<Step id="from-action" name="Rerun from the failed step">
+To skip the steps that already worked, open the failed action's menu and choose **Submit from this action**. The steps before it reuse their earlier inputs and outputs.
+
+It has limits:
+
+- **No loops**: it isn't available for a **For each** or **Until**, any action inside one, or any action after one.
+- **No branches**: it works on a **Condition** or **Switch** itself, but not on the actions inside their paths.
+- The workflow must be **sequential**, with no parallel branches, and have **40 or fewer** actions.
+- The run must be **finished**: Succeeded, Failed or Cancelled.
+</Step>
+
+<Step id="after" name="Afterwards" tag="TIP">
+Turn the incident into one improvement: a catch scope that would have alerted with a clear message, an idempotency check that makes resubmits safe, or a **Health Check** workflow.
+
+And for production, Microsoft says that to get the app-level SLA for Standard, set **Maximum Burst** to **2 or more** instances. If the app can't scale because of that setting, **Diagnose and solve problems** > **Logic App Down or Reporting Errors** shows a warning.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Check **trigger history** first: Failed, Skipped (no run) or Succeeded.
+- In **run history**, open the failed step's inputs, outputs and error.
+- Decide if it's **one run or many** with a log query.
+- **Resubmit** the whole run, or **Submit from this action** (not in loops, branches or parallel paths); watch for duplicates.
+</Step>
+
+{/*
+Sources (checked 2026-11-24, raw page text):
+- https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-diagnosing-failures
+- https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
+- https://learn.microsoft.com/en-us/azure/logic-apps/monitor-health-standard-workflows
+Fact-checked verbatim 2026-11-24.
+- view-workflow-status-run-history (ms.date 2026-03-02, re-checked 2026-11-26), "Rerun a workflow with same inputs": "The resubmitted run executes the same workflow version as the original run, even if you updated the workflow definition"; "only Consumption workflows and Standard stateful workflows ... are supported. To use these capabilities with a stateless Standard workflow, enable stateful mode"; "You can rerun only actions from sequential workflows. Workflows with parallel paths are currently not supported"; "must have a completed state, such as Succeeded, Failed, or Cancelled"; "40 or fewer actions"; "currently are unavailable with Visual Studio Code or Azure CLI"; table: Condition yes / actions in True and False paths no; For each plus all actions inside and after the loop no; Switch yes / actions in Default and Case paths no; Until plus inside and after no; "operations that precede the resubmitted action show a lighter-colored status icon, representing reused inputs and outputs"; "might create duplicate data or try to delete data that no longer exists".
+Not claimed: a Learn list of HTTP status meanings for failed actions (the 401/429/5xx hints are ours), any SLA latency guarantee (Learn says none exists). The failed-order scenario and the trigger-run-action order as a checklist are ours; Learn's own order is trigger history, then run history.
+*/}

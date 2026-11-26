@@ -40,7 +40,7 @@ Often it's the one resource nobody looks at: the **storage account** behind the 
 Stateful workflows use Azure Storage for everything they keep:
 
 - **Tables** for persistent data while runs execute.
-- **Blobs** for run history. In practice that means the **inputs and outputs of each action**: the action rows in Tables link to them (author's observation, from Daniel's storage article).
+- **Blobs** for run history. In practice that means the **inputs and outputs of each action**: the action rows in Tables link to them (ours, from the related storage article).
 - **Queues** for scheduling, such as trigger operations.
 
 Every action in a stateful run reads and writes here. Stateless workflows keep their state in memory instead.

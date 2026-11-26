@@ -13,7 +13,7 @@ export function RecapLinks({ relatedArticles, devtoUrl }: Props) {
         <>
           <h3>Read more</h3>
           <ul>
-            {relatedArticles.map((a) => <li key={a.url}><a href={a.url}>{a.title}</a></li>)}
+            {relatedArticles.map((a) => <li key={a.url}><a href={a.url} target="_blank" rel="noopener">{a.title}</a></li>)}
           </ul>
         </>
       )}

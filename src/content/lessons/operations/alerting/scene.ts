@@ -7,9 +7,10 @@ export const scene: Scene = {
   nodes: [
     { id: 'app', kind: 'hosting-plan', label: 'Logic app', sublabel: 'Standard', x: 110, y: 240 },
     { id: 'metrics', kind: 'appinsights', label: 'Workflow metrics', sublabel: 'failure rate', x: 360, y: 240 },
-    { id: 'rule', kind: 'condition', label: 'Alert rule', sublabel: 'every 1 min', x: 610, y: 240 },
-    { id: 'team', kind: 'human', label: 'On-call', sublabel: 'action group', x: 820, y: 240 },
+    { id: 'rule', kind: 'condition', label: 'Alert rule', sublabel: 'every 5 min', x: 610, y: 240 },
+    { id: 'team', kind: 'human', label: 'Ops team', sublabel: 'action group', x: 820, y: 240 },
     { id: 'logs', kind: 'appinsights', label: 'Log query', sublabel: 'log alert', x: 360, y: 410 },
+    { id: 'catch', kind: 'scope', label: 'Catch scope', sublabel: 'email per run', x: 610, y: 80 },
     { id: 'probe', kind: 'trigger', label: 'Health Check', sublabel: 'ping per min', x: 110, y: 80 },
   ],
   edges: [
@@ -18,6 +19,8 @@ export const scene: Scene = {
     { id: 'rule-team', from: 'rule', to: 'team' },
     { id: 'app-logs', from: 'app', to: 'logs', style: 'dashed' },
     { id: 'logs-rule', from: 'logs', to: 'rule', style: 'dashed' },
+    { id: 'app-catch', from: 'app', to: 'catch' },
+    { id: 'catch-team', from: 'catch', to: 'team' },
     { id: 'probe-app', from: 'probe', to: 'app', style: 'dashed' },
   ],
   steps: {
@@ -25,6 +28,12 @@ export const scene: Scene = {
       visible: ['app', 'team'],
       failed: ['app'],
       chips: [{ label: 'failing since', value: 'Saturday', tone: 'fail' }, { label: 'noticed', value: 'Monday', tone: 'warn' }],
+    },
+    levels: {
+      visible: [...core, 'catch', 'app-catch', 'catch-team'],
+      highlight: ['catch', 'rule'],
+      tokens: [{ id: 'v1', edge: 'app-catch', tone: 'fail' }, { id: 'v2', edge: 'catch-team', tone: 'fail' }],
+      chips: [{ label: 'level 1', value: 'catch scope email' }, { label: 'level 2', value: 'Azure Monitor alert', tone: 'ok' }],
     },
     metrics: {
       visible: ['app', 'metrics', 'app-metrics'],
@@ -36,7 +45,7 @@ export const scene: Scene = {
       visible: [...core],
       highlight: ['rule', 'rule-team'],
       tokens: [{ id: 'r1', edge: 'metrics-rule', tone: 'info' }, { id: 'r2', edge: 'rule-team', tone: 'fail' }],
-      chips: [{ label: 'example check', value: 'every 1 min' }, { label: 'look back', value: '5 min' }],
+      chips: [{ label: 'example check', value: 'every 5 min' }, { label: 'look back', value: '15 min' }],
     },
     delay: {
       visible: [...core],

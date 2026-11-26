@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Scene } from '../../lessons/scene-types';
 import { LessonPlayer, type PlayerStep } from './LessonPlayer';
 import { RecapLinks } from '../RecapLinks';
+import type { NextLesson } from '../../lib/catalog';
 
 interface Props {
   slug: string;
@@ -9,6 +10,7 @@ interface Props {
   youWillLearn: string[];
   relatedArticles: { title: string; url: string }[];
   devtoUrl: string | null;
+  next?: NextLesson | null;
 }
 
 const TAGS = new Set(['PROBLEM', 'FIX', 'TIP', 'RECAP']);
@@ -29,7 +31,7 @@ function readSteps(root: Element): PlayerStep[] {
   });
 }
 
-export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, devtoUrl }: Props) {
+export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, devtoUrl, next = null }: Props) {
   const [steps, setSteps] = useState<PlayerStep[] | null>(null);
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export function LessonIsland({ slug, scene, youWillLearn, relatedArticles, devto
       steps={steps}
       youWillLearn={youWillLearn}
       recap={<RecapLinks relatedArticles={relatedArticles} devtoUrl={devtoUrl} />}
+      next={next}
     />
   );
 }

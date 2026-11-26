@@ -1,0 +1,142 @@
+---
+title: "Reach private systems: VNet integration"
+module: networking
+order: 1
+minutes: 9
+level: Intermediate
+summary: The warehouse API has no public address, so the workflow can't reach it. Route the logic app's outbound calls through your virtual network, and see which connectors go that way and which don't.
+youWillLearn:
+  - Why a cloud workflow can't reach a private IP by default
+  - How VNet integration routes outbound calls into your network
+  - How big the subnet must be, and why you can't change it later
+  - Which connectors use the VNet, and what managed connectors need
+  - How peering, private DNS and service endpoints fit in
+learnLinks:
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+  - title: "Integrate your app with an Azure virtual network (App Service)"
+    url: https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration
+  - title: "Hub-and-spoke network design guide"
+    url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
+  - title: "Virtual network service endpoints"
+    url: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview
+  - title: "Connect to on-premises data sources (on-premises data gateway)"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-gateway-connection
+reviewStatus: draft
+---
+
+<Step id="problem" name="The API has no public address" tag="PROBLEM">
+The order workflow must call the **warehouse API**. It runs inside the company's virtual network at **10.0.1.3** and has no public address.
+
+The workflow's HTTP action calls 10.0.1.3, and it fails. Microsoft's own walkthrough calls that expected: the workflow runs in the cloud and can't reach your internal service.
+</Step>
+
+<Step id="idea" name="The idea">
+**VNet integration routes the logic app's outbound calls through a subnet in your virtual network.**
+
+Think of it as giving the logic app a desk inside the office network (ours): it still lives in Azure, but the calls it makes now start from inside.
+</Step>
+
+<Step id="outbound-only" name="Outbound only">
+VNet integration affects **only outbound** traffic: calls the logic app makes.
+
+Calls *into* the logic app still arrive on its shared public endpoint. Taking that off the internet is a separate feature, the **private endpoint**, which the next lesson covers. The two are independent, and you can use either or both.
+</Step>
+
+<Step id="setup" name="Turn it on">
+1. On the logic app, go to **Settings** > **Networking**.
+2. In **Outbound traffic configuration**, select **Virtual network integration** > **Add virtual network integration**.
+3. Pick the subscription, the virtual network that reaches the warehouse API, and the subnet. Select **Connect**.
+
+Run the workflow again. The same HTTP action to 10.0.1.3 now succeeds.
+</Step>
+
+<Step id="subnet" name="Size the subnet once" tag="TIP">
+You **can't change the subnet size** after you assign it, so plan for the scale the app might reach.
+
+Each instance of the plan takes **one address**, and while the plan scales up or down the count **temporarily doubles**. Microsoft recommends allocating **double your planned maximum**; a **/26** (64 addresses) covers the maximum scale of one plan. If you create the subnet in the Azure portal while integrating, **/27** is the minimum; an existing subnet can be as small as **/28**.
+
+Several plans can share one subnet, with at least a **/26**. One plan can have at most **two** VNet integrations, and all apps in a plan can use the same one.
+</Step>
+
+<Step id="route-all" name="All outbound goes through the VNet">
+By default, the **Outbound internet traffic** option is selected, so **all** outbound traffic from the app goes through the virtual network, not just calls to private addresses. In that case the `WEBSITE_VNET_ROUTE_ALL` app setting is ignored.
+
+So your network's firewall, network security groups (NSGs) and route tables (UDRs) now apply to the app's outbound calls.
+
+One catch Microsoft notes: with Route All on, a **storage account in another region** can become unreachable unless you use a service endpoint, a private endpoint or a route table for it.
+</Step>
+
+<Step id="connectors" name="Which connectors use the VNet">
+- **Built-in** operations run inside the logic app, so their calls go through the VNet. That's why the **HTTP** action reached 10.0.1.3. Built-in service provider connectors, such as **SQL Server**, can reach private and on-premises data sources this way **without the on-premises data gateway**.
+- **Managed** connectors run in Azure, outside your network. The app talks to the managed API service, so if an NSG, UDR or firewall controls outbound traffic, allow outbound connections to **all managed connector IP addresses** in your region. Otherwise managed connectors stop working.
+</Step>
+
+<Step id="peering" name="Peered networks count too">
+VNet integration doesn't stop at the network you connect to. Microsoft lists what the app can reach:
+
+- resources in the integrated network;
+- resources in networks **peered** to it, **including global peering**;
+- resources across **ExpressRoute** connections.
+
+The integrated network itself must be in the **same region** as the app. In a hub-and-spoke design (ours), you integrate the app into a spoke and reach shared services in the hub through peering.
+
+Calls to a **VM or private endpoint** in the integrated or a peered network come **from an address in the integration subnet**, so that's the range to allow on the other side's NSG or firewall.
+
+Peering needs no extra setup for VNet integration. To reach the datacenter through a VPN or ExpressRoute gateway in the hub, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering, *Use remote gateways* on the spoke's side.
+</Step>
+
+<Step id="private-dns" name="Names must resolve privately" tag="TIP">
+When the app calls something through a **private endpoint**, in its own or a peered network, the name must resolve to the endpoint's private address.
+
+With **Azure DNS private zones**, that happens automatically when the zones are **linked to the virtual network** and you don't use a custom DNS server. With your own DNS server, manage the private endpoint records there.
+
+In **hub-and-spoke**, Microsoft describes a common setup: create the private DNS zones **once in the hub**, and link them to every virtual network, hub and spokes, with clients that need to resolve those names.
+</Step>
+
+<Step id="service-endpoints" name="Service endpoints: the lighter option">
+To lock an Azure service such as **Storage**, **Service Bus** or **Key Vault** to your app without a private endpoint, use a **service endpoint**:
+
+1. Enable the service endpoint for that service on the **integration subnet**.
+2. On the service, add a **virtual network rule** for that subnet. For a storage account, picking the subnet under its network rules in the portal creates the service endpoint for you.
+
+The rule removes public internet access and allows traffic only from your network. Traffic goes over the **Azure backbone** with the subnet's **private addresses** as its source, and it goes **straight to the service**, even when a route table sends other traffic to a firewall. There's no extra charge.
+
+The differences from a private endpoint: the service gets **no private address** in your network, and service endpoints **can't** be used from on-premises. Microsoft recommends **private endpoints** for private access to Azure services.
+
+Check the tier first: for **Service Bus**, virtual network rules and private endpoints are supported only on the **Premium** tier. And the integration subnet itself can't have **service endpoint policies**.
+</Step>
+
+<Step id="dns" name="Your own DNS" tag="TIP">
+If your virtual network uses its own DNS server, add the app setting `WEBSITE_DNS_SERVER` with its IP address, and `WEBSITE_DNS_ALT_SERVER` for a secondary one.
+
+One more dependency: the runtime needs an uninterrupted connection to its **storage account**. If that storage is private too, specific ports must be open. A later lesson in this module covers it.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- By default a workflow can't reach a private IP: it runs in the cloud.
+- **VNet integration** sends the app's **outbound** calls through a subnet in your network. Inbound needs a **private endpoint** (next lesson).
+- Use a **/26** subnet; you can't resize it later.
+- By default **all** outbound traffic goes through the VNet.
+- **Built-in** operations use the VNet; **managed** connectors need their regional **IP addresses** allowed.
+- **Peered** networks (even in other regions) are reachable; calls come from the integration subnet.
+- Private endpoints need **private DNS**: link the private zones to the network.
+- **Service endpoints**: lock Storage, Service Bus or Key Vault to the subnet, no private address; Microsoft recommends private endpoints for private access.
+- Own DNS: `WEBSITE_DNS_SERVER`.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- secure-single-tenant-workflow-virtual-network-private-endpoint (last updated 2026-10-30): "private endpoints for inbound traffic and use virtual network integration for outbound traffic"; "Setting up virtual network integration affects only outbound traffic. To secure inbound traffic, which continues to use the App Service shared endpoint"; "You can't change the subnet size after assignment"; "use a /26 subnet with 64 addresses"; "If you create the subnet for virtual network integration with the Azure portal, you must use /27 as the minimum subnet size"; "a typical logic app has substantial workload and might need to scale out to a large number of instances"; test: "Add an HTTP action to call an internal service that's unavailable through the Internet and runs with a private IP address such as 10.0.1.3 ... The HTTP action fails, which is by design and expected because the workflow runs in the cloud and can't access your internal service"; steps: Settings > Networking > Outbound traffic configuration > Virtual network integration > Add virtual network integration > subscription, virtual network, subnet > Connect; "by default, the Outbound internet traffic setting is selected, which routes all outbound traffic through the virtual network. In this scenario, the app setting named WEBSITE_VNET_ROUTE_ALL is ignored"; WEBSITE_DNS_SERVER / WEBSITE_DNS_ALT_SERVER; "For Azure-hosted managed connectors to work, you need to have an uninterrupted connection to the managed API service ... If your virtual network uses a network security group (NSG), user-defined route table (UDR), or a firewall, make sure that the virtual network allows outbound connections to all managed connector IP addresses in the corresponding region. Otherwise, Azure-managed connectors won't work"; "For the Azure Logic Apps runtime to work, you need to have an uninterrupted connection to the backend storage"; "The HTTP action now runs successfully".
+- logic-apps-gateway-connection: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway."
+overview-vnet-integration (App Service, "Works with App Service apps, function apps, and Logic apps"): "Virtual network integration supports connecting to a virtual network in the same region"; the app can access "Resources in virtual networks peered to the virtual network your app is integrated with including global peering connections. Resources across Azure ExpressRoute connections"; "if your outbound call is to a virtual machine or private endpoint in the integration virtual network or peered virtual network, the outbound address is an address from the integration subnet"; "you can use a route table to send outbound traffic to your Azure ExpressRoute gateway" and BGP routes "affect your app traffic"; private endpoints: "make sure that your DNS lookups resolve to the private endpoint ... Integrate with Azure DNS private zones. When your virtual network doesn't have a custom DNS server, the integration is done automatically when the zones are linked to the virtual network. Manage the private endpoint in the DNS server used by your app."
+- virtual-network/virtual-network-service-endpoints-overview: "Once you enable service endpoints in your virtual network, you can add a virtual network rule to secure the Azure service resources to your virtual network. The rule addition provides improved security by fully removing public internet access to resources and allowing traffic only from your virtual network"; "service traffic switches to use virtual network private addresses as the source IP addresses"; "Endpoints always take service traffic directly from your virtual network to the service on the Microsoft Azure backbone network ... through forced-tunneling, without impacting service traffic"; "Endpoints can't be used for traffic from your on-premises services to Azure services"; "There's no extra charge for using service endpoints"; "Microsoft recommends use of Azure Private Link and private endpoints for secure and private access to services hosted on the Azure platform".
+- app-service/overview-vnet-integration (ms.date 2026-10-06): "One address is used from the integration subnet for each App Service plan instance"; "the amount of IP addresses used by the App Service plan is temporarily doubled while the scale operation completes"; "we recommend allocating double the IPs of your planned maximum scale. A /26 with 64 addresses cover the maximum scale of a single multitenant App Service plan"; MPSJ "a minimum size of /26"; "You can't have more than two virtual network integrations per App Service plan. Multiple apps in the same App Service plan can use the same virtual network integration"; "The integration subnet can't have service endpoint policies enabled"; "Connectivity to global Azure Storage accounts might fail for VNet-integrated apps when virtual network Route All is enabled and the app doesn't use service endpoints, private endpoints, or User-Defined Routes (UDRs) ... common when the storage account is in a different region".
+- app-service/overview-vnet-integration: "Virtual network integration enables you to reach Azure services that are secured with service endpoints ... configure service endpoints against the integration subnet."
+- service-bus-messaging/service-bus-service-endpoints: "Virtual Networks are supported only in Premium tier Service Bus namespaces ... The endpoint is restricted to Premium tier namespaces only."; service-bus-messaging/private-link-service: "This feature is supported with the premium tier of Azure Service Bus."
+- storage/common/storage-network-security: "When you create network rules by using the Azure portal, it automatically creates these service endpoints as you select each target subnet."
+- networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
+- app-service/overview-vnet-integration: "If you use peering with virtual network integration, you don't need to do any more configuration."
+- private-link/private-endpoint-dns-integration (checked 2026-11-25): "In a hub-and-spoke topology, a common scenario allows the creation of private DNS zones only once in the hub"; "link the same private DNS zones to all spokes and hub virtual networks that contain clients that need DNS resolution from the zones".
+Ours: hub-and-spoke framing, the warehouse-API story (Learn's example uses a generic internal service at 10.0.1.3), the desk analogy, "built-in operations run inside the logic app, so their calls go through the VNet" as the reason the HTTP action works (consistent with Learn's test and the built-in connector definition), "each instance needs an address".
+*/}

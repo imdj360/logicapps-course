@@ -1,0 +1,162 @@
+---
+title: "Network building blocks"
+module: networking
+order: 0
+minutes: 7
+level: Intermediate
+summary: There's no single right network setup. Start from your requirements, add only the building blocks you need, and see the common combinations, with a lesson behind each block.
+youWillLearn:
+  - Where a Standard logic app runs, and why it sits outside your network
+  - Which building block answers which requirement
+  - What each block costs you in trade-offs
+  - The common combinations, including hub-and-spoke
+learnLinks:
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+  - title: "Deploy Standard Logic Apps to Private Storage Accounts"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account
+  - title: "Connect to On-premises Data Sources"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
+  - title: "Hub-and-spoke network design guide"
+    url: https://learn.microsoft.com/en-us/azure/networking/design-guide/hub-spoke
+  - title: "App Service Environment networking"
+    url: https://learn.microsoft.com/en-us/azure/app-service/environment/networking
+  - title: "App Service Networking Features"
+    url: https://learn.microsoft.com/en-us/azure/app-service/networking-features
+reviewStatus: draft
+---
+
+<Step id="problem" name="Every project has different rules" tag="PROBLEM">
+One project only connects SaaS apps. The next must reach a database on a private network. A third has security rules: nothing public, a firewall for all traffic, and files dropped in the company datacenter.
+
+There's no single "right" network setup. Each requirement adds a piece.
+</Step>
+
+<Step id="idea" name="The idea">
+**Treat networking as building blocks: start from your requirements and add only the blocks they call for.**
+
+Each block solves one problem, brings its own trade-offs, and has a lesson in this module. You can mix them freely.
+</Step>
+
+<Step id="baseline" name="Baseline: public">
+With no network setup, the logic app is public: callers reach its endpoint over the internet, and it calls services over the internet.
+
+On a Workflow Service Plan the app runs on Azure's **shared App Service infrastructure**, outside your virtual network. Microsoft says you can't connect that network directly to yours; instead you add features for each direction. On an **App Service Environment v3** the app does run inside your network.
+
+**Enough when:** you only connect SaaS and public APIs.
+</Step>
+
+<Step id="block-outbound" name="Block: reach private resources">
+**Need:** call a private API or database, in your network, a **peered** network, or over **ExpressRoute**.
+
+**Add:** **VNet integration** for outbound calls, plus **private DNS** for anything behind a private endpoint. To lock an Azure service such as Storage or Service Bus to your subnet without a private endpoint, a **service endpoint** is the lighter option; Microsoft recommends private endpoints for private access.
+
+**Trade-off:** by default all outbound traffic goes through your network, so your NSGs and route tables apply to it.
+
+Lesson: *Reach private systems: VNet integration*.
+</Step>
+
+<Step id="block-inbound" name="Block: no public inbound">
+**Need:** only callers on your network may call the workflows.
+
+**Add:** a **private endpoint**.
+
+**Trade-off:** managed **webhook** triggers can't call in, and deployment from VS Code or the CLI must come from inside the network.
+
+Lesson: *Lock down inbound: private endpoints*.
+</Step>
+
+<Step id="block-storage" name="Block: private storage">
+**Need:** no storage account with public access.
+
+**Add:** private endpoints for **Table, Queue, Blob and File**, reached through VNet integration (so this block needs the outbound block).
+
+**Trade-off:** deployment needs temporary public access or an **ARM template**.
+
+Lesson: *The storage account on a private network*.
+</Step>
+
+<Step id="block-onprem" name="Block: the datacenter">
+**Need:** read or write data in the company datacenter.
+
+**Add one of:**
+- a **built-in** connector over the network: VNet integration plus **ExpressRoute** or a **site-to-site VPN** from your network to the datacenter;
+- the **on-premises data gateway**, when only a **managed** connector exists for the data source.
+
+No VPN or ExpressRoute? Use the gateway: it needs **no inbound ports**, only outbound connections from the gateway machine.
+
+Lesson: *Reaching on-premises systems*.
+</Step>
+
+<Step id="block-egress" name="Block: controlled egress">
+**Need:** all outbound traffic through a central firewall, or one **fixed IP** a partner can allow.
+
+**Add:** a route table to the firewall, with rules built from **service tags** (such as AzureConnectors) and your connections' domain names; a **NAT gateway** for a fixed outbound IP.
+
+**Trade-off:** every missing firewall rule is a broken connector.
+
+Lesson: *Firewalls, fixed IPs and service tags*.
+</Step>
+
+<Step id="block-hub" name="Block: shared hub (hub-and-spoke)">
+**Need:** several apps share one firewall, one VPN or ExpressRoute link and shared services, run by a central network team.
+
+**Add:** give the app its own network (a **spoke**) and **peer** it to the central **hub**. VNet integration reaches peered networks, including across regions, and calls to a VM or private endpoint there come from the integration subnet's addresses. To share the hub's VPN or ExpressRoute gateway, turn on **gateway transit**: *Allow gateway transit* on the hub's side of the peering and *Use remote gateways* on the spoke's side. Private DNS zones must be linked to the spoke.
+
+Microsoft's hub-and-spoke guidance: keep application workloads, **PaaS included**, in the spokes; the hub holds only shared infrastructure such as the firewall, gateways, Bastion and DNS.
+
+**Trade-off:** routes and firewall rules belong to the hub team, so every new dependency needs a request.
+
+Lessons: *VNet integration* (peered networks) and *Firewalls, fixed IPs and service tags*.
+</Step>
+
+<Step id="block-ase" name="Block: a dedicated environment (ASE v3)">
+**Need:** the app itself must run inside your network, on dedicated, single-tenant infrastructure.
+
+**Add:** host Standard on an **App Service Environment v3** (Windows plans). Then:
+- the app runs **in your virtual network**: no VNet integration needed, and its inbound and outbound traffic stays inside the network;
+- the ASE gets its own subnet, **delegated** to `Microsoft.Web/hostingEnvironments` and **empty** otherwise: **/24** for production, **/23** if you'll scale near the 200-instance maximum. Put private endpoints in other subnets;
+- private endpoints for apps on the ASE work only after you turn on **Allow new private endpoints** on the ASE.
+
+**Trade-off:** dedicated cost and more to manage; it replaces the outbound block rather than adding to it.
+
+Lesson: *Standard on App Service Environment v3* (Hosting & runtime module).
+</Step>
+
+<Step id="combos" name="Common combinations" tag="TIP">
+Four mixes we see most (ours):
+
+- **SaaS integration**: baseline only.
+- **Internal APIs, public triggers**: reach private resources, plus controlled egress when a partner needs a fixed IP.
+- **Locked down**: reach private resources + no public inbound + private storage, often with the datacenter and controlled egress blocks.
+- **Enterprise**: the locked-down mix inside a **hub-and-spoke** network, with the firewall and the datacenter link in the hub.
+
+Build the outbound block first: the storage and datacenter blocks depend on it.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- The app runs **outside** your network on a Workflow Service Plan; blocks connect it.
+- **Reach private resources**: VNet integration (+ private DNS, peering; service endpoints as the lighter option).
+- **No public inbound**: private endpoint.
+- **Private storage**: four storage private endpoints.
+- **Datacenter**: built-in over VPN/ExpressRoute, or the data gateway.
+- **Controlled egress**: firewall rules with service tags; NAT gateway for a fixed IP.
+- **Shared hub**: a spoke peered to the hub; gateway transit for the hub's VPN; private DNS linked to the spoke.
+- **Dedicated (ASE v3)**: the app runs inside your network; its own delegated, empty subnet.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- secure-single-tenant-workflow-virtual-network-private-endpoint: private endpoints for inbound, VNet integration for outbound; "affects only outbound traffic"; by default "routes all outbound traffic through the virtual network"; managed webhook triggers and actions don't work with a private inbound endpoint; VS Code / Azure CLI deployment only from inside the virtual network.
+- deploy-single-tenant-logic-apps-private-storage-account: required storage account; "different private endpoints for each of the Table, Queue, Blob, and File storage services"; VNet integration to reach them; "requires temporary public access" or an ARM template.
+- connect-on-premises-data-sources: built-in service provider connectors reach on-premises data sources without the gateway; "If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."
+- app-service/networking-features: "All the roles in an App Service deployment exist in a multitenant network ... you can't connect the App Service network directly to your network. Instead of connecting the networks, you need features to handle the various aspects of application communication"; "The single-tenant App Service Environment (ASE) hosts Isolated SKU App Service plans directly in your Azure virtual network".
+- app-service/overview-vnet-integration: peered networks including global peering, ExpressRoute; private DNS zones linked to the virtual network; route tables; NAT gateway "dedicated outbound IP".
+- logic-apps-limits-and-config: service tags LogicAppsManagement, LogicApps, AzureConnectors.
+- app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
+- networking/design-guide/hub-spoke (ms.date 2026-09-16): "Keep application workloads out of the hub. The hub hosts shared infrastructure services only: firewall, gateways, Bastion, and DNS. Application VMs, containers, and PaaS resources belong in spoke virtual networks"; gateway transit "On the hub-side peering connection (hub → spoke): enable Allow gateway transit. On the spoke-side peering connection (spoke → hub): enable Use remote gateways"; "Gateway transit works with all VPN Gateway tiers except the Basic tier"; "A spoke virtual network can use only one remote gateway"; route table "Add a default route (0.0.0.0/0) with the next hop type VirtualAppliance and the next hop address set to the Azure Firewall private IP"; "Turn off BGP route propagation if you want to prevent on-premises routes from overriding your UDRs".
+- app-service/environment/overview: "An App Service Environment is a single-tenant deployment of App Service that runs on your virtual network"; "For an App Service Environment, apps don't require extra configuration to join a virtual network."
+- app-service/environment/networking: "All of the inbound and outbound application traffic is inside the virtual network you specify. You deploy into a single subnet in your virtual network, and nothing else can be deployed into that subnet"; "The subnet must be delegated to Microsoft.Web/hostingEnvironments. The subnet must be empty"; "For production scale, we recommend a /24 ... near max capacity of 200 instances ... a /23"; "to enable Private Endpoints for apps hosted in your App Service Environment, you must first enable this feature at the App Service Environment level ... Allow new private endpoints"; outbound network segmentation "You must enable outbound network segmentation when you create your App Service Environment".
+- logic-apps-using-file-connector: Standard runs in "a Workflow Service Plan or App Service Environment v3 (Windows plans only)".
+Ours: the building-block framing, the combinations, and the build order.
+*/}

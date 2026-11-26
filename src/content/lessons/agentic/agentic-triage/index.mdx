@@ -26,7 +26,7 @@ reviewStatus: draft
 ---
 
 <Step id="problem" name="Twelve failures by 7am" tag="PROBLEM">
-Overnight, twelve runs of your order workflow failed. The on-call engineer will open each run, read the failed action's outputs, check the logs, work out whether it's safe to resubmit, and do it twelve times.
+Twelve runs of your order workflow failed. Someone on the ops team will open each run, read the failed action's outputs, check the logs, work out whether it's safe to resubmit, and do it twelve times.
 
 Most of that is reading and reasoning, which is the kind of work an **agent** is good at. Let's build an agent workflow that does the investigation, and leaves the decision to a human.
 </Step>
@@ -65,7 +65,7 @@ Notice what it didn't do: it has **no tool that changes anything**. It can only 
 </Step>
 
 <Step id="approve" name="A human approves" tag="FIX">
-Changing state goes through a person. After the agent answers, the workflow sends its proposal to the on-call engineer as an **approval** (for example an approval email or a Teams message), and **waits** for the response.
+Changing state goes through a person. After the agent answers, the workflow sends its proposal to the ops team as an **approval** (for example an approval email or a Teams message), and **waits** for the response.
 
 Only on *Approve* does the workflow continue to a separate *Resubmit runs* step. On *Reject* it stops and logs why.
 

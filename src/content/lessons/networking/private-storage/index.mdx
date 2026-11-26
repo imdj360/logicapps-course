@@ -1,0 +1,101 @@
+---
+title: "The storage account on a private network"
+module: networking
+order: 3
+minutes: 9
+level: Advanced
+summary: A Standard logic app can't run without its storage account. Put that storage behind private endpoints, deploy without breaking the app, and know the errors that mean it can't reach its storage.
+youWillLearn:
+  - Why the storage account needs four private endpoints
+  - How to deploy from the portal or VS Code, and why that needs temporary public access
+  - How an ARM template deploys without any public access
+  - Which errors mean the app can't reach its storage
+learnLinks:
+  - title: "Deploy Standard Logic Apps to Private Storage Accounts"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/deploy-single-tenant-logic-apps-private-storage-account
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+reviewStatus: draft
+---
+
+<Step id="problem" name="Storage must go private too" tag="PROBLEM">
+Security's next rule: **no storage account with public access**.
+
+But a Standard logic app **requires** a storage account for its artifacts. Block public access the wrong way and the app can't load its workflows at all.
+</Step>
+
+<Step id="idea" name="The idea">
+**Give the storage account private endpoints in your virtual network, and let the logic app reach them through VNet integration.**
+
+The app's own storage traffic then stays inside your network, like its other outbound calls.
+</Step>
+
+<Step id="four" name="Four endpoints, not one">
+Azure Storage has separate services, and Microsoft says to create **different private endpoints for each**: **Table**, **Queue**, **Blob** and **File**.
+
+The Hosting & runtime module explains what the runtime keeps in each.
+</Step>
+
+<Step id="portal" name="Portal or VS Code: public first">
+Deploying from the portal or VS Code needs **temporary public access** to the storage account:
+
+1. On the storage account, under **Networking**, allow access from **All networks**.
+2. Deploy the logic app.
+3. Add **VNet integration** to the virtual network with the storage private endpoints.
+4. Add the app setting `WEBSITE_CONTENTOVERVNET` = `1`, plus `WEBSITE_DNS_SERVER` if you use your own DNS.
+5. Switch the storage account to **Selected networks**, adding your virtual networks.
+
+The switch can interrupt the app, and workflows can **temporarily disappear**. If they do, restart the logic app and wait several minutes.
+</Step>
+
+<Step id="arm" name="ARM template: never public">
+If policy doesn't allow even temporary public access, deploy with an **ARM template**. Microsoft's example creates:
+
+- a storage account that **denies public traffic**;
+- a virtual network and subnets;
+- **private DNS zones and private endpoints** for Blob, File, Queue and Table;
+- a **file share** for the runtime;
+- a **WS1** plan and a logic app with **VNet integration**.
+
+One exception: the portal can deploy to an **App Service Environment** even when the storage is private, as long as the two subnets can reach each other.
+</Step>
+
+<Step id="ports" name="Open the right ports" tag="TIP">
+The runtime needs an uninterrupted connection to its storage. From the subnet integrated with the logic app, allow:
+
+- **443** to the storage account;
+- **445** to the storage account, for the SMB file share;
+- **20000–30000** for communication between the App Service plan and the logic app's nodes.
+</Step>
+
+<Step id="errors" name="When the app can't reach storage" tag="PROBLEM">
+Microsoft lists errors that mean the app can't reach its storage, for example:
+
+- *Access to the path 'C:\home\site\wwwroot\host.json' is denied*
+- *The network path was not found*
+- *Encountered an error (ServiceUnavailable) from host runtime*: the workflows don't load.
+
+The app isn't running then, so the Kudu console can't help.
+</Step>
+
+<Step id="fix" name="How to find the cause">
+1. Check that the storage account and file share still exist.
+2. Check the app settings `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` and `WEBSITE_CONTENTSHARE` point at the right account and share.
+3. Under **Diagnose and solve problems**, run **Logic App Down or Reporting Errors** and **Network Troubleshooter**.
+4. From a VM in another subnet of the same virtual network, try to reach the storage account, for example with Storage Explorer.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- The storage account is **required**; make it private with endpoints for **Table, Queue, Blob and File**.
+- **Portal / VS Code**: temporary public access, then VNet integration, `WEBSITE_CONTENTOVERVNET=1`, then lock it down.
+- **ARM template**: no public access at any point.
+- Open **443**, **445** and **20000–30000** from the integrated subnet.
+- Errors about `host.json`, the network path or *ServiceUnavailable* point at storage access.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- deploy-single-tenant-logic-apps-private-storage-account: "you're required to have a storage account for storing logic app artifacts"; "This deployment method requires temporary public access to your storage account"; ARM template alternative; ASE exception ("you'll need connectivity between the subnet used by the App Service Environment and the subnet used by the storage account's private endpoint"); "Create different private endpoints for each of the Table, Queue, Blob, and File storage services"; steps: All networks, deploy, VNet integration, WEBSITE_CONTENTOVERVNET = 1, WEBSITE_DNS_SERVER / WEBSITE_DNS_ALT_SERVER, then Selected networks; "Your logic app might experience an interruption ... This disruption might result in your workflows temporarily disappearing ... restarting the logic app and waiting several minutes"; example template resources (storage that denies public traffic, VNet and subnets, private DNS zones and private endpoints for Blob, File, Queue and Table, a file share, WS1 plan, logic app with VNet integration); error table (host.json denied, network path not found, user name or password incorrect, could not find part of the path, ServiceUnavailable from host runtime); "you can't use the Kudu console"; troubleshooting steps (storage and file share exist, WEBSITE_CONTENTAZUREFILECONNECTIONSTRING and WEBSITE_CONTENTSHARE, detectors "Logic App Down or Reporting Errors" and "Network Troubleshooter", a VM in a different subnet of the same VNet, Storage Explorer).
+- secure-single-tenant-workflow-virtual-network-private-endpoint: ports 443 (storage account), 445 (SMB file share), 20000-30000 (communication between App Service Plan and Standard logic app nodes); "uninterrupted connection to the backend storage".
+Ours: the policy story; "Block public access the wrong way and the app can't load its workflows" (summarises the ServiceUnavailable / workflows-not-loading errors).
+*/}

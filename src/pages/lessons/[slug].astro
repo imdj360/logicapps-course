@@ -5,6 +5,7 @@ import Step from '../../components/mdx/Step.astro';
 import Callout from '../../components/mdx/Callout.astro';
 import { LessonIsland } from '../../components/player/LessonIsland';
 import { loadCatalog } from '../../lib/load-catalog';
+import { nextLesson } from '../../lib/catalog';
 import { siteConfig } from '../../config/site';
 import type { Scene } from '../../lessons/scene-types';
 
@@ -28,6 +29,7 @@ const catalog = await loadCatalog();
 const mod = catalog.find((m) => m.lessons.some((l) => l.slug === slug))!;
 const position = mod.lessons.findIndex((l) => l.slug === slug) + 1;
 const stepCount = Object.keys(scene.steps).length;
+const next = nextLesson(catalog, slug);
 const d = entry.data;
 ---
 <BaseLayout title={`${d.title} · Logic Apps visual guide`} description={d.summary} activeSlug={slug}>
@@ -72,6 +74,7 @@ const d = entry.data;
     youWillLearn={d.youWillLearn}
     relatedArticles={d.relatedArticles}
     devtoUrl={siteConfig.devtoUrl}
+    next={next}
   />
 
   <div id="static-steps" class="static-steps">

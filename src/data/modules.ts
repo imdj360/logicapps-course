@@ -54,29 +54,40 @@ export const MODULES: ModuleDef[] = [
     l('throttling-limits', 'Throttling & limits'),
     l('monitoring', 'Monitoring with App Insights & Log Analytics'),
     l('alerting', 'Alerting'),
-    l('failed-at-3am', 'A run failed at 3am — now what?'),
+    l('troubleshoot-failed-run', 'Troubleshoot a failed run'),
   ] },
-  { id: 'security', number: '08', title: 'Security & delivery', lessons: [
+  { id: 'security', number: '08', title: 'Security', lessons: [
     l('managed-identity', 'Managed identity'),
     l('key-vault', 'Key Vault'),
     l('easy-auth', 'Easy Auth (App Service authentication)'),
-    l('private-networking', 'Private endpoints & VNet'),
-    l('cicd', 'CI/CD with Bicep & ARM'),
+  ] },
+  { id: 'networking', number: '09', title: 'Networking', lessons: [
+    l('networking-overview', 'Network building blocks'),
+    l('vnet-integration', 'Reach private systems: VNet integration'),
+    l('private-networking', 'Lock down inbound: private endpoints'),
+    l('private-storage', 'The storage account on a private network'),
+    l('on-premises-access', 'Reaching on-premises systems'),
+    l('firewall-rules', 'Firewalls, fixed IPs and service tags'),
+  ] },
+  { id: 'delivery', number: '10', title: 'Infrastructure & delivery', lessons: [
+    l('bicep-standard', 'Bicep for a Standard logic app'),
+    l('cicd', 'CI/CD: build the zip and deploy'),
+    l('parameters-per-environment', 'Parameters per environment'),
     l('deployment-slots', 'Deployment slots'),
   ] },
-  { id: 'agentic', number: '09', title: 'Agentic Logic Apps', lessons: [
+  { id: 'agentic', number: '11', title: 'Agentic Logic Apps', lessons: [
     l('agent-workflows', 'Agent workflows vs fixed workflows'),
     l('logic-apps-as-tools', 'MCP with Logic Apps: expose & call'),
     l('multi-agent-patterns', 'Single and multiple agents'),
     l('agent-guardrails', 'Guardrails for agents'),
     l('agentic-triage', 'Agentic triage'),
   ] },
-  { id: 'automation', number: '10', title: 'Logic Apps Automation (preview)', lessons: [
+  { id: 'automation', number: '12', title: 'Logic Apps Automation (preview)', lessons: [
     l('what-is-automation', 'What Logic Apps Automation is'),
     l('projects-apps-workflows', 'Projects, applications and workflows'),
     l('automation-workflows', 'Building an automation workflow'),
   ] },
-  { id: 'advanced', number: '11', title: 'Advanced integration patterns', lessons: [
+  { id: 'advanced', number: '13', title: 'Advanced integration patterns', lessons: [
     l('claim-check', 'Claim check'),
     l('request-reply-service-bus', 'Request-reply over Service Bus'),
     l('sequential-convoy', 'Sequential convoy'),
@@ -86,7 +97,7 @@ export const MODULES: ModuleDef[] = [
     l('circuit-breaker', 'Circuit breaker'),
     l('long-waits-correlation', 'Correlation & long waits'),
   ] },
-  { id: 'systems', number: '12', title: 'Whole systems', lessons: [
+  { id: 'systems', number: '14', title: 'Whole systems', lessons: [
     l('order-processing', 'Order-processing pipeline'),
     l('edi-b2b', 'EDI / B2B flow'),
     l('integration-hub', 'Event-driven integration hub'),

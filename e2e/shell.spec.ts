@@ -1,15 +1,15 @@
+import { MODULES } from '../src/data/modules';
 import { expect, test } from '@playwright/test';
 
-const MODULE_TITLES = [
-  'Foundations', 'Hosting & runtime', 'Building flows', 'Integration patterns', 'Reliability',
-  'Operating at scale', 'Security & delivery', 'Agentic Logic Apps', 'Whole systems',
-];
+// Read from the real module list so adding or renaming a module can't leave this test stale.
+const MODULE_TITLES = MODULES.map((m) => m.title);
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('sidebar lists every module', async ({ page }) => {
   await page.goto('/');
   const sidebar = page.locator('#sidebar');
   for (const title of MODULE_TITLES) {
-    await expect(sidebar.getByRole('button', { name: new RegExp(title) })).toBeVisible();
+    await expect(sidebar.getByRole('button', { name: new RegExp(escape(title)) })).toBeVisible();
   }
 });
 
@@ -35,7 +35,7 @@ test('phone width: no horizontal scroll and the menu opens the drawer', async ({
   expect(scrollWidth).toBeLessThanOrEqual(375);
   const sidebar = page.locator('#sidebar');
   await expect(sidebar).not.toBeInViewport();
-  await page.getByRole('button', { name: 'Open course menu' }).click();
+  await page.getByRole('button', { name: 'Open module menu' }).click();
   await expect(sidebar).toHaveAttribute('data-open', 'true');
   await expect(sidebar).toBeInViewport();
 });
@@ -45,15 +45,15 @@ test('progress shows the published lesson count', async ({ page }) => {
   await expect(page.locator('#sidebar')).toContainText(/Progress\s*0\s*\/\s*\d+/);
 });
 
-test('desktop: the course menu can be hidden and shown again, and stays hidden on the next page', async ({ page }) => {
+test('desktop: the module menu can be hidden and shown again, and stays hidden on the next page', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 900 });
   await page.goto('/lessons/storage-account/');
   const sidebar = page.locator('#sidebar');
   await expect(sidebar).toBeVisible();
-  await page.getByRole('button', { name: 'Hide course menu' }).click();
+  await page.getByRole('button', { name: 'Hide module menu' }).click();
   await expect(sidebar).toBeHidden();
   await page.goto('/');
   await expect(page.locator('#sidebar')).toBeHidden();
-  await page.getByRole('button', { name: 'Show course menu' }).click();
+  await page.getByRole('button', { name: 'Show module menu' }).click();
   await expect(page.locator('#sidebar')).toBeVisible();
 });

@@ -1,0 +1,194 @@
+---
+title: "Bicep for a Standard logic app"
+module: delivery
+order: 1
+minutes: 10
+level: Intermediate
+summary: Split Standard into Infrastructure (ASP, storage, logic app, V2 connections and access policies in Bicep) and Code (workflows and connections.json).
+youWillLearn:
+  - How to split Standard into Infrastructure (Bicep) and Code (workflow zip)
+  - "The core Bicep resources: ASP, storage account, logic app and runtime app settings"
+  - How V2 API connections and access policies wire into connections.json
+  - When to compose Azure Verified Modules (AVM) instead of raw Bicep
+relatedArticles:
+  - title: "Securing Shared API Connections in Azure Logic Apps Standard with Access Policies"
+    url: https://dev.to/imdj/securing-shared-api-connections-in-azure-logic-apps-standard-with-access-policies-2opi
+learnLinks:
+  - title: "DevOps Deployment for Standard Workflows"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+  - title: "Secure Connections with Managed Identities"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
+  - title: "Edit Host and App Settings for Standard Logic Apps"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+  - title: "Azure Verified Modules (AVM) for Bicep"
+    url: https://azure.github.io/Azure-Verified-Modules/
+reviewStatus: draft
+lastVerified: '2026-11-25'
+---
+
+<Step id="problem" name="Click-ops doesn't scale" tag="PROBLEM">
+Creating a Standard logic app in the Azure portal quietly provisions an App Service plan, a storage account, Application Insights and a dozen runtime app settings behind the scenes.
+
+Do that by hand in dev, test and production and the environments drift. **Bicep** lets you describe the infrastructure once and deploy it the same way every time.
+
+*(Honest note: the Microsoft Learn docs' Bicep quickstart is Consumption-only. The resource types, the `functionapp,workflowapp` kind, `V2` connections, the access-policy shape, the WS1–WS3 plans and the documented app settings come from the Microsoft Learn docs. The pinned API versions, the `WorkflowStandard` tier name, `maximumElasticWorkerCount`, the extension-bundle and Application Insights app settings, ZRS and the overall Bicep layout are ours, from real deployments.)*
+</Step>
+
+<Step id="split" name="Two halves: Infrastructure and Code">
+Standard separates **infrastructure** from **code**:
+
+- **Infrastructure (Bicep)**: the **ASP**, **storage account**, **Application Insights**, **logic app** (plus runtime app settings and managed identity), **API connections** and their **access policies**.
+- **Code (workflow zip)**: your **workflows**, `host.json`, `parameters.json` and **`connections.json`**.
+
+Bicep creates the empty house and its keys; the code zip moves your workflows in.
+</Step>
+
+<Step id="plan" name="Infra 1: the App Service Plan (ASP)">
+A Standard logic app runs on an App Service plan (`Microsoft.Web/serverfarms`) with the **`WorkflowStandard`** tier and a **`WS1`**, **`WS2`** or **`WS3`** SKU:
+
+```bicep
+resource plan 'Microsoft.Web/serverfarms@2023-01-01' = {
+  name: planName
+  location: location
+  sku: {
+    name: 'WS1'
+    tier: 'WorkflowStandard'
+  }
+  properties: {
+    maximumElasticWorkerCount: 20
+  }
+}
+```
+
+Set `maximumElasticWorkerCount` to cap how far the plan can burst under load (ours).
+</Step>
+
+<Step id="storage" name="Infra 2: the storage account">
+Standard requires an Azure Storage account (`Microsoft.Storage/storageAccounts`, kind `StorageV2`) for workflow state, queues, file shares and run history:
+
+```bicep
+resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: storageName
+  location: location
+  kind: 'StorageV2'
+  sku: { name: 'Standard_LRS' }
+  properties: {
+    supportsHttpsTrafficOnly: true
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+  }
+}
+```
+
+Use `Standard_ZRS` for zone-redundant plans (ours), and add Blob, File, Table and Queue private endpoints when locking down networking.
+</Step>
+
+<Step id="site" name="Infra 3: the logic app & runtime settings">
+A Standard logic app is a **`Microsoft.Web/sites`** resource with **`kind: 'functionapp,workflowapp'`** and a **`SystemAssigned`** managed identity:
+
+```bicep
+resource logicApp 'Microsoft.Web/sites@2023-01-01' = {
+  name: logicAppName
+  location: location
+  kind: 'functionapp,workflowapp'
+  identity: { type: 'SystemAssigned' }
+  properties: {
+    serverFarmId: plan.id
+    httpsOnly: true
+    siteConfig: {
+      minTlsVersion: '1.2'
+      appSettings: [
+        { name: 'APP_KIND', value: 'workflowApp' }
+        { name: 'FUNCTIONS_EXTENSION_VERSION', value: '~4' }
+        { name: 'AzureFunctionsJobHost__extensionBundle__id',
+          value: 'Microsoft.Azure.Functions.ExtensionBundle.Workflows' }
+        { name: 'AzureWebJobsStorage', value: storageConnString }
+        { name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING', value: storageConnString }
+        { name: 'WEBSITE_CONTENTSHARE', value: toLower(logicAppName) }
+        { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConn }
+      ]
+    }
+  }
+}
+```
+</Step>
+
+<Step id="connections" name="Infra 4: V2 API connections">
+For managed connectors (SFTP, Blob, SQL, File System), Bicep provisions a **`Microsoft.Web/connections`** resource with **`kind: 'V2'`**:
+
+```bicep
+resource blobConn 'Microsoft.Web/connections@2018-07-01-preview' = {
+  name: 'azureblob-conn'
+  location: location
+  kind: 'V2'
+  properties: {
+    displayName: 'azureblob-conn'
+    api: {
+      id: subscriptionResourceId(
+        'Microsoft.Web/locations/managedApis', location, 'azureblob')
+    }
+  }
+}
+```
+
+Loop over arrays in Bicep (`[for cfg in sftpConnections: ...]`) to stamp out multiple connections cleanly *(our pattern)*.
+</Step>
+
+<Step id="access-policy" name="Infra 5: the access policy" tag="PROBLEM">
+Deploying a `V2` API connection is only half the job. Without an **access policy**, the portal warns *"Access Policies are missing"* and workflows fail at runtime (ours, from real deployments; see the related article under References).
+
+Add **`Microsoft.Web/connections/accessPolicies`** to grant the logic app's managed identity access:
+
+```bicep
+resource policy 'Microsoft.Web/connections/accessPolicies@2016-06-01' = {
+  name: '${blobConn.name}/${logicApp.name}'
+  location: location
+  properties: {
+    principal: {
+      type: 'ActiveDirectory'
+      identity: {
+        tenantId: subscription().tenantId
+        objectId: logicApp.identity.principalId
+      }
+    }
+  }
+}
+```
+</Step>
+
+<Step id="code" name="Code: workflows + connections.json">
+With the infrastructure in place, your **code zip** deploys into the logic app:
+
+- **Workflow folders** (`<workflow-name>/workflow.json`)
+- **`host.json`** and **`parameters.json`**
+- **`connections.json`** — referencing the Bicep-created `V2` API connections with **`"authentication": { "type": "ManagedServiceIdentity" }`** (replacing VS Code's 7-day local raw keys).
+
+At runtime, the logic app reads `connections.json`, presents its managed identity, and the Bicep **access policy** lets it through.
+</Step>
+
+<Step id="avm" name="Scale with modules or AVM" tag="TIP">
+Once you manage several logic apps, reuse your own Bicep modules (`[for la in logicAppNames: ...]`) or compose Microsoft's public **Azure Verified Modules (AVM)** *(our pattern)*:
+
+- `br/public:avm/res/web/serverfarm` (WS1 plan)
+- `br/public:avm/res/storage/storage-account` (with private endpoints)
+- `br/public:avm/res/web/site` (`kind: 'functionapp,workflowapp'`, VNet integration)
+
+AVM gives you secure defaults, diagnostic settings and private endpoints with far less boilerplate.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Split Standard cleanly into **Infrastructure (Bicep)** and **Code (workflow zip)**.
+- **Infra:** ASP (`WorkflowStandard` `WS1`–`WS3`), `StorageV2`, Application Insights (`Microsoft.Insights/components`), Logic App (`functionapp,workflowapp` + runtime `appSettings` + `SystemAssigned` MI), `V2` API connections and `accessPolicies`.
+- **Code:** workflows, `host.json`, `parameters.json` and `connections.json` using `ManagedServiceIdentity` against those Bicep-created connections.
+- Reuse modules or **Azure Verified Modules (AVM)** as your platform grows.
+</Step>
+
+{/*
+Sources (checked 2026-11-25):
+- https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+- https://learn.microsoft.com/en-us/azure/logic-apps/authenticate-with-managed-identity
+- https://learn.microsoft.com/en-us/azure/logic-apps/edit-app-settings-host-settings
+- https://azure.github.io/Azure-Verified-Modules/
+Verified 2026-11-25 on authenticate-with-managed-identity: Microsoft.Web/sites kind "functionapp,workflowapp" with identity SystemAssigned; Microsoft.Web/connections with "kind": "V2" for Standard (V1 for Consumption) and api.id subscriptionResourceId('Microsoft.Web/locations/managedApis', ...); Microsoft.Web/connections/accessPolicies with principal type ActiveDirectory, tenantId and objectId; Learn uses providers(...).apiVersions[0], not pinned versions. edit-app-settings-host-settings: APP_KIND workflowApp, FUNCTIONS_EXTENSION_VERSION ~4, AzureWebJobsStorage, WEBSITE_CONTENTAZUREFILECONNECTIONSTRING, WEBSITE_CONTENTSHARE; extension bundle id Microsoft.Azure.Functions.ExtensionBundle.Workflows (shown in host.json). logic-apps-pricing: WS1-WS3. devops page: raw keys expire after seven days.
+Not on the Learn pages checked, so ours: the WorkflowStandard tier name, maximumElasticWorkerCount, the AzureFunctionsJobHost__extensionBundle__id app-setting form, APPLICATIONINSIGHTS_CONNECTION_STRING, StorageV2 / Standard_ZRS, pinned API versions, the "Access Policies are missing" portal warning (the author's article), the infra-vs-code Bicep layout, array loops and AVM composition.
+*/}

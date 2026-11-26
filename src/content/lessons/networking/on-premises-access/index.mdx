@@ -1,0 +1,132 @@
+---
+title: "Reaching on-premises systems"
+module: networking
+order: 4
+minutes: 9
+level: Advanced
+summary: The ERP's database lives in the company datacenter. Reach it from a Standard workflow with a built-in connector over the network, or with a managed connector through the on-premises data gateway.
+youWillLearn:
+  - The two ways a Standard workflow reaches on-premises data
+  - When you must use the on-premises data gateway, and why it needs no VPN
+  - How the gateway connects and how to set it up
+  - The gateway rules that trip people up
+learnLinks:
+  - title: "Connect to On-premises Data Sources"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/connect-on-premises-data-sources
+  - title: "Connect to File Systems (File System connector)"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-using-file-connector
+  - title: "Install On-premises Data Gateway"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/install-on-premises-data-gateway-workflows
+  - title: "What is an on-premises data gateway?"
+    url: https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-onprem
+  - title: "Adjust communication settings for the on-premises data gateway"
+    url: https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-communication
+  - title: "Secure Traffic between Standard Workflows and Virtual Networks"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/secure-single-tenant-workflow-virtual-network-private-endpoint
+reviewStatus: draft
+---
+
+<Step id="problem" name="The ERP is in the datacenter" tag="PROBLEM">
+Each order must be written to the ERP's **SQL Server**. It runs in the company datacenter, not in Azure.
+
+The logic app runs in Azure. How does a workflow reach a database it can't see?
+</Step>
+
+<Step id="two-routes" name="Two routes">
+For a Standard workflow, there are two ways in:
+
+1. A **built-in** service provider connector, such as **SQL Server**, reaches the database **directly over the network**, with **no gateway**.
+2. A **managed** connector reaches it through the **on-premises data gateway**.
+
+The rule from Microsoft: if a **built-in** connector isn't available for your data source but a **managed** one is, you **have to** use the gateway.
+</Step>
+
+<Step id="which" name="Which route? Start with the network" tag="TIP">
+Ask one question first: **is there a network path from Azure to the datacenter**, such as a VPN or ExpressRoute?
+
+- **Yes**: use **built-in** connectors over that path (route 1).
+- **No**: use the **data gateway** (route 2). It needs **no VPN and no inbound ports**: the gateway machine only makes **outbound** connections to Azure. You then use a **managed** connector that supports the gateway, such as SQL Server or File System.
+</Step>
+
+<Step id="built-in" name="Route 1: built-in, over the network">
+Built-in connectors run inside the logic app, so they need a network path to the datacenter:
+
+- **VNet integration** routes the app's outbound calls into your virtual network, all of them by default (the VNet integration lesson in this module).
+- Your virtual network is connected to the datacenter with **ExpressRoute** or a **site-to-site VPN**. Microsoft notes that VNet integration then needs no extra configuration to reach on-premises resources.
+
+You then authenticate to the data source directly in the connection.
+</Step>
+
+<Step id="gateway" name="Route 2: the data gateway">
+The **on-premises data gateway** is software you install on a computer in your network. It supports on-premises connectors for these data sources:
+
+Apache Impala, BizTalk Server, File System, HTTP with Microsoft Entra ID, IBM DB2, IBM Informix, IBM MQ, MySQL, Oracle Database, PostgreSQL, SAP, SharePoint Server, SQL Server and Teradata.
+
+You can also build custom connectors over HTTP or HTTPS that use it.
+</Step>
+
+<Step id="how" name="How the gateway connects">
+The gateway **initiates outbound connections** to its Azure region, through Azure Relay (Service Bus messaging), and needs **no inbound connections**. Requests from the cloud arrive as responses to the gateway's own **polling** over those connections.
+
+It uses outbound ports **TCP 80, 443, 1433, 5671, 5672 and 9350–9354**. If your network forces internet traffic through a **proxy or firewall**, allow those, or the gateway can't reach its cloud service. Check its communication settings first when a new gateway won't connect.
+</Step>
+
+<Step id="setup" name="Set it up">
+1. **Install** the gateway on a local computer. Only **one** gateway per computer.
+2. In the Azure portal, create an **On-premises data gateway** resource with the **same Azure account** you used to install it, in the **same region** as the installation.
+3. In a trigger or action that needs the gateway, pick that gateway resource for the connection.
+
+Each gateway resource links to **exactly one** installation.
+</Step>
+
+<Step id="example" name="Example: from a partner's SFTP into the datacenter">
+A pattern from a production project (ours, anonymised):
+
+1. A **Recurrence** trigger runs every **5 minutes** and lists the files in a partner's **SFTP** folder.
+2. For each file, the workflow reads it, archives a copy to **Blob storage** (built-in connector), and writes it to an on-premises share with the **File System** managed connector's **Create file** action. The target folder is built from parameters: root folder, partner and a base path.
+3. It then deletes the file from the SFTP folder. If anything fails, a Catch scope logs the errors and emails support.
+
+The File System connection is created in Bicep as a `Microsoft.Web/connections` resource for the `filesystem` API, with the share's **root folder**, the **gateway** resource ID and a Windows account supplied from the pipeline's variable groups. The gateway resource sits in a **shared resource group in a separate subscription**, which the Microsoft Learn docs allow when both are in the same Microsoft Entra tenant. At deployment, the pipeline generates `connections.json` from the connections in the resource group, and the logic app reaches them with its **managed identity**.
+</Step>
+
+<Step id="file-share" name="File shares: two File System connectors">
+For files, Standard has **two** File System connectors, one per route:
+
+- **Built-in**: reaches the share **directly** through VNet integration, with **no gateway**. It needs a **Windows**-based Workflow Service Plan or ASE v3, the app setting `WEBSITE_CONTENTOVERVNET` = `1` (or the `vnetContentShareEnabled` site property), a network that can **resolve the file server's name**, and outbound **SMB on port 445**. The root folder must be a **top-level share**; reach subfolders with relative paths. Up to **20** built-in File System connections per logic app.
+- **Managed**: goes through the **data gateway**, which must be in the **same Windows domain** as the file server. That's the one the example above uses.
+
+Both work only with **Windows** file systems, and **mapped network drives** aren't supported.
+</Step>
+
+<Step id="rules" name="Rules that trip people up" tag="TIP">
+- Only the **gateway administrator** can create the Azure gateway resource; **service principals** aren't supported.
+- A workflow can use a gateway resource from **another subscription**, as long as both are in the **same Microsoft Entra tenant**.
+- But each gateway resource, and its installation, belongs to **one** subscription: you can't share it across several.
+- Save the **recovery key** you set at install. You need it to move, recover or change ownership of the gateway.
+</Step>
+
+<Step id="ha" name="High availability and cost" tag="TIP">
+Install more gateways on **other computers** and add them to the same **gateway cluster**. All connectors that use the gateway support high availability.
+
+The gateway itself costs nothing extra; normal Logic Apps pricing applies to the operations. Operations through the gateway have **payload size limits**.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- **Built-in** connector + a network path (VNet integration, then VPN or ExpressRoute): **no gateway**.
+- **Managed** connector only: you need the **on-premises data gateway**.
+- **No VPN or ExpressRoute?** The gateway still works: outbound connections only, no inbound ports.
+- The gateway connects **outbound** over Service Bus messaging; proxies and firewalls can block it.
+- One gateway per computer; one installation per gateway resource; same account and region.
+- Use a **cluster** for high availability, and keep the **recovery key** safe.
+</Step>
+
+{/*
+Sources (checked 2026-11-25, raw page text):
+- connect-on-premises-data-sources: "In Standard logic app workflows, you can directly access on-premises data sources and resources in Azure virtual networks by using built-in service provider connectors, which don't require the on-premises data gateway. Instead, you provide information that authenticates your identity and authorizes access to your data source. If a built-in service provider connector isn't available for your data source, but a managed connector is available, you have to use the on-premises data gateway."; supported data sources list (Apache Impala, BizTalk Server, File System, HTTP with Microsoft Entra ID, IBM DB2, IBM Informix, IBM MQ, MySQL, Oracle Database, PostgreSQL, SAP, SharePoint Server, SQL Server, Teradata); custom connectors over HTTP/HTTPS with REST or SOAP; "a gateway itself doesn't incur extra costs, the Azure Logic Apps pricing model applies"; payload size limits; "You can install only one data gateway per local computer"; same Azure account and subscription; "only the gateway administrator can create the gateway resource in Azure. Service principals currently aren't supported."; "Each gateway resource can link to only one gateway installation"; logic app and gateway resource can be in different subscriptions in the same Microsoft Entra tenant; "you can't share a data gateway resource or installation across multiple subscriptions"; create the resource in the same region as the installation.
+- install-on-premises-data-gateway-workflows: "The on-premises data gateway depends on Service Bus messaging to provide cloud connectivity and to establish the corresponding outbound connections to the gateway's associated Azure region. If your work environment requires that traffic goes through a proxy or firewall to access the internet, this restriction might prevent the on-premises data gateway from connecting"; gateway cluster, "install each additional gateway that's in the cluster on a different computer", "All the connectors that work with the on-premises data gateway support high availability"; recovery key "You need this key to move, recover, change ownership, or change the location for the gateway installation".
+- data-integration/gateway/service-gateway-onprem: "requires no inbound ports to your network—only outbound ports"; "The on-premises data gateway initiates outbound connections to the cloud, but requires no inbound connections. All communication from the cloud is received in responses to polling over the outbound connections."
+- data-integration/gateway/service-gateway-communication: "The gateway communicates on the following outbound ports: TCP 80, 443, 1433, 5671, 5672, and from 9350 through 9354. The gateway doesn't require inbound ports."; "The gateway relies on Azure Relay for cloud connectivity."
+- logic-apps-using-file-connector: "The File System connector currently supports only Windows file systems on Windows operating systems. Mapped network drives aren't supported. For the built-in connector, the root folder must be a top-level file share ... specify subfolders by using relative paths"; "A Standard logic app supports up to 20 built-in File System connections"; "The built-in connector can connect directly to a file share and access Azure virtual networks without an on-premises data gateway"; built-in requires "a Windows-based Workflow Service Plan or App Service Environment v3"; "set the WEBSITE_CONTENTOVERVNET app setting to 1, or enable the vnetContentShareEnabled site property. Make sure the virtual network can resolve the file server's fully qualified domain name (FQDN) and allows outbound SMB traffic on port 445"; managed: "gateway installation and file system server must exist in the same Windows domain".
+- app-service/overview-vnet-integration: "No extra configuration is required for the virtual network integration feature to reach through your virtual network to on-premises resources. You simply need to connect your virtual network to on-premises resources by using ExpressRoute or a site-to-site VPN."
+Ours: the 'start with the network' decision, the file-drop example (from the author's production project, anonymised: no client, subscription or resource names); the ERP story; VPN or ExpressRoute as the typical link from the virtual network to the datacenter (Azure networking, not stated on the Logic Apps pages); "check its communication settings first" as advice.
+*/}

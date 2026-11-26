@@ -80,12 +80,14 @@ Two databases also have their own built-in connector in Standard:
 
 <Step id="watch" name="Watch out" tag="TIP">
 - The database must be **reachable from the logic app's runtime**: for a private database, use VNet integration or the hybrid model (ours, from Microsoft's Oracle guidance).
-- the Microsoft Learn JDBC page is short: no Java version, no URL examples, no preview/GA status. **Test** with your driver and database first.
+- The Microsoft Learn JDBC page is short: no Java version, no URL examples, no preview/GA status. **Test** with your driver and database first.
+
+<Callout title="Note">The connector currently loads driver JARs only up to **Java 8**, so use the driver's Java 8 build. This has been raised with Microsoft as a support ticket; the Microsoft Learn JDBC page doesn't state a Java version. Many drivers ship separate builds: Microsoft's SQL Server driver, for example, publishes a `…jre8.jar` for Java 8 next to a `…jre11.jar`.</Callout>
 </Step>
 
 <Step id="recap" name="Recap" tag="RECAP">
 - **JDBC**: a Standard-only built-in connector for any database with a JDBC driver.
-- Driver JARs go in `lib/builtinOperationSdks/JAR` and deploy with the project.
+- Driver JARs go in `lib/builtinOperationSdks/JAR` and deploy with the project; pick the driver's **Java 8** build.
 - Connect with **URL**, **user** and **password**; use **query parameters**.
 - Prefer the **SQL Server** connector for SQL Server; Oracle can go either way.
 </Step>
@@ -102,5 +104,6 @@ Sources (checked 2026-11-24, raw page text):
 Fact-checked verbatim 2026-11-24.
 Packaging: lib/builtinOperationSdks/JAR from the project structure on create-single-tenant-workflows-visual-studio-code; zip rules and the az logicapp deployment source config-zip command from set-up-devops-deployment-single-tenant-azure-logic-apps. ojdbc11.jar and the folder names MyLogicApp/StockSync are illustrative.
 Oracle over JDBC: covered by Learn's "any JDBC-supported relational database", not documented as an Oracle example; the author has connected Oracle this way. The ojdbc driver and jdbc:oracle:thin URL format are from Oracle's JDBC documentation, not Learn.
-Not claimed: JDBC URL examples, Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL scenario, the MySQL URL (from MySQL Connector/J docs), the query-parameters advice and "store the password in app settings" are ours.
+Note in the lesson: the JDBC connector supports driver JARs only up to Java 8, found in practice and raised with Microsoft as a support ticket; not stated on Learn. Supporting example verified on sql/connect/jdbc/system-requirements-for-the-jdbc-driver: "mssql-jdbc-13.6.2.jre8.jar ... Java 8 ... Use only for applications that must run on Java 8" alongside a jre11 artifact.
+Not claimed: JDBC URL examples, official Java version, supported statement types, preview/GA status of JDBC, JDBC networking. The MySQL scenario, the MySQL URL (from MySQL Connector/J docs), the query-parameters advice and "store the password in app settings" are ours.
 */}

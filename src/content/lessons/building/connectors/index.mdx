@@ -73,13 +73,13 @@ A **managed** connection is a separate Azure resource, an **API connection**, th
 </Step>
 
 <Step id="auth" name="How they authenticate">
-Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the Microsoft Learn docs list only a password or a private key for the built-in SFTP connector, for example. Most service provider connectors currently can't use a user-assigned identity, so they use the **system-assigned** one, which Standard enables by default. SQL Server and HTTP are the exceptions.
+Depending on the connector, built-in connections can use a **connection string**, **Microsoft Entra ID** or a **managed identity**. Not all support managed identity: the Microsoft Learn docs list only a password or a private key for the built-in SFTP connector, for example. On **user-assigned** identities the Microsoft Learn docs disagree: the managed identity page says most service provider connectors can't select one (SQL Server and HTTP are the exceptions), so they use the **system-assigned** identity, which Standard enables by default. The Standard comparison page says connectors that support managed identity can use either kind, but the designer often can't select a user-assigned one, so you set it in `connections.json`.
 
 Microsoft recommends authenticating with a **managed identity** when possible.
 </Step>
 
 <Step id="network" name="Reaching private systems">
-**Built-in** service provider connectors can reach resources in your **virtual network** and on-premises data sources directly through **VNet integration** (on-premises systems reached from that network over VPN or ExpressRoute, ours), without the on-premises data gateway.
+**Built-in** service provider connectors can reach resources in your **virtual network** and on-premises data sources directly through **VNet integration** (with the network connected to on-premises over ExpressRoute or a site-to-site VPN), without the on-premises data gateway.
 
 **Managed** connectors run in multitenant Azure. To reach an on-premises system, supported managed connectors need the **on-premises data gateway**. And if your logic app accepts inbound traffic only through a private endpoint, managed webhook triggers and actions won't work: they run in the public cloud and can't call into your private network.
 </Step>
@@ -112,4 +112,5 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
 Fact-checked verbatim 2026-11-24. "1,400+ managed connectors" is from single-tenant-overview-compare.
 Not claimed: a generic per-connection throttling figure, that managed connectors use "the public internet" (Learn says "public cloud"), that every managed connection needs an access policy.
+Conflict noted 2026-11-25: authenticate-with-managed-identity "Except for the SQL Server and HTTP connectors, most built-in, service provider-based connectors currently don't support selecting user-assigned identities for authentication. Instead, you must use the system-assigned identity." vs single-tenant-overview-compare "Built-in, service provider-based connectors that support managed identity authentication can use either system-assigned or user-assigned managed identities ... The user interface has limited support for selecting user-assigned managed identities. When this option isn't available, edit the connection in your logic app project's connections.json file."
 */}

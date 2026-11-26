@@ -5,6 +5,7 @@ import { markComplete, markStepReached } from '../../lib/progress';
 import { track } from '../../lib/analytics';
 import { parseStepHash, useStepNav } from './useStepNav';
 import { StepPanel } from './StepPanel';
+import type { NextLesson } from '../../lib/catalog';
 import { Timeline } from './Timeline';
 
 export interface PlayerStep {
@@ -20,6 +21,7 @@ interface Props {
   steps: PlayerStep[];
   youWillLearn: string[];
   recap?: ReactNode;
+  next?: NextLesson | null;
 }
 
 const isTyping = (el: EventTarget | null) =>
@@ -31,12 +33,16 @@ const isInteractive = (el: EventTarget | null) =>
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props) {
+export function LessonPlayer({ slug, scene, steps, youWillLearn, recap, next = null }: Props) {
   const count = steps.length;
   const nav = useStepNav(count, typeof window === 'undefined' ? '' : window.location.hash);
-  const [paused, setPaused] = useState(false);
+  // With reduced motion the diagram starts paused (showing "Play"), so a still diagram doesn't look broken.
+  // Pressing Play or Replay is an explicit opt-in to motion for this lesson.
+  const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
+  const [paused, setPaused] = useState(reducedMotion);
   const [replayKey, setReplayKey] = useState(0);
-  const [reducedMotion] = useState(prefersReducedMotion);
+  const play = () => { setReducedMotion(false); setPaused(false); };
+  const replay = () => { play(); setReplayKey((k) => k + 1); };
   const completed = useRef(false);
   const visited = useRef(new Set<number>());
   const firstIndex = useRef(nav.index);
@@ -72,15 +78,15 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
       if (e.key === ' ' && isInteractive(e.target)) return;
       if (e.key === 'ArrowRight') nav.next();
       else if (e.key === 'ArrowLeft') nav.back();
-      else if (e.key === 'r' || e.key === 'R') setReplayKey((k) => k + 1);
+      else if (e.key === 'r' || e.key === 'R') replay();
       else if (e.key === ' ') {
         e.preventDefault();
-        setPaused((p) => !p);
+        if (paused) play(); else setPaused(true);
       } else return;
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [nav.next, nav.back]);
+  }, [nav.next, nav.back, paused]);
 
   const step = steps[nav.index];
   if (!step) return null;
@@ -92,10 +98,10 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
         <div className="player__main">
           <div className="panel stage-wrap">
             <div className="stage-toolbar">
-              <button type="button" className="btn btn--sm" onClick={() => { setPaused(false); setReplayKey((k) => k + 1); }}>
+              <button type="button" className="btn btn--sm" onClick={replay}>
                 ↻ Replay
               </button>
-              <button type="button" className="btn btn--sm" aria-pressed={paused} onClick={() => setPaused((p) => !p)}>
+              <button type="button" className="btn btn--sm" aria-pressed={paused} onClick={() => (paused ? play() : setPaused(true))}>
                 {paused ? '▶ Play' : '❚❚ Pause'}
               </button>
             </div>
@@ -112,6 +118,7 @@ export function LessonPlayer({ slug, scene, steps, youWillLearn, recap }: Props)
             onNext={nav.next}
             onBack={nav.back}
             recap={recap}
+            nextLesson={next}
           />
           {youWillLearn.length > 0 && (
             <div className="panel learn-box">

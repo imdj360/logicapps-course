@@ -57,6 +57,18 @@ export const scene: Scene = {
       highlight: ['you'],
       chips: [{ label: 'header', value: 'x-ms-client-tracking-id' }, { label: 'per action', value: 'tracked properties' }],
     },
+    'find-queries': {
+      visible: [...core, 'ai', 'you', 'app-ai', 'ai-you'],
+      highlight: ['you', 'ai-you'],
+      tokens: [{ id: 'q1', edge: 'ai-you', tone: 'ok' }],
+      chips: [{ label: 'order 4711', value: 'clientTrackingId' }, { label: 'customer', value: 'trackedProperties' }, { label: 'one run', value: 'operation_Id' }],
+    },
+    'trouble-queries': {
+      visible: [...core, 'ai', 'you', 'app-ai', 'ai-you'],
+      highlight: ['ai', 'ai-you'],
+      tokens: [{ id: 'q2', edge: 'ai-you', tone: 'ok' }],
+      chips: [{ label: 'retries', value: 'retryHistory' }, { label: 'failures', value: 'success == false', tone: 'warn' }, { label: 'slow', value: 'p95 duration' }],
+    },
     views: {
       visible: [...core, 'ai', 'app-ai'],
       highlight: ['ai'],

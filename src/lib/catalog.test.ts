@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCatalog } from './catalog';
+import { buildCatalog, nextLesson } from './catalog';
 import { lessonSchema } from '../lessons/schema';
 import type { ModuleDef } from '../data/modules';
 
@@ -59,5 +59,28 @@ describe('lessonSchema', () => {
 
   it('requires at least one learning outcome', () => {
     expect(lessonSchema.safeParse({ ...base, youWillLearn: [] }).success).toBe(false);
+  });
+});
+
+describe('nextLesson', () => {
+  const two: ModuleDef[] = [
+    { id: 'm1', number: '01', title: 'First', lessons: [{ slug: 'a', title: 'Lesson A' }, { slug: 'b', title: 'Lesson B' }, { slug: 'c', title: 'Lesson C' }] },
+    { id: 'm2', number: '02', title: 'Second', lessons: [{ slug: 'd', title: 'Lesson D' }] },
+  ];
+  const cat = buildCatalog(
+    [{ slug: 'a', reviewStatus: 'approved' }, { slug: 'b', reviewStatus: 'approved' }, { slug: 'd', reviewStatus: 'approved' }],
+    { includeDrafts: false, modules: two },
+  );
+
+  it('goes to the next lesson in the same module', () => {
+    expect(nextLesson(cat, 'a')).toMatchObject({ title: 'Lesson B', href: '/lessons/b/', newModule: false });
+  });
+
+  it('skips unpublished lessons and crosses into the next module', () => {
+    expect(nextLesson(cat, 'b')).toMatchObject({ title: 'Lesson D', moduleNumber: '02', moduleTitle: 'Second', newModule: true });
+  });
+
+  it('returns null after the last published lesson', () => {
+    expect(nextLesson(cat, 'd')).toBeNull();
   });
 });

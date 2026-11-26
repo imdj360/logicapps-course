@@ -31,7 +31,7 @@ export function Sidebar({ catalog, activeSlug }: Props) {
 
   return (
     <>
-      <div className="sidebar__head">Course <span>{total} lessons</span></div>
+      <div className="sidebar__head">Modules <span>{total} lessons</span></div>
       <ul className="modules">
         {catalog.map((m) => {
           const isOpen = open.has(m.id);

@@ -1,0 +1,107 @@
+---
+title: "Parameters per environment"
+module: delivery
+order: 3
+minutes: 9
+level: Intermediate
+summary: Promote the exact same workflow zip from dev to test to production by keeping environment-specific values in Bicep parameter files, parameters.json, app settings and Key Vault.
+youWillLearn:
+  - Why one immutable zip should never hold environment-specific values
+  - The three layers of per-environment configuration in Standard
+  - How to update app settings in a pipeline without wiping runtime settings
+  - How Key Vault references keep secrets out of parameters.json
+learnLinks:
+  - title: "Create Parameters for Workflow Inputs"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+  - title: "DevOps Deployment for Standard Workflows"
+    url: https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+  - title: "Use Key Vault References for App Service and Azure Functions"
+    url: https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references
+reviewStatus: draft
+lastVerified: '2026-11-25'
+---
+
+<Step id="problem" name="One zip, three environments" tag="PROBLEM">
+Your workflow calls an ERP endpoint, reads from a Service Bus queue and uses a partner API key. Every one of those values is different in **dev**, **test** and **production**.
+
+If you hardcode them in `workflow.json`, you have to edit and rebuild the package for each environment — which means what you deploy to production isn't what you tested.
+</Step>
+
+<Step id="three-layers" name="Three layers of environment config">
+Keep your workflow zip **identical** across environments, and split per-environment values into three clean layers:
+
+1. **Bicep parameters** (`.bicepparam` or parameter JSON): infrastructure names, SKUs, subnet prefixes and feature flags (`enableVnetIntegration`).
+2. **Workflow `parameters.json`**: non-secret workflow inputs like base URLs, queue names and retry thresholds.
+3. **App settings + Key Vault**: connection strings, secrets and runtime settings that live on the logic app itself.
+</Step>
+
+<Step id="bicepparam" name="Infrastructure per environment">
+Keep one `main.bicep` and one parameter file per environment — `dev.bicepparam`, `test.bicepparam`, `prod.bicepparam` *(our pattern)*:
+
+- **dev**: `WS1`, Standard Service Bus, public endpoints for fast iteration.
+- **test**: `WS1`, mirrors production topology and connections.
+- **prod**: `WS2` or `WS3`, zone redundancy, private endpoints and VNet integration.
+
+The template never changes; only the parameter file does.
+</Step>
+
+<Step id="workflow-params" name="Workflow parameters.json per environment">
+In a Standard project, `parameters.json` sits at the root alongside `host.json` and `connections.json`. Keep one copy per environment in your repository (`parameters.dev.json`, `parameters.test.json`, `parameters.prod.json`).
+
+In the pipeline, deploy the matching file to the target app without rebuilding the zip — Microsoft documents pushing it directly with:
+
+```bash
+az functionapp deploy --resource-group <rg> --name <app> \
+  --src-path parameters.prod.json \
+  --type static --target-path parameters.json
+```
+</Step>
+
+<Step id="appsettings-merge" name="Merge app settings safely" tag="TIP">
+A common Bicep and ARM trap: deploying `Microsoft.Web/sites/config` (`appSettings`) replaces the **entire** app settings list unless you merge with existing settings, and referencing the site from inside the same deployment can trigger an ARM circular dependency *(our production lesson)*.
+
+Two safe patterns:
+- **CLI / pipeline merge**: `az logicapp config appsettings set` or `az webapp config appsettings set` merges only the keys you pass.
+- **Bicep union**: pass `currentAppSettings` into a small `appsettings.bicep` module and write `union(currentAppSettings, appSettings)`.
+</Step>
+
+<Step id="secrets" name="Keep secrets in Key Vault">
+Standard's `parameters.json` does **not** support `securestring` or `secureobject` types. It's a plain file in your project and your zip, so anything you put in it is readable by anyone who can read the repo (ours).
+
+Instead, point `parameters.json` at an app setting (`@appsetting('PartnerApiKey')`), and set that app setting to a **Key Vault reference**:
+
+```text
+@Microsoft.KeyVault(SecretUri=https://<env-vault>.vault.azure.net/secrets/PartnerApiKey/)
+```
+
+Each environment points to its own Key Vault, read with the logic app's managed identity: the **Key Vault Secrets User** role if the vault uses Azure RBAC, or the **Get** secrets permission with access policies.
+</Step>
+
+<Step id="connections" name="Connections across environments">
+`connections.json` supports only `@parameters(...)` and `@appsetting(...)` expressions. Parameterize every host name, queue, subscription ID and resource group there so the same `connections.json` works in dev, test and prod.
+
+Each environment's Bicep provisions its own `Microsoft.Web/connections` resources and `accessPolicies` (and RBAC role assignments for built-in connectors).
+</Step>
+
+<Step id="promote" name="Promote the exact same zip">
+Now the release pipeline stays predictable:
+
+1. Build **one `app.zip`** once in CI.
+2. Deploy `app.zip` + `dev` config to **dev** and run automated tests.
+3. Promote the **exact same `app.zip`** to **test**, then **prod**, swapping only the parameter file and app settings.
+</Step>
+
+<Step id="recap" name="Recap" tag="RECAP">
+- Build **one immutable zip** and promote it unchanged across dev, test and prod.
+- Split config into **Bicep parameter files** (infra), **`parameters.json`** (workflow inputs) and **App settings + Key Vault** (secrets & connection strings).
+- Merge app settings carefully so pipelines don't wipe runtime keys.
+- Never put secrets in `parameters.json` — chain `@appsetting(...)` to a per-environment **Key Vault reference**.
+</Step>
+
+{/*
+Sources (checked 2026-11-25):
+- https://learn.microsoft.com/en-us/azure/logic-apps/create-parameters-workflows
+- https://learn.microsoft.com/en-us/azure/logic-apps/devops-deployment-single-tenant-azure-logic-apps
+- https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references
+Note: @appsetting in parameters.json, no securestring/secureobject in Standard, az functionapp deploy --type static --target-path parameters.json, and Key Vault references are verified against Learn. The .bicepparam dev/test/prod split and union(currentAppSettings, appSettings) / az webapp config appsettings set merge patterns are our real-world Bicep/pipeline practices.
+*/}

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { MODULES } from '../src/data/modules';
 
-test('hero invites you to start the course', async ({ page }) => {
+test('hero invites you to start the guide', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Logic Apps');
   const start = page.getByRole('link', { name: 'Start exploring' });
