@@ -44,12 +44,12 @@ On the logic app, under **Monitoring**, select **Alerts**, then **Create** > **A
 
 - a **signal**: one of the workflow metrics (we'd filter it to your workflow);
 - a **condition**: for example, greater than or equal to a threshold;
-- an **evaluation**: how often the rule **checks** and how far back it looks, for example check every **1 minute**, look back **5 minutes**. That's how often it looks, not how often you get paged;
+- an **evaluation**: how often the rule **checks** and how far back it looks, for example check every **5 minutes**, look back **15 minutes**. That's how often it looks, not how often you get paged. Pick it by how quickly someone will act (ours): there's no point checking every minute if nobody looks for an hour;
 - who gets notified, and how (in Azure Monitor, an action group).
 
 The Microsoft Learn worked example is for Consumption, so check the exact metric name in the portal.
 
-Under **Details** > **Advanced options**, make sure **Automatically resolve alerts** is selected. That makes the alert **stateful**: it resolves when the condition is no longer met. Without it, the alert is stateless and *"fire[s] each time the condition is met, even if alert already fired"*: with a 1-minute check, that's a page every few minutes all night.
+Under **Details** > **Advanced options**, make sure **Automatically resolve alerts** is selected. That makes the alert **stateful**: it resolves when the condition is no longer met. Without it, the alert is stateless and *"fire[s] each time the condition is met, even if alert already fired"*: with a frequent check, that's a new notification every few minutes until it's fixed.
 </Step>
 
 <Step id="delay" name="Alert on delay, not just failure" tag="TIP">
@@ -63,6 +63,8 @@ A **log alert** runs a Log Analytics query on a schedule and alerts on the resul
 LogicAppWorkflowRuntime
 | where Error != ""
 ```
+
+**Frequency costs money here.** Microsoft: each log search alert rule *"is billed based on the interval at which the log query is evaluated. More frequent query evaluation results in a higher cost."* A metric alert rule is charged by the number of time series it monitors instead. So for a log alert on a workflow that isn't urgent, check every **15 minutes** or **hourly** rather than every minute (ours).
 </Step>
 
 <Step id="health" name="Health Check">
@@ -85,6 +87,7 @@ Our recommendations: alert on **rates** rather than single failures, scope rules
 
 {/*
 Sources (checked 2026-11-24, raw page text):
+- azure-monitor/alerts/alerts-types (checked 2026-11-26): "Each metric alert rule is charged based on the number of time series that are monitored"; "Each log search alert rule is billed based on the interval at which the log query is evaluated. More frequent query evaluation results in a higher cost." alerts-create-log-alert-rule: frequency of evaluation "anywhere from one minute to one day (24 hours)". The Learn docs don't say metric alert frequency changes metric alert cost, so the lesson doesn't claim it. The 5-minute/15-minute example values and "pick it by how quickly someone will act" are ours.
 - azure-monitor/alerts/alerts-create-metric-alert-rule (ms.date 2026-07-08, checked 2026-11-26): Check every "how often the alert rule checks if the condition is met"; Lookback period "how far back to look each time the data is checked. For example, every 1 minute, look back 5 minutes"; Automatically resolve alerts "Select to make the alert stateful. When an alert is stateful, the alert is resolved when the condition is no longer met ... If you don't select this checkbox, metric alerts are stateless. Stateless alerts fire each time the condition is met, even if alert already fired"; stateless with frequency under 5 minutes: "a notification is sent somewhere between one and six minutes". (alerts-types says "Metric alerts are stateful by default"; the create page's checkbox wording differs, so the lesson says to check it rather than relying on the default.)
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-metrics
 - https://learn.microsoft.com/en-us/azure/logic-apps/view-workflow-status-run-history
