@@ -53,7 +53,7 @@ export const scene: Scene = {
       visible: [...path, 'resubmit', 'act-resubmit'],
       highlight: ['resubmit', 'act-resubmit'],
       tokens: [{ id: 'f1', edge: 'act-resubmit', tone: 'ok' }],
-      chips: [{ label: 'reruns', value: 'same version, same inputs' }, { label: 'watch for', value: 'duplicates', tone: 'warn' }],
+      chips: [{ label: 'Resubmit', value: 'same version, same inputs' }, { label: 'from an action', value: 'not in loops or branches', tone: 'warn' }, { label: 'watch for', value: 'duplicates', tone: 'warn' }],
     },
     after: {
       visible: [...path, 'resubmit', 'act-resubmit'],
