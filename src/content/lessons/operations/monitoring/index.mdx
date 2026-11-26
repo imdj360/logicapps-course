@@ -2,7 +2,7 @@
 title: Monitoring with App Insights & Log Analytics
 module: operations
 order: 2
-minutes: 11
+minutes: 14
 level: Intermediate
 summary: Run history shows one run. To see trends, search across runs and find one order among thousands, send Standard's telemetry to Application Insights or Log Analytics.
 youWillLearn:
@@ -100,6 +100,75 @@ To find **order 4711**, give the run a business ID. Pass an `x-ms-client-trackin
 For more, add **tracked properties** to an action, such as the order number and customer. They can only reference that action's own inputs and outputs, and aren't allowed on actions with secure inputs or outputs.
 </Step>
 
+<Step id="find-queries" name="Queries: find a run or an order">
+With enhanced telemetry on, these Application Insights queries follow the Microsoft Learn examples. Replace the workflow name and values with your own.
+
+The run of **order 4711**, by its client tracking ID:
+
+```kusto
+requests
+| where operation_Name == "order-intake"
+| extend correlation = todynamic(tostring(customDimensions.correlation))
+| where correlation.clientTrackingId == "4711"
+```
+
+By a tracked property, such as a customer number:
+
+```kusto
+requests
+| where operation_Name == "order-intake" and customDimensions has "trackedProperties"
+| extend trackedProperties = todynamic(tostring(customDimensions.trackedProperties))
+| where trackedProperties.customerId == "C-1001"
+```
+
+Everything one run did, including calls to other workflows:
+
+```kusto
+union requests, dependencies
+| where operation_Id contains "<runId>"
+```
+</Step>
+
+<Step id="trouble-queries" name="Queries: spot trouble">
+Actions that **retried** (from the Microsoft Learn docs):
+
+```kusto
+requests
+| extend retryHistory = tostring(customDimensions.retryHistory)
+| where isnotempty(retryHistory)
+```
+
+Calls through one **managed connector**, here Office 365 (from the Microsoft Learn docs):
+
+```kusto
+requests
+| where customDimensions.Category == "Workflow.Operations.Actions"
+    and customDimensions.actionType == "ApiConnection"
+    and customDimensions.apiName == "office365"
+```
+
+**Failed actions per workflow, per hour** (ours), using the documented `success` column:
+
+```kusto
+requests
+| where timestamp > ago(24h)
+| where customDimensions.Category == "Workflow.Operations.Actions" and success == false
+| summarize failures = count() by operation_Name, bin(timestamp, 1h)
+```
+
+**Slowest actions, by workflow** (ours), using the documented `duration` column:
+
+```kusto
+requests
+| where timestamp > ago(7d)
+| where customDimensions.Category == "Workflow.Operations.Actions"
+| summarize p95 = percentile(duration, 95) by operation_Name
+| sort by p95 desc
+```
+
+The last two answer *"was it slow last Tuesday?"* across all runs, which run history can't.
+</Step>
+
 <Step id="views" name="Live views" tag="TIP">
 With enhanced telemetry on, Application Insights also gives you **Live metrics**, the **Application map** and metrics in the `workflow.operations` namespace, such as **Runs Completed**. The logic app's **Log stream** shows the debugging output.
 </Step>
@@ -110,6 +179,7 @@ With enhanced telemetry on, Application Insights also gives you **Live metrics**
 - **requests** hold triggers and actions; `operation_Id` is the run ID.
 - **Log Analytics**: Workflow Runtime Logs into **LogicAppWorkflowRuntime**.
 - Find business transactions with a **client tracking ID** and **tracked properties**.
+- Keep a few queries ready: by tracking ID, retries, one connector, failures per hour, p95 duration.
 </Step>
 
 {/*
@@ -120,5 +190,7 @@ Sources (checked 2026-11-24, raw page text):
 - https://learn.microsoft.com/en-us/azure/logic-apps/monitor-logic-apps-overview
 - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-limits-and-config (90-day retention)
 Fact-checked verbatim 2026-11-24.
+- enable-enhanced-telemetry-standard-workflows (ms.date 2026-11-18, re-checked 2026-11-26): sample queries for clientTrackingId via todynamic(tostring(customDimensions.correlation)), trackedProperties via todynamic(tostring(customDimensions.trackedProperties)) with `customDimensions has "trackedProperties"`, `union requests, dependencies | where operation_Id contains "<runId>"`, retryHistory (Learn's sample wraps it in tostring twice; we use one), and Category == "Workflow.Operations.Actions" and actionType == "ApiConnection" and apiName == "office365"; Results columns "success: Operation execution status", "duration: Operation execution duration". Workflow name "order-intake", "4711", "customerId"/"C-1001" are our sample values (Learn uses "Request-Response-Workflow", "123456", solutionName).
+Ours: the failures-per-hour and p95-duration queries (built only from documented columns: customDimensions.Category, success, duration, operation_Name, timestamp).
 Not claimed: anything from create-monitoring-tracking-queries (Consumption only), a Standard monitoring data reference (none on Learn). The run ID in the query is Learn's sample value. "Telemetry costs money" is our framing.
 */}
